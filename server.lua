@@ -18,7 +18,7 @@ local ItemTable = {
 --- Event For Getting Recyclable Material----
 
 RegisterServerEvent("jim-recycle:getrecyclablematerial")
-AddEventHandler("og-recycle:getrecyclablematerial", function()
+AddEventHandler("jim-recycle:getrecyclablematerial", function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local amount = math.random(10, 30)
