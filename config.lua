@@ -25,9 +25,6 @@ Config['delivery'] = {
 	
 	InsideLocation = {x=993.16,y=-3097.61,z=-39.9,a=82.95},
 
-	--OfficeAccess = {x=997.45,y=-3091.94,z=-39.0},
-	--OfficeOut = {x=1173.75,y=-3196.67,z=-39.01},
-
 	SellLocation = {x=1157.49,y=-3197.64,z=-39.01,a=267.6},
 	PersonalStash = {x=994.64,y=-3100.34,z=-39.0,a=267.42}, -- Company Stash (Only Recycle Job Employees Use)
 	TradeItems = {x=1162.79,y=-3190.79,z=-39.01,a=267.42},
@@ -71,7 +68,7 @@ Config['delivery'] = {
 
 Config.Locations =  {
 	['Recycle'] = { name = "Recycle Center", location = vector3(744.68,-1401.77, 26.55-1.03), heading = 248.73, blipTrue = true, Sprite = 365, Scale = 0.8, Colour = 2, }, -- The location where you enter the mine 
-	['Trade'] = { name = "Recyclable Trader", location = vector3(996.58,-3098.45,-39.0), heading = 230.0, blipTrue = true, Sprite = 365, Scale = 0.8, Colour = 2, }, -- The location where you enter the mine 
+	['Trade'] = { name = "Recyclable Trader", location = vector3(996.58,-3098.45,-39.0-1.03), heading = 230.0, blipTrue = false, Sprite = 365, Scale = 0.8, Colour = 2, }, -- The location where you enter the mine 
 	['BottleBank'] = { name = "Bottle Bank", location = vector3(757.06, -1399.68, 26.57-1.0), heading = 178.1, blipTrue = true, Sprite = 642, Scale = 0.8, Colour = 2,}, -- The location where you enter the mine 
 	['BottleBank2'] = { name = "Bottle Bank", location = vector3(84.01,-220.32,54.64-1.0), heading = 337.89, blipTrue = true, Sprite = 642, Scale = 0.8, Colour = 2,}, -- The location where you enter the mine 
 	['BottleBank3'] = { name = "Bottle Bank", location = vector3(31.88,-1315.58,29.52-1.0), heading = 357.19, blipTrue = true, Sprite = 642, Scale = 0.8, Colour = 2,}, -- The location where you enter the mine 
@@ -102,16 +99,12 @@ Config.Prices = {
 	['iron'] = { name = 'iron', amount = 10 },
 	['rubber'] = { name = 'rubber', amount = 10 },
 	['aluminum'] = { name = 'aluminium', amount = 10 },
-	['water_bottle'] = { name = 'bottle', amount = 10 },
+	['bottle'] = { name = 'bottle', amount = 5 },
 }
 
 Config.DumpItems = {
-    "metalscrap",
-    "plastic",
-    "copper",
-    "glass",
-    "aluminum",
-    "water_bottle"
+    "bottle", "bottle", "bottle", "bottle", "bottle", "bottle", "bottle", "bottle", "bottle", 
+	"sandwich"
 }
 
 Config.tenmin = "2"

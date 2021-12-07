@@ -1,7 +1,6 @@
 
 
-QBCore = nil
-TriggerEvent('QBCore:GetObject', function(obj) QBCore = obj end)
+local QBCore = exports['qb-core']:GetCoreObject()
 
 local ItemTable = {
     "metalscrap",
@@ -13,6 +12,7 @@ local ItemTable = {
     "steel",
     "glass",
     "rubber",
+	"bottle",
 }
 
 --- Event For Getting Recyclable Material----
@@ -37,7 +37,7 @@ AddEventHandler("jim-recycle:TradeItems", function(data)
     local Player = QBCore.Functions.GetPlayer(src)
 	local randItem = ""
 	local amount = 0
-	if data.id == 1 then
+	if data == 1 then
 		if Player.Functions.GetItemByName('recyclablematerial') ~= nil and Player.Functions.GetItemByName('recyclablematerial').amount >= 9 then
 			Player.Functions.RemoveItem("recyclablematerial", 10)
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["recyclablematerial"], 'remove', 10)
@@ -57,9 +57,10 @@ AddEventHandler("jim-recycle:TradeItems", function(data)
 			Player.Functions.AddItem(randItem, amount)
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[randItem], 'add', amount)
 			else
-				TriggerClientEvent('QBCore:Notify', src, "You Don't Have Enough Items")
+				TriggerClientEvent('okokNotify:Alert', src, "Missing Item!", "You don't have enough Recyclables", 8000, 'error')
+				--TriggerClientEvent('QBCore:Notify', src, "You Don't Have Enough Items")
 			end
-	elseif data.id == 2 then
+	elseif data == 2 then
 		if Player.Functions.GetItemByName('recyclablematerial') ~= nil and Player.Functions.GetItemByName('recyclablematerial').amount >= 100 then
 			Player.Functions.RemoveItem("recyclablematerial", "100")
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["recyclablematerial"], 'remove', 100)
@@ -113,7 +114,8 @@ AddEventHandler("jim-recycle:TradeItems", function(data)
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[randItem], 'add', amount)
 			Citizen.Wait(1000)
 		else
-			TriggerClientEvent('QBCore:Notify', src, "You Do Not Have Enough Items")
+			TriggerClientEvent('okokNotify:Alert', src, "Missing Item!", "You don't have enough Recyclables", 8000, 'error')
+			--TriggerClientEvent('QBCore:Notify', src, "You Do Not Have Enough Items")
 		end
     end
 end)
@@ -136,23 +138,25 @@ AddEventHandler("jim-recycle:Selling:All", function()
         end
     end
     Citizen.Wait(1000)
-    TriggerClientEvent("QBCore:Notify", src, "Total: $"..payment.."")
+    TriggerClientEvent('okokNotify:Alert', src, "Payment received", "Total: $"..payment, 8000, 'success')
+	--TriggerClientEvent("QBCore:Notify", src, "Total: $"..payment.."")
 end)
 
 RegisterNetEvent("jim-recycle:Selling:Mat")
 AddEventHandler("jim-recycle:Selling:Mat", function(data)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-		
-    local material = data.mat 
-    if Player.Functions.GetItemByName(material) ~= nil then
-        local amount = Player.Functions.GetItemByName(material).amount
-        local pay = (amount * Config.Prices[material].amount)
-        Player.Functions.RemoveItem(material, amount)
+
+    if Player.Functions.GetItemByName(data) ~= nil then
+        local amount = Player.Functions.GetItemByName(data).amount
+        local pay = (amount * Config.Prices[data].amount)
+        Player.Functions.RemoveItem(data, amount)
         Player.Functions.AddMoney('cash', pay)
-        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[material], 'remove', amount)
+        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[data], 'remove', amount)
+		TriggerClientEvent('okokNotify:Alert', src, "Payment received", "Total: $"..pay, 8000, 'success')
     else
-        TriggerClientEvent("QBCore:Notify", src, "You don't have any "..QBCore.Shared.Items[material].label.. "", "error")
+		TriggerClientEvent('okokNotify:Alert', src, "Missing Item!", "You don't have any "..QBCore.Shared.Items[data].label, 8000, 'error')
+        --TriggerClientEvent("QBCore:Notify", src, "You don't have any "..QBCore.Shared.Items[data].label.. "", "error")
     end
     Citizen.Wait(1000)
 end)
@@ -167,7 +171,6 @@ AddEventHandler('jim-recycle:Dumpsters:Reward', function(listKey)
             local amount = math.random(1, 4)
             Player.Functions.AddItem(item, amount)
             TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[item], 'add', amount)
-            TriggerEvent("QBCore:Notify",""..amount.."")
             Citizen.Wait(500)
         end
         local Luck = math.random(1, 4)

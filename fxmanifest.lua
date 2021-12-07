@@ -6,7 +6,7 @@ game "gta5"
 
 dependencies {
 	'nh-context',
-    'bt-target',
+    'qb-target',
 }
 
 client_scripts {

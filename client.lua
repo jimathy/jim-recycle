@@ -11,14 +11,7 @@ local Keys = {
     ["HOME"] = 213, ["PAGEUP"] = 10, ["PAGEDOWN"] = 11, ["DELETE"] = 178,
     ["LEFT"] = 174, ["RIGHT"] = 175, ["TOP"] = 27, ["DOWN"] = 173,
 }
-QBCore = nil
-
-Citizen.CreateThread(function()
-    while QBCore == nil do
-        TriggerEvent('QBCore:GetObject', function(obj) QBCore = obj end)
-        Citizen.Wait(200)
-    end
-end)
+local QBCore = exports['qb-core']:GetCoreObject()
 
 
 isLoggedIn = false
@@ -286,8 +279,8 @@ function renderPropsWhereHouse()
 	SetEntityHeading(tool4,GetEntityHeading(tool4)-90)
 end
 
-RegisterNetEvent("og-recycling:removeWarehouseProps")
-AddEventHandler("og-recycling:removeWarehouseProps", function()
+RegisterNetEvent("jim-recycle:removeWarehouseProps")
+AddEventHandler("jim-recycle:removeWarehouseProps", function()
     CleanUpArea()
 end)
 
@@ -320,46 +313,45 @@ end
 
 --Recycling Center thirdeye commands
 Citizen.CreateThread(function()
-    exports['bt-target']:AddCircleZone("recycleduty", vector3(994.64,-3100.07,-39.0), 2.0, { name="recycleduty", debugPoly=false, useZ=true, },
+    exports['qb-target']:AddCircleZone("recycleduty", vector3(994.64,-3100.07,-39.0), 2.0, { name="recycleduty", debugPoly=false, useZ=true, },
     { options = { { event = "recycle:dutytoggle", icon = "fas fa-hard-hat", label = "Toggle Recycling Duty", }, },
-        job = {"all"}, distance = 1.5
+					distance = 1.5
     })
-    exports['bt-target']:AddCircleZone("tradeitems", vector3(997.08,-3098.37,-39.0), 2.0, { name="tradeitems", debugPoly=false, useZ=true, },
-    { options = { { event = "recycle:tradeten", icon = "fas fa-box", label = "Trade 10 Materials", },
-                  { event = "recycle:tradebulk", icon = "fas fa-boxes", label = "Trade 100 Materials", }, },
-        job = {"all"}, distance = 1.5
+    exports['qb-target']:AddCircleZone("tradeitems", Config.Locations['Trade'].location, 2.0, { name="tradeitems", debugPoly=false, useZ=true, },
+    { options = { { event = "jim-recycle:Trade:Menu", icon = "fas fa-box", label = "Trade Materials", }, },
+					distance = 1.5
     })
-    exports['bt-target']:AddCircleZone("sellmats", Config.Locations['Recycle'].location, 2.0, { name="sellmats", debugPoly=false, useZ=true, },
+    exports['qb-target']:AddCircleZone("sellmats", Config.Locations['Recycle'].location, 2.0, { name="sellmats", debugPoly=false, useZ=true, },
     { options = { { event = "jim-recycle:Selling:Menu", icon = "fas fa-box", label = "Sell Materials", }, },
-        job = {"all"}, distance = 2.5
+					distance = 2.5
     })
 	--Dumpster Third Eye
-	exports['bt-target']:AddTargetModel(dumpsters, { options = { { event = "jim-recycle:Dumpsters:Search", icon = "fas fa-dumpster", label = "Search Trash", }, },
-        job = {"all"}, distance = 1.5
+	exports['qb-target']:AddTargetModel(dumpsters, { options = { { event = "jim-recycle:Dumpsters:Search", icon = "fas fa-dumpster", label = "Search Trash", }, },
+					distance = 1.5
     })
-    exports['bt-target']:AddCircleZone("BottleBuyer", Config.Locations['BottleBank'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
+    exports['qb-target']:AddCircleZone("BottleBuyer", Config.Locations['BottleBank'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
     { options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", },	},
-        job = {"all"}, distance = 2.5
+					distance = 2.5
     })
-    exports['bt-target']:AddCircleZone("BottleBuyer2", Config.Locations['BottleBank2'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
+    exports['qb-target']:AddCircleZone("BottleBuyer2", Config.Locations['BottleBank2'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
     { options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", },	},
-        job = {"all"}, distance = 2.5
+					distance = 2.5
     })
-    exports['bt-target']:AddCircleZone("BottleBuyer3", Config.Locations['BottleBank3'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
+    exports['qb-target']:AddCircleZone("BottleBuyer3", Config.Locations['BottleBank3'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
     { options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", },	},
-        job = {"all"}, distance = 2.5
+					distance = 2.5
     })
-    exports['bt-target']:AddCircleZone("BottleBuyer4", Config.Locations['BottleBank4'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
+    exports['qb-target']:AddCircleZone("BottleBuyer4", Config.Locations['BottleBank4'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
     { options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", },	},
-        job = {"all"}, distance = 2.5
+					distance = 2.5
     })
-    exports['bt-target']:AddCircleZone("BottleBuyer5", Config.Locations['BottleBank5'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
+    exports['qb-target']:AddCircleZone("BottleBuyer5", Config.Locations['BottleBank5'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
     { options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", },	},
-        job = {"all"}, distance = 2.5
+					distance = 2.5
     })
-    exports['bt-target']:AddCircleZone("BottleBuyer6", Config.Locations['BottleBank6'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
+    exports['qb-target']:AddCircleZone("BottleBuyer6", Config.Locations['BottleBank6'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
     { options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", },	},
-        job = {"all"}, distance = 2.5
+					distance = 2.5
     })
 end)
 
@@ -402,7 +394,7 @@ Citizen.CreateThread(function ()
             if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z, true) < 1.3 then
                 DrawText3D(Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z + 1, "Exit The Recycle Center [~g~E~w~] ")
                 if IsControlJustReleased(0, Keys["E"]) then
-                    TriggerEvent('og-recycling:removeWarehouseProps')
+                    TriggerEvent('jim-recycle:removeWarehouseProps')
                     DoScreenFadeOut(500)
                     while not IsScreenFadedOut() do
                         Citizen.Wait(10)
@@ -450,7 +442,7 @@ Citizen.CreateThread(function ()
                                 disableCombat = true,
                             }, {}, {}, {}, function() -- Done
                                 StopAnimTask(GetPlayerPed(-1), "mp_car_bomb", "car_bomb_mechanic", 1.0)
-                                TriggerServerEvent('og-recycle:getrecyclablematerial')
+                                TriggerServerEvent('jim-recycle:getrecyclablematerial')
                                 GetRandomPackage()
                             end)
                         end
@@ -478,9 +470,11 @@ RegisterNetEvent('recycle:dutytoggle')
 AddEventHandler('recycle:dutytoggle', function()
     onDuty = not onDuty
     if onDuty then
-        TriggerEvent('QBCore:Notify', 'You Went On Duty', 'success')
+    	exports['okokNotify']:Alert("Recylcing Center", "You went on duty!", 8000, 'info')
+		--TriggerEvent('QBCore:Notify', 'You Went On Duty', 'success')
     else
-        TriggerEvent('QBCore:Notify', 'You Went Off Duty', 'error')
+    	exports['okokNotify']:Alert("Recylcing Center", "You went off duty!", 8000, 'error')
+        --TriggerEvent('QBCore:Notify', 'You Went Off Duty', 'error')
     end
 end)
 
@@ -489,7 +483,7 @@ RegisterNetEvent('jim-recycle:SellAnim')
 AddEventHandler('jim-recycle:SellAnim', function(data)
 	local pid = PlayerPedId()
 	loadAnimDict("mp_common")
-	if data.id == 1 then
+	if data == 1 then
 		TriggerServerEvent('jim-recycle:Selling:All')
 	else
 		TriggerServerEvent('jim-recycle:Selling:Mat', data)
@@ -535,45 +529,35 @@ end)
 
 --Material Buyer
 RegisterNetEvent('jim-recycle:Selling:Menu', function()
-    TriggerEvent('nh-context:sendMenu', {
-	{   id = 1, header = "Material Selling", txt = "", },
-    {   id = 2, header = "Copper", txt = "",
-		params = { event = "jim-recycle:SellAnim", args = { number = 1, mat = 'copper' } } },
-    {   id = 3, header = "Plastic",	txt = "",
-		params = { event = "jim-recycle:SellAnim", args = { number = 1, mat = 'plastic' } } },
-    {   id = 4, header = "Aluminum", txt = "",
-		params = { event = "jim-recycle:SellAnim", args = { number = 1, mat = 'aluminum' } } },
-    {   id = 5, header = "Metal Scraps", txt = "",
-		params = { event = "jim-recycle:SellAnim", args = { number = 1, mat = 'metalscrap' } } },
-    {   id = 6, header = "Steel", txt = "",
-		params = { event = "jim-recycle:SellAnim", args = { number = 1, mat = 'steel' } } },
-    {   id = 7, header = "Glass", txt = "",
-		params = { event = "jim-recycle:SellAnim", args = { number = 1, mat = 'glass' } } },
-    {   id = 8, header = "Iron", txt = "",
-		params = { event = "jim-recycle:SellAnim", args = { number = 1, mat = 'iron' } } },
-    {   id = 9, header = "Rubber",txt = "",
-		params = { event = "jim-recycle:SellAnim", args = { number = 1, mat = 'rubber' } } },
-    {   id = 10, header = "ALL", txt = "",
-		params = { event = "jim-recycle:SellAnim", args = { number = 1, id = 1 } } }, })
+    TriggerEvent('nh-context:createMenu', {
+	{ header = "Material Selling" },
+    { header = "Copper", event = "jim-recycle:SellAnim", args = { 'copper' } },
+    { header = "Plastic", event = "jim-recycle:SellAnim", args = { 'plastic' } },
+    { header = "Aluminum", event = "jim-recycle:SellAnim", args = { 'aluminum' } },
+    { header = "Metal Scraps", event = "jim-recycle:SellAnim", args = { 'metalscrap' }  },
+    { header = "Steel", event = "jim-recycle:SellAnim", args = { 'steel' } },
+    { header = "Glass", event = "jim-recycle:SellAnim", args = { 'glass' } },
+    { header = "Iron", event = "jim-recycle:SellAnim", args = { 'iron' } },
+    { header = "Rubber", event = "jim-recycle:SellAnim", args = { 'rubber' } },
+    { header = "ALL", event = "jim-recycle:SellAnim", args = { 1 } }, 
+    })
 end)
 
 --Recyclable Trader
 RegisterNetEvent('jim-recycle:Trade:Menu', function()
-    TriggerEvent('nh-context:sendMenu', {
-	{   id = 1, header = "Material Selling", txt = "", },
-    {   id = 2, header = "Trade 10 Materials", txt = "",
-		params = { event = "jim-recycle:TradeAnim",	args = { number = 1, id = 1 } } },
-    {   id = 3, header = "Trade 100 Materials", txt = "",
-		params = { event = "jim-recycle:TradeAnim",	args = { number = 1, id = 2 } } }, })
+    TriggerEvent('nh-context:createMenu', {
+	{ header = "Material Selling" },
+    { header = "Trade 10 Materials", event = "jim-recycle:TradeAnim", args = { 1 } },
+    { header = "Trade 100 Materials", event = "jim-recycle:TradeAnim", args = { 2 } },
+    })
 end)
 
 --Recyclable Trader
 RegisterNetEvent('jim-recycle:Bottle:Menu', function()
-    TriggerEvent('nh-context:sendMenu', {
-    {   id = 2, header = "Sell Bottles", txt = "",
-		params = { event = "jim-recycle:SellAnim",	args = { number = 1, mat = 'water_bottle' } } },
-    {   id = 3, header = "Trade Bottles for Glass", txt = "",
-		params = { event = "jim-recycle:SellAnim",	args = { number = 1, id = 2 } } }, })
+    TriggerEvent('nh-context:createMenu', {
+    { header = "Sell Bottles", event = "jim-recycle:SellAnim", args = { 'bottle' } },
+    { header = "Trade Bottles for Glass", event = "jim-recycle:SellAnim", args = { id = 2 } },
+    })
 end)
 
 --- 3D Text Shit---
@@ -712,23 +696,30 @@ AddEventHandler('jim-recycle:Dumpsters:Search', function()
                             dumpsterFound = true
                         end
                         if i == #searched and dumpsterFound then
-                            QBCore.Functions.Notify('Already Searched.', 'error')
+                            exports['okokNotify']:Alert("Trash bin", "Already searched.", 8000, 'warning')
+							--QBCore.Functions.Notify('Already Searched.', 'error')
                             
                         elseif i == #searched and not dumpsterFound then
                             loadAnimDict('amb@prop_human_bum_bin@base')
                             TaskPlayAnim(ped, 'amb@prop_human_bum_bin@base', 'base', 8.0, 8.0, 16000, 1, 1, 0, 0, 0)
-                            local finished = exports["taskbarskill"]:taskBar(25000,3)
-                            if finished ~= 100 then
-                                QBCore.Functions.Notify('You couldn\'t find anything.','error')
-                                table.insert(searched, dumpster)           
-                                ClearPedTasks(ped)
-                                Citizen.Wait(1000)
-                            else
-                                QBCore.Functions.Notify('You search the Trash Can','success')
+							
+							local Skillbar = exports['qb-skillbar']:GetSkillbarObject()
+							Skillbar.Start({
+								duration = math.random(2500,5000),
+								pos = math.random(10, 30),
+								width = math.random(10, 20),
+							}, function()
+                                exports['okokNotify']:Alert("Trash bin", "You search the Trash Can!", 8000, 'success')
                                 startSearching(searchTime, 'amb@prop_human_bum_bin@base', 'base', 'jim-recycle:Dumpsters:Reward')
                                 table.insert(searched, dumpster)           
                                 Citizen.Wait(1000)
-                            end
+							end, function()
+                                exports['okokNotify']:Alert("Trash bin", "You couldn\'t find anything!", 8000, 'error')
+								--QBCore.Functions.Notify('You couldn\'t find anything.','error')
+                                table.insert(searched, dumpster)           
+                                ClearPedTasks(ped)
+                                Citizen.Wait(1000)
+							end)							
                         end
                     end
                 end
