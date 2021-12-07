@@ -470,17 +470,19 @@ RegisterNetEvent('recycle:dutytoggle')
 AddEventHandler('recycle:dutytoggle', function()
     onDuty = not onDuty
     if onDuty then
-    	exports['okokNotify']:Alert("Recylcing Center", "You went on duty!", 8000, 'info')
-		--TriggerEvent('QBCore:Notify', 'You Went On Duty', 'success')
+		TriggerEvent('QBCore:Notify', 'You Went On Duty', 'success')
     else
-    	exports['okokNotify']:Alert("Recylcing Center", "You went off duty!", 8000, 'error')
-        --TriggerEvent('QBCore:Notify', 'You Went Off Duty', 'error')
+        TriggerEvent('QBCore:Notify', 'You Went Off Duty', 'error')
     end
 end)
 
 --Sell Anim small Test
 RegisterNetEvent('jim-recycle:SellAnim')
 AddEventHandler('jim-recycle:SellAnim', function(data)
+	if data == -2 then
+		exports['qb-menu']:closeMenu()
+		return
+	end	
 	local pid = PlayerPedId()
 	loadAnimDict("mp_common")
 	if data == 1 then
@@ -529,34 +531,38 @@ end)
 
 --Material Buyer
 RegisterNetEvent('jim-recycle:Selling:Menu', function()
-    TriggerEvent('nh-context:createMenu', {
-	{ header = "Material Selling" },
-    { header = "Copper", event = "jim-recycle:SellAnim", args = { 'copper' } },
-    { header = "Plastic", event = "jim-recycle:SellAnim", args = { 'plastic' } },
-    { header = "Aluminum", event = "jim-recycle:SellAnim", args = { 'aluminum' } },
-    { header = "Metal Scraps", event = "jim-recycle:SellAnim", args = { 'metalscrap' }  },
-    { header = "Steel", event = "jim-recycle:SellAnim", args = { 'steel' } },
-    { header = "Glass", event = "jim-recycle:SellAnim", args = { 'glass' } },
-    { header = "Iron", event = "jim-recycle:SellAnim", args = { 'iron' } },
-    { header = "Rubber", event = "jim-recycle:SellAnim", args = { 'rubber' } },
-    { header = "ALL", event = "jim-recycle:SellAnim", args = { 1 } }, 
+    exports['qb-menu']:openMenu({
+		{ header = "Material Selling", txt = "Sell batches of materials", isMenuHeader = true },
+		{ header = "", txt = "✘ Close", params = { event = "jim-recycle:SellAnim", args = -2 } },
+		{ header = "Copper", params = { event = "jim-recycle:SellAnim", args = 'copper' } },
+		{ header = "Plastic", params = { event = "jim-recycle:SellAnim", args = 'plastic' } },
+		{ header = "Aluminum", params = { event = "jim-recycle:SellAnim", args = 'aluminum' } },
+		{ header = "Metal Scraps", params = { event = "jim-recycle:SellAnim", args = 'metalscrap' }  },
+		{ header = "Steel", params = { event = "jim-recycle:SellAnim", args = 'steel' } },
+		{ header = "Glass", params = { event = "jim-recycle:SellAnim", args = 'glass' } },
+		{ header = "Iron", params = { event = "jim-recycle:SellAnim", args = 'iron' } },
+		{ header = "Rubber", params = { event = "jim-recycle:SellAnim", args = 'rubber' } },
+		{ header = "ALL", params = { event = "jim-recycle:SellAnim", args = 1 } }, 
     })
 end)
 
 --Recyclable Trader
 RegisterNetEvent('jim-recycle:Trade:Menu', function()
-    TriggerEvent('nh-context:createMenu', {
-	{ header = "Material Selling" },
-    { header = "Trade 10 Materials", event = "jim-recycle:TradeAnim", args = { 1 } },
-    { header = "Trade 100 Materials", event = "jim-recycle:TradeAnim", args = { 2 } },
+    exports['qb-menu']:openMenu({
+		{ header = "Material Trading", txt = "Trade collected materials", isMenuHeader = true },
+ 		{ header = "", txt = "✘ Close", params = { event = "jim-recycle:SellAnim", args = -2 } },
+		{ header = "Trade 10 Materials", params = { event = "jim-recycle:TradeAnim", args = 1 } },
+		{ header = "Trade 100 Materials", params = { event = "jim-recycle:TradeAnim", args = 2 } },
     })
 end)
 
 --Recyclable Trader
 RegisterNetEvent('jim-recycle:Bottle:Menu', function()
-    TriggerEvent('nh-context:createMenu', {
-    { header = "Sell Bottles", event = "jim-recycle:SellAnim", args = { 'bottle' } },
-    { header = "Trade Bottles for Glass", event = "jim-recycle:SellAnim", args = { id = 2 } },
+    exports['qb-menu']:openMenu({
+		{ header = "Material Selling", txt = "Sell batches of recyclables", isMenuHeader = true },
+		{ header = "", txt = "✘ Close", params = { event = "jim-recycle:SellAnim", args = -2 } },
+		{ header = "Sell Bottles", params = { event = "jim-recycle:SellAnim", args = 'bottle' } },
+		{ header = "Sell Empty Cans", params = { event = "jim-recycle:SellAnim", args = 'can' } },
     })
 end)
 
@@ -696,8 +702,7 @@ AddEventHandler('jim-recycle:Dumpsters:Search', function()
                             dumpsterFound = true
                         end
                         if i == #searched and dumpsterFound then
-                            exports['okokNotify']:Alert("Trash bin", "Already searched.", 8000, 'warning')
-							--QBCore.Functions.Notify('Already Searched.', 'error')
+							QBCore.Functions.Notify('Already Searched.', 'error')
                             
                         elseif i == #searched and not dumpsterFound then
                             loadAnimDict('amb@prop_human_bum_bin@base')
@@ -709,13 +714,12 @@ AddEventHandler('jim-recycle:Dumpsters:Search', function()
 								pos = math.random(10, 30),
 								width = math.random(10, 20),
 							}, function()
-                                exports['okokNotify']:Alert("Trash bin", "You search the Trash Can!", 8000, 'success')
+								QBCore.Functions.Notify('You search the Trash Can!','error')
                                 startSearching(searchTime, 'amb@prop_human_bum_bin@base', 'base', 'jim-recycle:Dumpsters:Reward')
                                 table.insert(searched, dumpster)           
                                 Citizen.Wait(1000)
 							end, function()
-                                exports['okokNotify']:Alert("Trash bin", "You couldn\'t find anything!", 8000, 'error')
-								--QBCore.Functions.Notify('You couldn\'t find anything.','error')
+								QBCore.Functions.Notify('You couldn\'t find anything.','error')
                                 table.insert(searched, dumpster)           
                                 ClearPedTasks(ped)
                                 Citizen.Wait(1000)

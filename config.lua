@@ -52,7 +52,6 @@ Config['delivery'] = {
 		[17] = {x=1018.2312011719,y=-3093.1293945313,z=-38.999885559082,a=177.77},
 		[18] = {x=1025.1221923828,y=-3091.4680175781,z=-38.999885559082,a=183.88},
 		[19] = {x=1024.9321289063,y=-3096.4670410156,z=-38.999885559082,a=181.36},
-		
 	},
 	
 	DropLocation = {x =999.17, y =-3112.27, z =-39.0, a = 274.810},
@@ -100,10 +99,11 @@ Config.Prices = {
 	['rubber'] = { name = 'rubber', amount = 10 },
 	['aluminum'] = { name = 'aluminium', amount = 10 },
 	['bottle'] = { name = 'bottle', amount = 5 },
+	['can'] = { name = 'bottle', amount = 5 },
 }
 
 Config.DumpItems = {
-    "bottle", "bottle", "bottle", "bottle", "bottle", "bottle", "bottle", "bottle", "bottle", 
+    "bottle", "can", "bottle", "can", "bottle", "can", "bottle", "can", "bottle", 
 	"sandwich"
 }
 

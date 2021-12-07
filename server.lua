@@ -13,6 +13,7 @@ local ItemTable = {
     "glass",
     "rubber",
 	"bottle",
+	"can",
 }
 
 --- Event For Getting Recyclable Material----
@@ -57,8 +58,7 @@ AddEventHandler("jim-recycle:TradeItems", function(data)
 			Player.Functions.AddItem(randItem, amount)
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[randItem], 'add', amount)
 			else
-				TriggerClientEvent('okokNotify:Alert', src, "Missing Item!", "You don't have enough Recyclables", 8000, 'error')
-				--TriggerClientEvent('QBCore:Notify', src, "You Don't Have Enough Items")
+				TriggerClientEvent('QBCore:Notify', src, "You Don't Have Enough Items")
 			end
 	elseif data == 2 then
 		if Player.Functions.GetItemByName('recyclablematerial') ~= nil and Player.Functions.GetItemByName('recyclablematerial').amount >= 100 then
@@ -114,8 +114,7 @@ AddEventHandler("jim-recycle:TradeItems", function(data)
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[randItem], 'add', amount)
 			Citizen.Wait(1000)
 		else
-			TriggerClientEvent('okokNotify:Alert', src, "Missing Item!", "You don't have enough Recyclables", 8000, 'error')
-			--TriggerClientEvent('QBCore:Notify', src, "You Do Not Have Enough Items")
+			TriggerClientEvent('QBCore:Notify', src, "You Do Not Have Enough Items")
 		end
     end
 end)
@@ -137,9 +136,8 @@ AddEventHandler("jim-recycle:Selling:All", function()
         payment = payment + pay
         end
     end
-    Citizen.Wait(1000)
-    TriggerClientEvent('okokNotify:Alert', src, "Payment received", "Total: $"..payment, 8000, 'success')
-	--TriggerClientEvent("QBCore:Notify", src, "Total: $"..payment.."")
+    Citizen.Wait(500)
+	TriggerClientEvent("QBCore:Notify", src, "Total: $"..payment, 'success')
 end)
 
 RegisterNetEvent("jim-recycle:Selling:Mat")
@@ -153,10 +151,9 @@ AddEventHandler("jim-recycle:Selling:Mat", function(data)
         Player.Functions.RemoveItem(data, amount)
         Player.Functions.AddMoney('cash', pay)
         TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[data], 'remove', amount)
-		TriggerClientEvent('okokNotify:Alert', src, "Payment received", "Total: $"..pay, 8000, 'success')
+        TriggerClientEvent("QBCore:Notify", src, "Payment received", "Total: $"..pay, "error")
     else
-		TriggerClientEvent('okokNotify:Alert', src, "Missing Item!", "You don't have any "..QBCore.Shared.Items[data].label, 8000, 'error')
-        --TriggerClientEvent("QBCore:Notify", src, "You don't have any "..QBCore.Shared.Items[data].label.. "", "error")
+        TriggerClientEvent("QBCore:Notify", src, "You don't have any "..QBCore.Shared.Items[data].label.. "", "error")
     end
     Citizen.Wait(1000)
 end)

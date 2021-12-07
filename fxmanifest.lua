@@ -5,7 +5,7 @@ fx_version "cerulean"
 game "gta5"
 
 dependencies {
-	'nh-context',
+	'qb-menu',
     'qb-target',
 }
 
