@@ -376,7 +376,7 @@ Citizen.CreateThread(function ()
     
             if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z, true) < 15 and not IsPedInAnyVehicle(GetPlayerPed(-1), false) and not onDuty then
 
-                DrawMarker(25, Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z, 0, 0, 0, 0, 0, 0, 1.0, 1.0, 0.5001, 98, 102, 185,100, 0, 0, 0,0)
+                --DrawMarker(25, Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z, 0, 0, 0, 0, 0, 0, 1.0, 1.0, 0.5001, 98, 102, 185,100, 0, 0, 0,0)
             if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z, true) < 1.3 then
                 DrawText3D(Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z + 1, "Exit The Recycle Center [~g~E~w~] ")
                 if IsControlJustReleased(0, 38) then
