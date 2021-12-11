@@ -359,7 +359,7 @@ Citizen.CreateThread(function ()
 
                         DrawText3D(Config['delivery'].OutsideLocation.x, Config['delivery'].OutsideLocation.y, Config['delivery'].OutsideLocation.z + 0.5, "[~g~E~w~] to enter")
 
-                        if IsControlJustReleased(0, Keys["E"]) then
+                        if IsControlJustReleased(0, 38) then
                             renderPropsWhereHouse()
                             DoScreenFadeOut(500)
                             while not IsScreenFadedOut() do
@@ -379,7 +379,7 @@ Citizen.CreateThread(function ()
                 DrawMarker(25, Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z, 0, 0, 0, 0, 0, 0, 1.0, 1.0, 0.5001, 98, 102, 185,100, 0, 0, 0,0)
             if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z, true) < 1.3 then
                 DrawText3D(Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z + 1, "Exit The Recycle Center [~g~E~w~] ")
-                if IsControlJustReleased(0, Keys["E"]) then
+                if IsControlJustReleased(0, 38) then
                     TriggerEvent('jim-recycle:removeWarehouseProps')
                     DoScreenFadeOut(500)
                     while not IsScreenFadedOut() do
@@ -405,7 +405,7 @@ Citizen.CreateThread(function ()
                 if carryPackage == nil then
                     if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, packagePos.x,packagePos.y,packagePos.z, true) < 2.3 then
                         DrawText3D(packagePos.x,packagePos.y,packagePos.z+ 1, "~g~E~w~ - Grab Junk")
-                        if IsControlJustReleased(0, Keys["E"]) then
+                        if IsControlJustReleased(0, 38) then
                             TaskStartScenarioInPlace(GetPlayerPed(-1), "PROP_HUMAN_BUM_BIN", 0, true)
                             QBCore.Functions.Progressbar("pickup_reycle_package", "Picking up the junk..", 5000, false, true, {}, {}, {}, {}, function() -- Done
                                 ClearPedTasks(GetPlayerPed(-1))
@@ -418,7 +418,7 @@ Citizen.CreateThread(function ()
                 else
                     if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config['delivery'].DropLocation.x, Config['delivery'].DropLocation.y, Config['delivery'].DropLocation.z, true) < 2.0 then
                         DrawText3D(Config['delivery'].DropLocation.x, Config['delivery'].DropLocation.y, Config['delivery'].DropLocation.z, "~g~E~w~ - Transfer to Recyclable Box")
-                        if IsControlJustReleased(0, Keys["E"]) then
+                        if IsControlJustReleased(0, 38) then
                             DropPackage()
                             ScrapAnim()
                             QBCore.Functions.Progressbar("deliver_reycle_package", "Packing into recyclable box..", 5000, false, true, {
