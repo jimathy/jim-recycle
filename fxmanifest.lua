@@ -1,4 +1,4 @@
-name "Recycle"
+name "Jim-Recycle"
 author "Jimathy"
 description "Recycling Script By Jimathy"
 fx_version "cerulean"
@@ -9,12 +9,13 @@ dependencies {
     'qb-target',
 }
 
+shared_scripts {
+	'config.lua'
+}
 client_scripts {
-    'client.lua',
-    'config.lua',
+    'client.lua'
 }
 
 server_script {
-    'server.lua',
-    'config.lua',
+    'server.lua'
 }
