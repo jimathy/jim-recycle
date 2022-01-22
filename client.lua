@@ -254,15 +254,9 @@ function renderPropsWhereHouse()
 	CreateObject(GetHashKey("ex_Prop_Crate_Closed_SC"),1006.05500000,-3091.60400000,-37.81985000,false,false,false) 
 	CreateObject(GetHashKey("ex_Prop_Crate_Bull_BC_02"),1026.75500000,-3091.59400000,-39.99757,false,false,false)
 
-	--local tool1 = CreateObject(-573669520,1022.6115112305,-3107.1694335938,-39.999912261963,false,false,false)
-	--local tool2 = CreateObject(-573669520,1022.5317382813,-3095.3305664063,-39.999912261963,false,false,false)
-	--local tool3 = CreateObject(-573669520,996.60125732422,-3099.2927246094,-39.999923706055,false,false,false)
-	local tool4 = CreateObject(-573669520,1002.0411987305,-3108.3645019531,-39.999897003174,false,false,false)
+	local tool = CreateObject(-573669520,1002.0411987305,-3108.3645019531,-39.999897003174,false,false,false)
 
-	--SetEntityHeading(tool1,GetEntityHeading(tool1)-130)
-	--SetEntityHeading(tool2,GetEntityHeading(tool2)-40)
-	--SetEntityHeading(tool3,GetEntityHeading(tool3)+90)
-	SetEntityHeading(tool4,GetEntityHeading(tool4)-90)
+	SetEntityHeading(tool4,GetEntityHeading(tool)-90)
 end
 
 RegisterNetEvent("jim-recycle:removeWarehouseProps")
@@ -315,6 +309,7 @@ Citizen.CreateThread(function()
 	exports['qb-target']:AddTargetModel(dumpsters, { options = { { event = "jim-recycle:Dumpsters:Search", icon = "fas fa-dumpster", label = "Search Trash", }, },
 					distance = 1.5
     })
+	--Bottle Selling Third Eyes
     exports['qb-target']:AddCircleZone("BottleBuyer", Config.Locations['BottleBank'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
     { options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", },	},
 					distance = 2.5
@@ -375,7 +370,6 @@ Citizen.CreateThread(function ()
             end
     
             if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z, true) < 15 and not IsPedInAnyVehicle(GetPlayerPed(-1), false) and not onDuty then
-
                 --DrawMarker(25, Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z, 0, 0, 0, 0, 0, 0, 1.0, 1.0, 0.5001, 98, 102, 185,100, 0, 0, 0,0)
             if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z, true) < 1.3 then
                 DrawText3D(Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z + 1, "Exit The Recycle Center [~g~E~w~] ")
@@ -479,14 +473,16 @@ AddEventHandler('jim-recycle:SellAnim', function(data)
 	for k,v in pairs (shopPeds) do
         pCoords = GetEntityCoords(PlayerPedId())
         ppCoords = GetEntityCoords(v)
+		ppRot = GetEntityRotation(v)
         dist = #(pCoords - ppCoords)
-        if dist < 2 then 
+			if dist < 2 then 
 			TaskPlayAnim(pid, "mp_common", "givetake2_a", 100.0, 200.0, 0.3, 120, 0.2, 0, 0, 0)
             TaskPlayAnim(v, "mp_common", "givetake2_a", 100.0, 200.0, 0.3, 120, 0.2, 0, 0, 0)
             Wait(1500)
             StopAnimTask(pid, "mp_common", "givetake2_a", 1.0)
             StopAnimTask(v, "mp_common", "givetake2_a", 1.0)
             RemoveAnimDict("mp_common")
+			SetEntityRotation(v, 0,0,ppRot.z,0,0,false)
 			break
 		end
 	end
@@ -501,14 +497,17 @@ AddEventHandler('jim-recycle:TradeAnim', function(data)
 	for k,v in pairs (shopPeds) do
         pCoords = GetEntityCoords(PlayerPedId())
         ppCoords = GetEntityCoords(v)
+		ppRot = GetEntityRotation(v)
         dist = #(pCoords - ppCoords)
-        if dist < 2 then 
+			oldRot = GetEntityRotation(v)
+			if dist < 2 then 
 			TaskPlayAnim(pid, "mp_common", "givetake2_a", 100.0, 200.0, 0.3, 120, 0.2, 0, 0, 0)
             TaskPlayAnim(v, "mp_common", "givetake2_a", 100.0, 200.0, 0.3, 120, 0.2, 0, 0, 0)
             Wait(1500)
             StopAnimTask(pid, "mp_common", "givetake2_a", 1.0)
             StopAnimTask(v, "mp_common", "givetake2_a", 1.0)
             RemoveAnimDict("mp_common")
+			SetEntityRotation(v, 0,0,ppRot.z,0,0,false)
 			break
 		end
 	end
@@ -520,14 +519,14 @@ RegisterNetEvent('jim-recycle:Selling:Menu', function()
     exports['qb-menu']:openMenu({
 		{ header = "Material Selling", txt = "Sell batches of materials", isMenuHeader = true },
 		{ header = "", txt = "✘ Close", params = { event = "jim-recycle:SellAnim", args = -2 } },
-		{ header = "Copper", params = { event = "jim-recycle:SellAnim", args = 'copper' } },
-		{ header = "Plastic", params = { event = "jim-recycle:SellAnim", args = 'plastic' } },
-		{ header = "Aluminum", params = { event = "jim-recycle:SellAnim", args = 'aluminum' } },
-		{ header = "Metal Scraps", params = { event = "jim-recycle:SellAnim", args = 'metalscrap' }  },
-		{ header = "Steel", params = { event = "jim-recycle:SellAnim", args = 'steel' } },
-		{ header = "Glass", params = { event = "jim-recycle:SellAnim", args = 'glass' } },
-		{ header = "Iron", params = { event = "jim-recycle:SellAnim", args = 'iron' } },
-		{ header = "Rubber", params = { event = "jim-recycle:SellAnim", args = 'rubber' } },
+		{ header = QBCore.Shared.Items["copper"].label, params = { event = "jim-recycle:SellAnim", args = 'copper' } },
+		{ header = QBCore.Shared.Items["plastic"].label, params = { event = "jim-recycle:SellAnim", args = 'plastic' } },
+		{ header = QBCore.Shared.Items["aluminum"].label, params = { event = "jim-recycle:SellAnim", args = 'aluminum' } },
+		{ header = QBCore.Shared.Items["metalscrap"].label, params = { event = "jim-recycle:SellAnim", args = 'metalscrap' }  },
+		{ header = QBCore.Shared.Items["steel"].label, params = { event = "jim-recycle:SellAnim", args = 'steel' } },
+		{ header = QBCore.Shared.Items["glass"].label, params = { event = "jim-recycle:SellAnim", args = 'glass' } },
+		{ header = QBCore.Shared.Items["iron"].label, params = { event = "jim-recycle:SellAnim", args = 'iron' } },
+		{ header = QBCore.Shared.Items["rubber"].label, params = { event = "jim-recycle:SellAnim", args = 'rubber' } },
 		{ header = "ALL", params = { event = "jim-recycle:SellAnim", args = 1 } }, 
     })
 end)
@@ -547,8 +546,8 @@ RegisterNetEvent('jim-recycle:Bottle:Menu', function()
     exports['qb-menu']:openMenu({
 		{ header = "Material Selling", txt = "Sell batches of recyclables", isMenuHeader = true },
 		{ header = "", txt = "✘ Close", params = { event = "jim-recycle:SellAnim", args = -2 } },
-		{ header = "Sell Bottles", params = { event = "jim-recycle:SellAnim", args = 'bottle' } },
-		{ header = "Sell Empty Cans", params = { event = "jim-recycle:SellAnim", args = 'can' } },
+		{ header = "Sell "..QBCore.Shared.Items["bottle"].label, params = { event = "jim-recycle:SellAnim", args = 'bottle' } },
+		{ header = "Sell "..QBCore.Shared.Items["can"].label, params = { event = "jim-recycle:SellAnim", args = 'can' } },
     })
 end)
 
@@ -606,11 +605,15 @@ function PickupPackage()
         Citizen.Wait(7)
     end
     TaskPlayAnim(GetPlayerPed(-1), "anim@heists@box_carry@" ,"idle", 5.0, -1, -1, 50, 0, false, false, false)
-    local model = GetHashKey("prop_cs_cardbox_01")
+	local randommodel = math.random(1,3)
+	--if randommodel == 1 then model = GetHashKey("prop_cs_cardbox_01") rot1 = 300.0 rot2 = 250.0
+	--elseif randommodel == 2 then model = GetHashKey("prop_rub_scrap_06") rot1 = 300.0 rot2 = 130.0
+	--elseif randommodel == 3 then model = GetHashKey("v_ret_gc_bag01") rot1 = 300.0 rot2 = 130.0 end
+	model = GetHashKey("prop_rub_scrap_06")
     RequestModel(model)
     while not HasModelLoaded(model) do Citizen.Wait(0) end
     local object = CreateObject(model, pos.x, pos.y, pos.z, true, true, true)
-    AttachEntityToEntity(object, GetPlayerPed(-1), GetPedBoneIndex(GetPlayerPed(-1), 57005), 0.05, 0.1, -0.3, 300.0, 250.0, 20.0, true, true, false, true, 1, true)
+    AttachEntityToEntity(object, GetPlayerPed(-1), GetPedBoneIndex(GetPlayerPed(-1), 57005), 0.05, 0.1, -0.3, 300.0, 130.0, 20.0, true, true, false, true, 1, true)
     carryPackage = object
 end
 
@@ -691,16 +694,17 @@ AddEventHandler('jim-recycle:Dumpsters:Search', function()
 							QBCore.Functions.Notify('Already Searched.', 'error')
                             
                         elseif i == #searched and not dumpsterFound then
+							TaskTurnPedToFaceEntity(ped, dumpster, 1000)
+							Wait(1000)
                             loadAnimDict('amb@prop_human_bum_bin@base')
                             TaskPlayAnim(ped, 'amb@prop_human_bum_bin@base', 'base', 8.0, 8.0, 16000, 1, 1, 0, 0, 0)
-							
 							local Skillbar = exports['qb-skillbar']:GetSkillbarObject()
 							Skillbar.Start({
 								duration = math.random(2500,5000),
 								pos = math.random(10, 30),
 								width = math.random(10, 20),
 							}, function()
-								QBCore.Functions.Notify('You search the Trash Can!','error')
+								TriggerEvent("QBCore:Notify", "You search the Trash!", "success")
                                 startSearching(searchTime, 'amb@prop_human_bum_bin@base', 'base', 'jim-recycle:Dumpsters:Reward')
                                 table.insert(searched, dumpster)           
                                 Citizen.Wait(1000)
@@ -709,7 +713,7 @@ AddEventHandler('jim-recycle:Dumpsters:Search', function()
                                 table.insert(searched, dumpster)           
                                 ClearPedTasks(ped)
                                 Citizen.Wait(1000)
-							end)							
+							end)						
                         end
                     end
                 end

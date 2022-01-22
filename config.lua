@@ -15,9 +15,6 @@ Config = {
 	EnableOpeningHours = true, -- Enable opening hours? If disabled you can always open the pawnshop.
 	OpenHour = 9, -- From what hour should the pawnshop be open?
 	CloseHour = 21, -- From what hour should the pawnshop be closed?
-	ThirdPartyStorageSystem = true, -- true for disc-inventory
-	StorageSlots = 70, -- max slots.
-	StorageWeight = 500,
 }
 
 Config['delivery'] = {
@@ -115,7 +112,7 @@ Config.bulkmax = "14"
 
 Config.PedList = { -- APPARENTLY You can call config locations IN the config, learn't that one today
 	{ model = "S_M_Y_Construct_01", coords = Config.Locations['Recycle'].location, heading = Config.Locations['Recycle'].heading, gender = "male", scenario = "WORLD_HUMAN_CLIPBOARD", }, -- Outside Mine
-	{ model = "u_m_y_militarybum", coords = Config.Locations['Trade'].location, heading = Config.Locations['Trade'].heading, gender = "male", }, --Trade
+	{ model = "S_M_Y_Construct_01", coords = Config.Locations['Trade'].location, heading = Config.Locations['Trade'].heading, gender = "male", scenario = "WORLD_HUMAN_CLIPBOARD", }, --Trade
 	{ model = "S_M_Y_Construct_01", coords = Config.Locations['BottleBank'].location, heading = Config.Locations['BottleBank'].heading, gender = "male", scenario = "WORLD_HUMAN_CLIPBOARD", }, -- Outside Mine
 	{ model = "S_M_Y_Construct_01", coords = Config.Locations['BottleBank2'].location, heading = Config.Locations['BottleBank2'].heading, gender = "male", scenario = "WORLD_HUMAN_CLIPBOARD", }, -- Outside Mine
 	{ model = "S_M_Y_Construct_01", coords = Config.Locations['BottleBank3'].location, heading = Config.Locations['BottleBank3'].heading, gender = "male", scenario = "WORLD_HUMAN_CLIPBOARD", }, -- Outside Mine

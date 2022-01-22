@@ -23,7 +23,7 @@ AddEventHandler("jim-recycle:getrecyclablematerial", function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local amount = math.random(10, 30)
-    Player.Functions.AddItem("recyclablematerial", amount)
+    Player.Functions.AddItem("recyclablematerial", amount, false, {["quality"] = nil})
     TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["recyclablematerial"], 'add', amount)
     Citizen.Wait(500)
 end)
@@ -45,17 +45,17 @@ AddEventHandler("jim-recycle:TradeItems", function(data)
 			Citizen.Wait(1000)
 			randItem = ItemTable[math.random(1, #ItemTable)]
 			amount = math.random(Config.tenmin, Config.tenmax)
-			Player.Functions.AddItem(randItem, amount)
+			Player.Functions.AddItem(randItem, amount, false, {["quality"] = nil})
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[randItem], 'add', amount)
 			randItem = ItemTable[math.random(1, #ItemTable)]
 			amount = math.random(Config.tenmin, Config.tenmax)
 			Citizen.Wait(1000)
-			Player.Functions.AddItem(randItem, amount)
+			Player.Functions.AddItem(randItem, amount, false, {["quality"] = nil})
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[randItem], 'add', amount)
 			randItem = ItemTable[math.random(1, #ItemTable)]
 			amount = math.random(Config.tenmin, Config.tenmax)
 			Citizen.Wait(1000)
-			Player.Functions.AddItem(randItem, amount)
+			Player.Functions.AddItem(randItem, amount, false, {["quality"] = nil})
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[randItem], 'add', amount)
 			else
 				TriggerClientEvent('QBCore:Notify', src, "You Don't Have Enough Items")
@@ -68,49 +68,49 @@ AddEventHandler("jim-recycle:TradeItems", function(data)
 
 			randItem = ItemTable[math.random(1, #ItemTable)]
 			amount = math.random(Config.bulkmin, Config.bulkmax)
-			Player.Functions.AddItem(randItem, amount)
+			Player.Functions.AddItem(randItem, amount, false, {["quality"] = nil})
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[randItem], 'add', amount)
 			Citizen.Wait(1000) 
 
 			randItem = ItemTable[math.random(1, #ItemTable)]
 			amount = math.random(Config.bulkmin, Config.bulkmax)
-			Player.Functions.AddItem(randItem, amount)
+			Player.Functions.AddItem(randItem, amount, false, {["quality"] = nil})
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[randItem], 'add', amount)
 			Citizen.Wait(1000)
 
 			randItem = ItemTable[math.random(1, #ItemTable)]
 			amount = math.random(Config.bulkmin, Config.bulkmax)
-			Player.Functions.AddItem(randItem, amount)
+			Player.Functions.AddItem(randItem, amount, false, {["quality"] = nil})
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[randItem], 'add', amount)
 			Citizen.Wait(1000)
 
 			randItem = ItemTable[math.random(1, #ItemTable)]
 			amount = math.random(Config.bulkmin, Config.bulkmax)
-			Player.Functions.AddItem(randItem, amount)
+			Player.Functions.AddItem(randItem, amount, false, {["quality"] = nil})
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[randItem], 'add', amount)
 			Citizen.Wait(1000)
 
 			randItem = ItemTable[math.random(1, #ItemTable)]
 			amount = math.random(Config.bulkmin, Config.bulkmax)
-			Player.Functions.AddItem(randItem, amount)
+			Player.Functions.AddItem(randItem, amount, false, {["quality"] = nil})
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[randItem], 'add', amount)
 			Citizen.Wait(1000)
 
 			randItem = ItemTable[math.random(1, #ItemTable)]
 			amount = math.random(Config.bulkmin, Config.bulkmax)       
-			Player.Functions.AddItem(randItem, amount)
+			Player.Functions.AddItem(randItem, amount, false, {["quality"] = nil})
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[randItem], 'add', amount)
 			Citizen.Wait(1000)
 			
 			randItem = ItemTable[math.random(1, #ItemTable)]
 			amount = math.random(Config.bulkmin, Config.bulkmax)
-			Player.Functions.AddItem(randItem, amount)
+			Player.Functions.AddItem(randItem, amount, false, {["quality"] = nil})
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[randItem], 'add', amount)
 			Citizen.Wait(1000)
 
 			randItem = ItemTable[math.random(1, #ItemTable)]
 			amount = math.random(Config.bulkmin, Config.bulkmax)
-			Player.Functions.AddItem(randItem, amount)
+			Player.Functions.AddItem(randItem, amount, false, {["quality"] = nil})
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[randItem], 'add', amount)
 			Citizen.Wait(1000)
 		else
@@ -151,7 +151,7 @@ AddEventHandler("jim-recycle:Selling:Mat", function(data)
         Player.Functions.RemoveItem(data, amount)
         Player.Functions.AddMoney('cash', pay)
         TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[data], 'remove', amount)
-        TriggerClientEvent("QBCore:Notify", src, "Total: $"..pay, "error")
+        TriggerClientEvent("QBCore:Notify", src, "Payment received", "Total: $"..pay, "error")
     else
         TriggerClientEvent("QBCore:Notify", src, "You don't have any "..QBCore.Shared.Items[data].label.. "", "error")
     end
@@ -166,7 +166,7 @@ AddEventHandler('jim-recycle:Dumpsters:Reward', function(listKey)
         for i = 1, math.random(1, 4), 1 do
             local item = Config.DumpItems[math.random(1, #Config.DumpItems)]
             local amount = math.random(1, 4)
-            Player.Functions.AddItem(item, amount)
+            Player.Functions.AddItem(item, amount, false, {["quality"] = nil})
             TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[item], 'add', amount)
             Citizen.Wait(500)
         end
@@ -174,7 +174,7 @@ AddEventHandler('jim-recycle:Dumpsters:Reward', function(listKey)
         local Odd = math.random(1, 4)
         if Luck == Odd then
             local random = math.random(1, 4)
-            Player.Functions.AddItem("rubber", random)
+            Player.Functions.AddItem("rubber", random, false, {["quality"] = nil})
             TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["rubber"], 'add', random)
         end
 end)
