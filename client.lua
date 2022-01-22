@@ -256,7 +256,7 @@ function renderPropsWhereHouse()
 
 	local tool = CreateObject(-573669520,1002.0411987305,-3108.3645019531,-39.999897003174,false,false,false)
 
-	SetEntityHeading(tool4,GetEntityHeading(tool)-90)
+	SetEntityHeading(tool,GetEntityHeading(tool)-90)
 end
 
 RegisterNetEvent("jim-recycle:removeWarehouseProps")
