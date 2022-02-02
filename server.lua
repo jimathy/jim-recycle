@@ -39,7 +39,7 @@ AddEventHandler("jim-recycle:TradeItems", function(data)
 	local randItem = ""
 	local amount = 0
 	if data == 1 then
-		if Player.Functions.GetItemByName('recyclablematerial') ~= nil and Player.Functions.GetItemByName('recyclablematerial').amount >= 9 then
+		if Player.Functions.GetItemByName('recyclablematerial') ~= nil and Player.Functions.GetItemByName('recyclablematerial').amount >= 10 then
 			Player.Functions.RemoveItem("recyclablematerial", 10)
 			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["recyclablematerial"], 'remove', 10)
 			Citizen.Wait(1000)
