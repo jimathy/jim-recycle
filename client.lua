@@ -386,7 +386,7 @@ local packagePos = nil
 --
 Citizen.CreateThread(function ()
     while true do
-        Citizen.Wait(7)
+        Citizen.Wait(1)
         if onDuty then
             if packagePos ~= nil then
                 local pos = GetEntityCoords(GetPlayerPed(-1), true)
