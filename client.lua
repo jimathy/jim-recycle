@@ -293,6 +293,14 @@ end
 
 --Recycling Center thirdeye commands
 Citizen.CreateThread(function()
+	exports['qb-target']:AddBoxZone("RecyclingEnter", vector3(746.82, -1398.93, 26.55), 0.4, 1.6, { name="RecyclingEnter", debugPoly=false, minZ=25.2, maxZ=28.0 },
+    { options = { { event = "expand:recyling:EnterTradeWarehouse", icon = "fas fa-recycle", label = "Enter Warehouse", }, },
+					distance = 1.5
+    })
+	exports['qb-target']:AddBoxZone("RecyclingExit", vector3(991.97, -3097.81, -39.0), 1.6, 0.4, { name="RecyclingExit", debugPoly=false, useZ=true, },
+    { options = { { event = "expand:recyling:ExitTradeWarehouse", icon = "fas fa-recycle", label = "Exit Warehouse", }, },
+					distance = 1.5
+    })
     exports['qb-target']:AddCircleZone("recycleduty", vector3(994.64,-3100.07,-39.0), 2.0, { name="recycleduty", debugPoly=false, useZ=true, },
     { options = { { event = "recycle:dutytoggle", icon = "fas fa-hard-hat", label = "Toggle Recycling Duty", }, },
 					distance = 1.5
@@ -340,51 +348,37 @@ local carryPackage = nil
 
 local onDuty = false
 
-Citizen.CreateThread(function ()
-    while true do
-        Citizen.Wait(7)
-        local pos = GetEntityCoords(GetPlayerPed(-1), true)
+RegisterNetEvent('expand:recyling:EnterTradeWarehouse')
+AddEventHandler('expand:recyling:EnterTradeWarehouse', function()
+	if Config.EnableOpeningHours then
+		local ClockTime = GetClockHours()
+		if ClockTime >= Config.OpenHour and ClockTime <= Config.CloseHour - 1 then
+			if (ClockTime >= Config.OpenHour and ClockTime < 24) or (ClockTime <= Config.CloseHour -1 and ClockTime > 0) then
+				renderPropsWhereHouse()
+				DoScreenFadeOut(500)
+				while not IsScreenFadedOut() do
+					Citizen.Wait(10)
+				end
+				SetEntityCoords(GetPlayerPed(-1), Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z)
+				DoScreenFadeIn(500)
+			else
+				QBCore.Functions.Notify('We\'re currently closed, we\'re open from 9:00am till 21:00pm', 'error')
+			end
+		else
+			QBCore.Functions.Notify('We\'re currently closed, we\'re open from 9:00am till 21:00pm', 'error')
+		end
+	end
+end)
 
-        if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config['delivery'].OutsideLocation.x, Config['delivery'].OutsideLocation.y, Config['delivery'].OutsideLocation.z, true) < 1.3 then
-
-            if Config.EnableOpeningHours then
-                local ClockTime = GetClockHours()
-                if ClockTime >= Config.OpenHour and ClockTime <= Config.CloseHour - 1 then
-                    if (ClockTime >= Config.OpenHour and ClockTime < 24) or (ClockTime <= Config.CloseHour -1 and ClockTime > 0) then
-
-                        DrawText3D(Config['delivery'].OutsideLocation.x, Config['delivery'].OutsideLocation.y, Config['delivery'].OutsideLocation.z + 0.5, "[~g~E~w~] to enter")
-
-                        if IsControlJustReleased(0, 38) then
-                            renderPropsWhereHouse()
-                            DoScreenFadeOut(500)
-                            while not IsScreenFadedOut() do
-                                Citizen.Wait(10)
-                            end
-                            SetEntityCoords(GetPlayerPed(-1), Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z)
-                            DoScreenFadeIn(500)
-                        end
-                    end
-                end
-            end
-                DrawText3D(Config['delivery'].OutsideLocation.x,Config['delivery'].OutsideLocation.y, Config['delivery'].OutsideLocation.z, "Recycle Center, opens at ~r~" .. Config.OpenHour ..":00")
-            end
-    
-            if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z, true) < 15 and not IsPedInAnyVehicle(GetPlayerPed(-1), false) and not onDuty then
-                --DrawMarker(25, Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z, 0, 0, 0, 0, 0, 0, 1.0, 1.0, 0.5001, 98, 102, 185,100, 0, 0, 0,0)
-            if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z, true) < 1.3 then
-                DrawText3D(Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z + 1, "Exit The Recycle Center [~g~E~w~] ")
-                if IsControlJustReleased(0, 38) then
-                    TriggerEvent('jim-recycle:removeWarehouseProps')
-                    DoScreenFadeOut(500)
-                    while not IsScreenFadedOut() do
-                        Citizen.Wait(10)
-                    end
-                    SetEntityCoords(GetPlayerPed(-1), Config['delivery'].OutsideLocation.x, Config['delivery'].OutsideLocation.y, Config['delivery'].OutsideLocation.z + 1)
-                    DoScreenFadeIn(500)
-                end
-            end
-        end
-    end
+RegisterNetEvent('expand:recyling:ExitTradeWarehouse')
+AddEventHandler('expand:recyling:ExitTradeWarehouse', function()
+	TriggerEvent('jim-recycle:removeWarehouseProps')
+	DoScreenFadeOut(500)
+	while not IsScreenFadedOut() do
+		Citizen.Wait(10)
+	end
+	SetEntityCoords(GetPlayerPed(-1), Config['delivery'].OutsideLocation.x, Config['delivery'].OutsideLocation.y, Config['delivery'].OutsideLocation.z + 1)
+	DoScreenFadeIn(500)
 end)
 
 local packagePos = nil
@@ -450,9 +444,9 @@ RegisterNetEvent('recycle:dutytoggle')
 AddEventHandler('recycle:dutytoggle', function()
     onDuty = not onDuty
     if onDuty then
-		TriggerEvent('QBCore:Notify', 'You Went On Duty', 'success')
+		TriggerEvent('QBCore:Notify', 'You went on duty', 'success')
     else
-        TriggerEvent('QBCore:Notify', 'You Went Off Duty', 'error')
+        TriggerEvent('QBCore:Notify', 'You went on duty', 'error')
     end
 end)
 
