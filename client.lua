@@ -350,24 +350,32 @@ local onDuty = false
 
 RegisterNetEvent('expand:recyling:EnterTradeWarehouse')
 AddEventHandler('expand:recyling:EnterTradeWarehouse', function()
-	if Config.EnableOpeningHours then
-		local ClockTime = GetClockHours()
-		if ClockTime >= Config.OpenHour and ClockTime <= Config.CloseHour - 1 then
-			if (ClockTime >= Config.OpenHour and ClockTime < 24) or (ClockTime <= Config.CloseHour -1 and ClockTime > 0) then
-				renderPropsWhereHouse()
-				DoScreenFadeOut(500)
-				while not IsScreenFadedOut() do
-					Citizen.Wait(10)
-				end
-				SetEntityCoords(GetPlayerPed(-1), Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z)
-				DoScreenFadeIn(500)
-			else
-				QBCore.Functions.Notify('We\'re currently closed, we\'re open from 9:00am till 21:00pm', 'error')
-			end
-		else
-			QBCore.Functions.Notify('We\'re currently closed, we\'re open from 9:00am till 21:00pm', 'error')
-		end
-	end
+    if Config.EnableOpeningHours then
+        local ClockTime = GetClockHours()
+        if ClockTime >= Config.OpenHour and ClockTime <= Config.CloseHour - 1 then
+            if (ClockTime >= Config.OpenHour and ClockTime < 24) or (ClockTime <= Config.CloseHour -1 and ClockTime > 0) then
+                renderPropsWhereHouse()
+                DoScreenFadeOut(500)
+                while not IsScreenFadedOut() do
+                    Citizen.Wait(10)
+                end
+                SetEntityCoords(GetPlayerPed(-1), Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z)
+                DoScreenFadeIn(500)
+            else
+                TriggerEvent("QBCore:Notify", "We're currently closed, we're open from "..Config.OpenHour..":00am till "..Config.CloseHour..":00pm", "error")
+            end
+        else
+            TriggerEvent("QBCore:Notify", "We're currently closed, we're open from 9:00am till 21:00pm", "error")
+        end
+    else
+        renderPropsWhereHouse()
+        DoScreenFadeOut(500)
+        while not IsScreenFadedOut() do
+            Citizen.Wait(10)
+        end
+        SetEntityCoords(GetPlayerPed(-1), Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z)
+        DoScreenFadeIn(500)
+    end
 end)
 
 RegisterNetEvent('expand:recyling:ExitTradeWarehouse')
