@@ -102,10 +102,10 @@ function nearPed(model, coords, heading, gender, animDict, animName, scenario)
 	if Config.MinusOne then 
 		local x, y, z = table.unpack(coords)
 		ped = CreatePed(genderNum, GetHashKey(model), x, y, z - 1, heading, false, true)
-		table.insert(shopPeds, ped)
+		shopPeds[#shopPeds+1] = ped
 	else
 		ped = CreatePed(genderNum, GetHashKey(v.model), coords, heading, false, true)
-		table.insert(shopPeds, ped)
+		shopPeds[#shopPeds+1] = ped
 	end
 	SetEntityAlpha(ped, 0, false)
 	if Config.Frozen then
@@ -350,32 +350,32 @@ local onDuty = false
 
 RegisterNetEvent('expand:recyling:EnterTradeWarehouse')
 AddEventHandler('expand:recyling:EnterTradeWarehouse', function()
-    if Config.EnableOpeningHours then
-        local ClockTime = GetClockHours()
-        if ClockTime >= Config.OpenHour and ClockTime <= Config.CloseHour - 1 then
-            if (ClockTime >= Config.OpenHour and ClockTime < 24) or (ClockTime <= Config.CloseHour -1 and ClockTime > 0) then
-                renderPropsWhereHouse()
-                DoScreenFadeOut(500)
-                while not IsScreenFadedOut() do
-                    Citizen.Wait(10)
-                end
-                SetEntityCoords(GetPlayerPed(-1), Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z)
-                DoScreenFadeIn(500)
-            else
-                TriggerEvent("QBCore:Notify", "We're currently closed, we're open from "..Config.OpenHour..":00am till "..Config.CloseHour..":00pm", "error")
-            end
-        else
-            TriggerEvent("QBCore:Notify", "We're currently closed, we're open from 9:00am till 21:00pm", "error")
-        end
-    else
-        renderPropsWhereHouse()
-        DoScreenFadeOut(500)
-        while not IsScreenFadedOut() do
-            Citizen.Wait(10)
-        end
-        SetEntityCoords(GetPlayerPed(-1), Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z)
-        DoScreenFadeIn(500)
-    end
+	if Config.EnableOpeningHours then
+		local ClockTime = GetClockHours()
+		if ClockTime >= Config.OpenHour and ClockTime <= Config.CloseHour - 1 then
+			if (ClockTime >= Config.OpenHour and ClockTime < 24) or (ClockTime <= Config.CloseHour -1 and ClockTime > 0) then
+				renderPropsWhereHouse()
+				DoScreenFadeOut(500)
+				while not IsScreenFadedOut() do
+					Citizen.Wait(10)
+				end
+				SetEntityCoords(GetPlayerPed(-1), Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z)
+				DoScreenFadeIn(500)
+			else
+				TriggerEvent("QBCore:Notify", "We're currently closed, we're open from "..Config.OpenHour..":00am till "..Config.CloseHour..":00pm", "error")
+			end
+		else
+			TriggerEvent("QBCore:Notify", "We're currently closed, we're open from 9:00am till 21:00pm", "error")
+		end
+	else
+		renderPropsWhereHouse()
+		DoScreenFadeOut(500)
+		while not IsScreenFadedOut() do
+			Citizen.Wait(10)
+		end
+		SetEntityCoords(GetPlayerPed(-1), Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z)
+		DoScreenFadeIn(500)
+	end
 end)
 
 RegisterNetEvent('expand:recyling:ExitTradeWarehouse')
@@ -385,7 +385,7 @@ AddEventHandler('expand:recyling:ExitTradeWarehouse', function()
 	while not IsScreenFadedOut() do
 		Citizen.Wait(10)
 	end
-	SetEntityCoords(GetPlayerPed(-1), Config['delivery'].OutsideLocation.x, Config['delivery'].OutsideLocation.y, Config['delivery'].OutsideLocation.z + 1)
+	SetEntityCoords(GetPlayerPed(-1), Config['delivery'].OutsideLocation.x, Config['delivery'].OutsideLocation.y, Config['delivery'].OutsideLocation.z)
 	DoScreenFadeIn(500)
 end)
 
@@ -454,7 +454,7 @@ AddEventHandler('recycle:dutytoggle', function()
     if onDuty then
 		TriggerEvent('QBCore:Notify', 'You went on duty', 'success')
     else
-        TriggerEvent('QBCore:Notify', 'You went on duty', 'error')
+        TriggerEvent('QBCore:Notify', 'You went off duty', 'error')
     end
 end)
 
@@ -631,8 +631,6 @@ end
 -----------------------------------------------------
 --Dumpster Stuff
 
-
-
 --Search animations
 function startSearching(time, dict, anim, cb)
     local animDict = dict
@@ -708,11 +706,11 @@ AddEventHandler('jim-recycle:Dumpsters:Search', function()
 							}, function()
 								TriggerEvent("QBCore:Notify", "You search the Trash!", "success")
                                 startSearching(searchTime, 'amb@prop_human_bum_bin@base', 'base', 'jim-recycle:Dumpsters:Reward')
-                                table.insert(searched, dumpster)           
+                                searched[i+1] = dumpster
                                 Citizen.Wait(1000)
 							end, function()
 								QBCore.Functions.Notify('You couldn\'t find anything.','error')
-                                table.insert(searched, dumpster)           
+                                searched[i+1] = dumpster
                                 ClearPedTasks(ped)
                                 Citizen.Wait(1000)
 							end)						
