@@ -141,7 +141,7 @@ end
 ---- Render Props -------
 
 
-function renderPropsWhereHouse()
+function renderPropsWareHouse()
 	CreateObject(GetHashKey("ex_prop_crate_bull_sc_02"),1003.63013,-3108.50415,-39.9669662,false,false,false)
 	CreateObject(GetHashKey("ex_prop_crate_wlife_bc"),1018.18011,-3102.8042,-39.99757,false,false,false)
 	CreateObject(GetHashKey("ex_prop_crate_closed_bc"),1006.05511,-3096.954,-37.8179666,false,false,false)
@@ -271,7 +271,7 @@ function CleanUpArea()
     local success
     repeat
         local pos = GetEntityCoords(ObjectFound)
-        local distance = GetDistanceBetweenCoords(plycoords, pos, true)
+        local distance = #(vector3(plycoords) - vector3(pos))
         if distance < 50.0 and ObjectFound ~= playerped then
         	if IsEntityAPed(ObjectFound) then
         		if IsPedAPlayer(ObjectFound) then
@@ -354,7 +354,7 @@ AddEventHandler('expand:recyling:EnterTradeWarehouse', function()
 		local ClockTime = GetClockHours()
 		if ClockTime >= Config.OpenHour and ClockTime <= Config.CloseHour - 1 then
 			if (ClockTime >= Config.OpenHour and ClockTime < 24) or (ClockTime <= Config.CloseHour -1 and ClockTime > 0) then
-				renderPropsWhereHouse()
+				renderPropsWareHouse()
 				DoScreenFadeOut(500)
 				while not IsScreenFadedOut() do
 					Citizen.Wait(10)
@@ -368,7 +368,7 @@ AddEventHandler('expand:recyling:EnterTradeWarehouse', function()
 			TriggerEvent("QBCore:Notify", "We're currently closed, we're open from 9:00am till 21:00pm", "error")
 		end
 	else
-		renderPropsWhereHouse()
+		renderPropsWareHouse()
 		DoScreenFadeOut(500)
 		while not IsScreenFadedOut() do
 			Citizen.Wait(10)
@@ -385,6 +385,9 @@ AddEventHandler('expand:recyling:ExitTradeWarehouse', function()
 	while not IsScreenFadedOut() do
 		Citizen.Wait(10)
 	end
+	if onDuty then
+		TriggerEvent('recycle:dutytoggle')
+	end
 	SetEntityCoords(GetPlayerPed(-1), Config['delivery'].OutsideLocation.x, Config['delivery'].OutsideLocation.y, Config['delivery'].OutsideLocation.z)
 	DoScreenFadeIn(500)
 end)
@@ -399,7 +402,7 @@ Citizen.CreateThread(function ()
             if packagePos ~= nil then
                 local pos = GetEntityCoords(GetPlayerPed(-1), true)
                 if carryPackage == nil then
-                    if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, packagePos.x,packagePos.y,packagePos.z, true) < 2.3 then
+                    if #(vector3(pos.x, pos.y, pos.z) - vector3(packagePos.x,packagePos.y,packagePos.z)) < 2.3 then
                         DrawText3D(packagePos.x,packagePos.y,packagePos.z+ 1, "~g~E~w~ - Grab Junk")
                         if IsControlJustReleased(0, 38) then
                             TaskStartScenarioInPlace(GetPlayerPed(-1), "PROP_HUMAN_BUM_BIN", 0, true)
@@ -408,11 +411,11 @@ Citizen.CreateThread(function ()
                                 PickupPackage()
                             end)
                         end
-                    else
+                    elseif #(vector3(pos.x, pos.y, pos.z) - vector3(packagePos.x,packagePos.y,packagePos.z)) < 100 then
                         DrawText3D(packagePos.x, packagePos.y, packagePos.z + 1, "Pallet")
                     end
                 else
-                    if GetDistanceBetweenCoords(pos.x, pos.y, pos.z, Config['delivery'].DropLocation.x, Config['delivery'].DropLocation.y, Config['delivery'].DropLocation.z, true) < 2.0 then
+                    if #(vector3(pos.x, pos.y, pos.z) - vector3(Config['delivery'].DropLocation.x, Config['delivery'].DropLocation.y, Config['delivery'].DropLocation.z)) < 2.0 then
                         DrawText3D(Config['delivery'].DropLocation.x, Config['delivery'].DropLocation.y, Config['delivery'].DropLocation.z, "~g~E~w~ - Transfer to Recyclable Box")
                         if IsControlJustReleased(0, 38) then
                             DropPackage()
@@ -681,7 +684,7 @@ AddEventHandler('jim-recycle:Dumpsters:Search', function()
             for i = 1, #dumpsters do
                 local dumpster = GetClosestObjectOfType(pos.x, pos.y, pos.z, 1.0, dumpsters[i], false, false, false)
                 local dumpPos = GetEntityCoords(dumpster)
-                local dist = GetDistanceBetweenCoords(pos.x, pos.y, pos.z, dumpPos.x, dumpPos.y, dumpPos.z, true)
+                local dist = #(vector3(pos.x, pos.y, pos.z) - vector3(dumpPos.x, dumpPos.y, dumpPos.z))
                 local playerPed = PlayerPedId()
 
                 if dist < 1.8 then
