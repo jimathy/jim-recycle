@@ -151,7 +151,7 @@ AddEventHandler("jim-recycle:Selling:Mat", function(data)
         Player.Functions.RemoveItem(data, amount)
         Player.Functions.AddMoney('cash', pay)
         TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[data], 'remove', amount)
-        TriggerClientEvent("QBCore:Notify", src, "Payment received", "Total: $"..pay, "error")
+        TriggerClientEvent("QBCore:Notify", src, "Payment received. Total: $"..pay, "success")
     else
         TriggerClientEvent("QBCore:Notify", src, "You don't have any "..QBCore.Shared.Items[data].label.. "", "error")
     end
