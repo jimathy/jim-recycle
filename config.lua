@@ -3,7 +3,7 @@ print("Jim-Recycle - Recycling Script by Jimathy")
 Config = {}
 
 Config = {
-	Debug = true, -- Toggle Debug Mode
+	Debug = false, -- Toggle Debug Mode
 	Blips = true, -- Enable Blips?
 	BlipNamer = false, -- Enable to Name Blips different things, disable if you already have too many blips as this will group them together
 	Pedspawn = true, -- Do you want to spawn peds for main locations?
