@@ -11,345 +11,217 @@ local searchTime = 2000
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded')
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
-    isLoggedIn = true
-    PlayerJob = QBCore.Functions.GetPlayerData().job
+    QBCore.Functions.GetPlayerData(function(PlayerData) PlayerJob = PlayerData.job if PlayerData.job.onduty then if PlayerData.job.name == Config.JobRole then TriggerServerEvent("QBCore:ToggleDuty") end end end)
 end)
 
-RegisterNetEvent('QBCore:Client:OnPlayerUnload')
-AddEventHandler('QBCore:Client:OnPlayerUnload', function()
-    isLoggedIn = false
+local onDuty = false
+RegisterNetEvent('QBCore:Client:SetDuty') AddEventHandler('QBCore:Client:SetDuty', function(duty) onDuty = duty end)
+
+AddEventHandler('onResourceStart', function(resource)
+    if GetCurrentResourceName() == resource then QBCore.Functions.GetPlayerData(function(PlayerData) PlayerJob = PlayerData.job if PlayerData.job.name == Config.JobRole then onDuty = PlayerJob.onduty end end) end
 end)
 
-RegisterNetEvent('QBCore:Client:OnJobUpdate')
-AddEventHandler('QBCore:Client:OnJobUpdate', function(JobInfo)
-    PlayerJob = JobInfo
-end)
-
---- blips here
-Citizen.CreateThread(function()
-    if Config.Blips == true then
-		CreateBlips()
-	end
-end)
-Citizen.CreateThread(function()
-	if Config.Pedspawn == true then
-		CreatePeds()
-	end
-end)
-
-function CreateBlips()
-	for k, v in pairs(Config.Locations) do
-		if Config.Locations[k].blipTrue then
-			local blip = AddBlipForCoord(v.location)
-			SetBlipAsShortRange(blip, true)
-			SetBlipSprite(blip, v.Sprite)
-			SetBlipColour(blip, v.Colour)
-			SetBlipScale(blip, v.Scale)
-			SetBlipDisplay(blip, 6)
-
-			BeginTextCommandSetBlipName('STRING')
-			if Config.BlipNamer then
-				AddTextComponentString(v.name)
-			else
-				AddTextComponentString("Recycling")
-			end
-			EndTextCommandSetBlipName(blip)
-		end
-	end
-end
-
------------------------------------------------------------------
---PedSpawning Locations
 local peds = {}
 local shopPeds = {}
-function CreatePeds()
-	while true do
-		Citizen.Wait(500)
-		for k = 1, #Config.PedList, 1 do
-			v = Config.PedList[k]
-			local playerCoords = GetEntityCoords(PlayerPedId())
-			local dist = #(playerCoords - v.coords)
-			if dist < Config.Distance and not peds[k] then
-				local ped = nearPed(v.model, v.coords, v.heading, v.gender, v.animDict, v.animName, v.scenario)
-				peds[k] = {ped = ped}
-			end
-			if dist >= Config.Distance and peds[k] then
-				if Config.Fade then
-					for i = 255, 0, -51 do
-						Citizen.Wait(50)
-						SetEntityAlpha(peds[k].ped, i, false)
-					end
-				end
-				DeletePed(peds[k].ped)
-				peds[k] = nil
+--- Blips + Peds here
+CreateThread(function()
+	--if Config.Pedspawn then	CreatePeds() end
+    if Config.Blips then
+		for k, v in pairs(Config.Locations) do
+			if Config.Locations[k].blipTrue then
+				local blip = AddBlipForCoord(v.location.x,v.location.y,v.location.z)
+				SetBlipAsShortRange(blip, true)
+				SetBlipSprite(blip, v.Sprite)
+				SetBlipColour(blip, v.Colour)
+				SetBlipScale(blip, v.Scale)
+				SetBlipDisplay(blip, 6)
+				BeginTextCommandSetBlipName('STRING')
+				if Config.BlipNamer then AddTextComponentString(v.name)
+				else AddTextComponentString("Recycling")
+				end	EndTextCommandSetBlipName(blip)
 			end
 		end
 	end
-end
-
-function nearPed(model, coords, heading, gender, animDict, animName, scenario)
-	RequestModel(GetHashKey(model))
-	while not HasModelLoaded(GetHashKey(model)) do
-		Citizen.Wait(1)
-	end
-	if gender == 'male' then
-		genderNum = 4
-	elseif gender == 'female' then 
-		genderNum = 5
-	else
-		print("No gender provided! Check your configuration!")
-	end
-	if Config.MinusOne then 
-		local x, y, z = table.unpack(coords)
-		ped = CreatePed(genderNum, GetHashKey(model), x, y, z - 1, heading, false, true)
-		shopPeds[#shopPeds+1] = ped
-	else
-		ped = CreatePed(genderNum, GetHashKey(v.model), coords, heading, false, true)
-		shopPeds[#shopPeds+1] = ped
-	end
-	SetEntityAlpha(ped, 0, false)
-	if Config.Frozen then
-		FreezeEntityPosition(ped, true) --Don't let the ped move.
-	end
-	if Config.Invincible then
-		SetEntityInvincible(ped, true) --Don't let the ped die.
-	end
-	if Config.Stoic then
-		SetBlockingOfNonTemporaryEvents(ped, true) --Don't let the ped react to his surroundings.
-	end
-	--Add an animation to the ped, if one exists.
-	if animDict and animName then
-		RequestAnimDict(animDict)
-		while not HasAnimDictLoaded(animDict) do
-			Citizen.Wait(1)
-		end
-		TaskPlayAnim(ped, animDict, animName, 8.0, 0, -1, 1, 0, 0, 0)
-	end
-	if scenario then
-		TaskStartScenarioInPlace(ped, scenario, 0, true) -- begins peds animation
-	end
-	if Config.Fade then
-		for i = 0, 255, 51 do
-			Citizen.Wait(50)
-			SetEntityAlpha(ped, i, false)
+	if Config.Pedspawn then
+		for k, v in pairs(Config.PedList) do
+			RequestModel(v.model) while not HasModelLoaded(v.model) do Wait(0) end
+			peds[#peds+1] = CreatePed(0, v.model, v.coords.x, v.coords.y, v.coords.z, v.coords[4], false, false)
+			shopPeds[#shopPeds+1] = peds[#peds]
+			SetEntityInvincible(peds[#peds], true)
+			SetBlockingOfNonTemporaryEvents(peds[#peds], true)
+			FreezeEntityPosition(peds[#peds], true)
+			TaskStartScenarioInPlace(peds[#peds], v.scenario, 0, true)
+			if Config.Debug then print("Ped Created") end
 		end
 	end
-	return ped
-end
-
-
----- Render Props -------
-
-
-function renderPropsWareHouse()
-	CreateObject(GetHashKey("ex_prop_crate_bull_sc_02"),1003.63013,-3108.50415,-39.9669662,false,false,false)
-	CreateObject(GetHashKey("ex_prop_crate_wlife_bc"),1018.18011,-3102.8042,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_prop_crate_closed_bc"),1006.05511,-3096.954,-37.8179666,false,false,false)
-	CreateObject(GetHashKey("ex_prop_crate_wlife_sc"),1003.63013,-3102.8042,-37.81769,false,false,false)
-	CreateObject(GetHashKey("ex_prop_crate_jewels_racks_sc"),1003.63013,-3091.604,-37.8179666,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_BC"),1013.330000003,-3102.80400000,-35.62896000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_BC"),1015.75500000,-3102.80400000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_BC"),1015.75500000,-3102.80400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Jewels_BC"),1018.18000000,-3091.60400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_BC"),1026.75500000,-3111.38400000,-37.81797000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Jewels_BC"),1003.63000000,-3091.60400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Jewels_BC"),1026.75500000,-3106.52900000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_BC"),1026.75500000,-3106.52900000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Art_02_SC"),1010.90500000,-3108.50400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Art_BC"),1013.33000000,-3108.50400000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Art_BC"),1015.75500000,-3108.50400000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Bull_SC_02"),1010.90500000,-3096.95400000,-39.86697000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Art_SC"),993.35510000,-3111.30400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Art_BC"),993.35510000,-3108.95400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Gems_SC"),1013.33000000,-3096.95400000,-37.8177600,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_clothing_BC"),1018.180000000,-3096.95400000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_clothing_BC"),1008.48000000,-3096.95400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Gems_BC"),1003.63000000,-3108.50400000,-35.61234000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Narc_BC"),1026.75500000,-3091.59400000,-37.81797000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Narc_BC"),1026.75500000,-3091.59400000,-37.81797000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Elec_SC"),1008.48000000,-3108.50400000,-37.81797000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Tob_SC"),1018.18000000,-3096.95400000,-37.81240000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Wlife_BC"),1018.18000000,-3091.60400000,-35.74857000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Med_BC"),1008.48000000,-3091.60400000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Elec_SC"),1013.33000000,-3108.50400000,-37.81797000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_BC"),1026.75500000,-3108.88900000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_biohazard_BC"),1010.90500000,-3102.80400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Wlife_BC"),1015.75500000,-3091.60400000,-35.74857000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_biohazard_BC"),1003.63000000,-3108.50400000,-37.81561000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Elec_BC"),1008.48000000,-3096.954000000,-35.60529000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Bull_BC_02"),1006.05500000,-3108.50400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_RW"),1013.33000000,-3091.60400000,-37.81797000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Narc_SC"),1026.75500000,-3094.014000000,-37.81684000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Art_BC"),1015.75500000,-3108.50400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Elec_BC"),1010.90500000,-3096.95400000,-35.60529000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Ammo_BC"),1013.33000000,-3102.80400000,-37.81427000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Money_BC"),1003.63000000,-3096.95400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Gems_BC"),1003.63000000,-3096.95400000,-37.81187000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_BC"),1010.90500000,-3091.60400000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_furJacket_BC"),1013.33000000,-3091.60400000,-35.74885000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_furJacket_BC"),1026.75500000,-3091.59400000,-35.74885000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_furJacket_BC"),1026.75500000,-3094.0140000,-35.74885000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_furJacket_BC"),1026.75500000,-3096.43400000,-35.74885000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_clothing_SC"),1013.33000000,-3091.604000000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_biohazard_SC"),1006.05500000,-3108.50400000,-37.81576000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Elec_BC"),993.35510000,-3106.60400000,-35.60529000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_BC"),1026.75500000,-3111.38400000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Bull_BC_02"),1026.75500000,-3096.4340000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_BC"),1015.75500000,-3096.95400000,-37.81797000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_HighEnd_pharma_BC"),1003.63000000,-3091.60400000,-35.62571000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_HighEnd_pharma_SC"),1015.75500000,-3091.60400000,-37.81797000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Art_02_BC"),1013.330000000,-3096.95400000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Gems_SC"),1018.18000000,-3102.80400000,-37.81776000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Art_02_BC"),1013.33000000,-3108.50400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Gems_BC"),1018.18000000,-3108.50400000,-37.81234000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Tob_BC"),1010.90500000,-3108.50400000,-35.75240000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Med_SC"),1026.75500000,-3108.88900000,-37.81797000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Money_SC"),1010.90500000,-3091.60400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Med_SC"),1008.48000000,-3091.60400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Art_02_BC"),1018.180000000,-3108.50400000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Bull_SC_02"),1008.48000000,-3108.50400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Art_02_BC"),993.35510000,-3106.60400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_BC"),1008.480000000,-3102.804000000,-37.81797000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Elec_BC"),993.35510000,-3111.30400000,-35.60529000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_HighEnd_pharma_BC"),1018.18000000,-3091.60400000,-37.81572000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Gems_BC"),1015.75500000,-3102.80400000,-37.81234000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Jewels_racks_BC"),1003.63000000,-3102.80400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Money_SC"),1006.05500000,-3096.95400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_BC"),1003.630000000,-3096.95400000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_furJacket_SC"),1006.05500000,-3102.80400000,-37.81544000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Expl_bc"),1010.90500000,-3102.80400000,-37.81982000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Elec_BC"),1006.05500000,-3096.9540000,-35.60529000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Elec_BC"),1006.05500000,-3102.80400000,-35.60529000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Elec_BC"),1010.90500000,-3108.50400000,-37.81529000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Art_BC"),1015.75500000,-3096.95400000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Gems_BC"),1010.90500000,-3096.95400000,-37.81234000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Elec_BC"),1010.90500000,-3102.804000000,-35.60529000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Elec_BC"),1008.48000000,-3102.80400000,-35.60529000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Bull_BC_02"),993.35510000,-3106.60400000,-37.81342000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Money_SC"),1015.75500000,-3091.604000000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Med_BC"),1026.75500000,-3106.52900000,-37.81797000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Bull_SC_02"),1015.75500000,-3096.95400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Tob_SC"),1010.905000000,-3091.60400000,-37.81240000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_BC"),1006.05500000,-3091.60400000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_pharma_SC"),1026.75500000,-3096.43400000,-37.81797000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_BC"),1006.05500000,-3108.50400000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Gems_SC"),1015.75500000,-3108.504000000,-37.81776000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Tob_BC"),1018.18000000,-3102.80400000,-35.75240000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Tob_BC"),1008.48000000,-3108.50400000,-35.75240000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Bull_BC_02"),993.35510000,-3111.30400000,-37.81342000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Jewels_racks_SC"),1026.75500000,-3111.384000000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Jewels_SC"),1006.05500000,-3102.80400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Bull_BC_02"),1013.33000000,-3096.95400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Gems_SC"),1013.33000000,1013.33000000,1013.33000000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Jewels_BC"),1026.75500000,-3108.889000000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Bull_SC_02"),993.35510000,-3108.95400000,-37.81797000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_BC"),1008.48000000,-3091.60400000,-37.81797000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Elec_SC"),993.35510000,-3108.95400000,-35.62796000,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_XLDiam"),1026.75500000,-3094.01400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_watch"),1013.33000000,-3102.80400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_SHide"),1018.18000000,-3096.95400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Oegg"),1006.05500000,-3091.60400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_MiniG"),1018.18000000,-3108.50400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_FReel"),11008.48000000,-3102.80400000,-39.99757,false,false,false)
-	CreateObject(GetHashKey("ex_Prop_Crate_Closed_SC"),1006.05500000,-3091.60400000,-37.81985000,false,false,false) 
-	CreateObject(GetHashKey("ex_Prop_Crate_Bull_BC_02"),1026.75500000,-3091.59400000,-39.99757,false,false,false)
-
-	local tool = CreateObject(-573669520,1002.0411987305,-3108.3645019531,-39.999897003174,false,false,false)
-
-	SetEntityHeading(tool,GetEntityHeading(tool)-90)
-end
-
-RegisterNetEvent("jim-recycle:removeWarehouseProps")
-AddEventHandler("jim-recycle:removeWarehouseProps", function()
-    CleanUpArea()
 end)
 
-function CleanUpArea()
-    local playerped = GetPlayerPed(-1)
-    local plycoords = GetEntityCoords(playerped)
-    local handle, ObjectFound = FindFirstObject()
-    local success
-    repeat
-        local pos = GetEntityCoords(ObjectFound)
-        local distance = #(vector3(plycoords) - vector3(pos))
-        if distance < 50.0 and ObjectFound ~= playerped then
-        	if IsEntityAPed(ObjectFound) then
-        		if IsPedAPlayer(ObjectFound) then
-        		else
-        			DeleteObject(ObjectFound)
-        		end
-        	else
-        		if not IsEntityAVehicle(ObjectFound) and not IsEntityAttached(ObjectFound) then
-	        		DeleteObject(ObjectFound)
-	        	end
-        	end            
-        end
-        success, ObjectFound = FindNextObject(handle)
-    until not success
-    SetEntityAsNoLongerNeeded(handle)
-    DeleteEntity(handle)    
-    EndFindObject(handle)
+props = {}
+---- Render Props -------
+function renderPropsWareHouse()
+	props[#props+1] = CreateObject(`ex_prop_crate_bull_sc_02`,1003.63013,-3108.50415,-39.9669662,false,false,false)
+	props[#props+1] = CreateObject(`ex_prop_crate_wlife_bc`,1018.18011,-3102.8042,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_prop_crate_closed_bc`,1006.05511,-3096.954,-37.8179666,false,false,false)
+	props[#props+1] = CreateObject(`ex_prop_crate_wlife_sc`,1003.63013,-3102.8042,-37.81769,false,false,false)
+	props[#props+1] = CreateObject(`ex_prop_crate_jewels_racks_sc`,1003.63013,-3091.604,-37.8179666,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,1013.330000003,-3102.80400000,-35.62896000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,1015.75500000,-3102.80400000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,1015.75500000,-3102.80400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Jewels_BC`,1018.18000000,-3091.60400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,1026.75500000,-3111.38400000,-37.81797000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Jewels_BC`,1003.63000000,-3091.60400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Jewels_BC`,1026.75500000,-3106.52900000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,1026.75500000,-3106.52900000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_02_SC`,1010.90500000,-3108.50400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_BC`,1013.33000000,-3108.50400000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_BC`,1015.75500000,-3108.50400000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,1010.90500000,-3096.95400000,-39.86697000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_SC`,993.35510000,-3111.30400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_BC`,993.35510000,-3108.95400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_SC`,1013.33000000,-3096.95400000,-37.8177600,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_clothing_BC`,1018.180000000,-3096.95400000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_clothing_BC`,1008.48000000,-3096.95400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,1003.63000000,-3108.50400000,-35.61234000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Narc_BC`,1026.75500000,-3091.59400000,-37.81797000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Narc_BC`,1026.75500000,-3091.59400000,-37.81797000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_SC`,1008.48000000,-3108.50400000,-37.81797000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Tob_SC`,1018.18000000,-3096.95400000,-37.81240000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Wlife_BC`,1018.18000000,-3091.60400000,-35.74857000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Med_BC`,1008.48000000,-3091.60400000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_SC`,1013.33000000,-3108.50400000,-37.81797000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,1026.75500000,-3108.88900000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_biohazard_BC`,1010.90500000,-3102.80400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Wlife_BC`,1015.75500000,-3091.60400000,-35.74857000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_biohazard_BC`,1003.63000000,-3108.50400000,-37.81561000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,1008.48000000,-3096.954000000,-35.60529000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,1006.05500000,-3108.50400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_RW`,1013.33000000,-3091.60400000,-37.81797000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Narc_SC`,1026.75500000,-3094.014000000,-37.81684000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_BC`,1015.75500000,-3108.50400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,1010.90500000,-3096.95400000,-35.60529000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Ammo_BC`,1013.33000000,-3102.80400000,-37.81427000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Money_BC`,1003.63000000,-3096.95400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,1003.63000000,-3096.95400000,-37.81187000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,1010.90500000,-3091.60400000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,1013.33000000,-3091.60400000,-35.74885000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,1026.75500000,-3091.59400000,-35.74885000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,1026.75500000,-3094.0140000,-35.74885000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,1026.75500000,-3096.43400000,-35.74885000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_clothing_SC`,1013.33000000,-3091.604000000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_biohazard_SC`,1006.05500000,-3108.50400000,-37.81576000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,993.35510000,-3106.60400000,-35.60529000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,1026.75500000,-3111.38400000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,1026.75500000,-3096.4340000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,1015.75500000,-3096.95400000,-37.81797000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_HighEnd_pharma_BC`,1003.63000000,-3091.60400000,-35.62571000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_HighEnd_pharma_SC`,1015.75500000,-3091.60400000,-37.81797000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_02_BC`,1013.330000000,-3096.95400000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_SC`,1018.18000000,-3102.80400000,-37.81776000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_02_BC`,1013.33000000,-3108.50400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,1018.18000000,-3108.50400000,-37.81234000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Tob_BC`,1010.90500000,-3108.50400000,-35.75240000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Med_SC`,1026.75500000,-3108.88900000,-37.81797000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Money_SC`,1010.90500000,-3091.60400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Med_SC`,1008.48000000,-3091.60400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_02_BC`,1018.180000000,-3108.50400000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,1008.48000000,-3108.50400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_02_BC`,993.35510000,-3106.60400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,1008.480000000,-3102.804000000,-37.81797000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,993.35510000,-3111.30400000,-35.60529000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_HighEnd_pharma_BC`,1018.18000000,-3091.60400000,-37.81572000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,1015.75500000,-3102.80400000,-37.81234000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Jewels_racks_BC`,1003.63000000,-3102.80400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Money_SC`,1006.05500000,-3096.95400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,1003.630000000,-3096.95400000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_furJacket_SC`,1006.05500000,-3102.80400000,-37.81544000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Expl_bc`,1010.90500000,-3102.80400000,-37.81982000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,1006.05500000,-3096.9540000,-35.60529000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,1006.05500000,-3102.80400000,-35.60529000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,1010.90500000,-3108.50400000,-37.81529000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_BC`,1015.75500000,-3096.95400000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,1010.90500000,-3096.95400000,-37.81234000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,1010.90500000,-3102.804000000,-35.60529000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,1008.48000000,-3102.80400000,-35.60529000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,993.35510000,-3106.60400000,-37.81342000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Money_SC`,1015.75500000,-3091.604000000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Med_BC`,1026.75500000,-3106.52900000,-37.81797000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,1015.75500000,-3096.95400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Tob_SC`,1010.905000000,-3091.60400000,-37.81240000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,1006.05500000,-3091.60400000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_pharma_SC`,1026.75500000,-3096.43400000,-37.81797000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,1006.05500000,-3108.50400000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_SC`,1015.75500000,-3108.504000000,-37.81776000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Tob_BC`,1018.18000000,-3102.80400000,-35.75240000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Tob_BC`,1008.48000000,-3108.50400000,-35.75240000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,993.35510000,-3111.30400000,-37.81342000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Jewels_racks_SC`,1026.75500000,-3111.384000000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Jewels_SC`,1006.05500000,-3102.80400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,1013.33000000,-3096.95400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_SC`,1013.33000000,1013.33000000,1013.33000000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Jewels_BC`,1026.75500000,-3108.889000000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,993.35510000,-3108.95400000,-37.81797000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,1008.48000000,-3091.60400000,-37.81797000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_SC`,993.35510000,-3108.95400000,-35.62796000,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_XLDiam`,1026.75500000,-3094.01400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_watch`,1013.33000000,-3102.80400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_SHide`,1018.18000000,-3096.95400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Oegg`,1006.05500000,-3091.60400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_MiniG`,1018.18000000,-3108.50400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_FReel`,11008.48000000,-3102.80400000,-39.99757,false,false,false)
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_SC`,1006.05500000,-3091.60400000,-37.81985000,false,false,false) 
+	props[#props+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,1026.75500000,-3091.59400000,-39.99757,false,false,false)
+
+	props[#props+1] = CreateObject(`prop_toolchest_05`,1002.0411987305,-3108.3645019531,-39.999897003174,false,false,false)
+	SetEntityHeading(props[#props],90.0)
+	print(#props)
 end
 
+local Targets = {}
 --Recycling Center thirdeye commands
-Citizen.CreateThread(function()
-	exports['qb-target']:AddBoxZone("RecyclingEnter", vector3(746.82, -1398.93, 26.55), 0.4, 1.6, { name="RecyclingEnter", debugPoly=false, minZ=25.2, maxZ=28.0 },
-    { options = { { event = "expand:recyling:EnterTradeWarehouse", icon = "fas fa-recycle", label = "Enter Warehouse", }, },
-					distance = 1.5
-    })
-	exports['qb-target']:AddBoxZone("RecyclingExit", vector3(991.97, -3097.81, -39.0), 1.6, 0.4, { name="RecyclingExit", debugPoly=false, useZ=true, },
-    { options = { { event = "expand:recyling:ExitTradeWarehouse", icon = "fas fa-recycle", label = "Exit Warehouse", }, },
-					distance = 1.5
-    })
-    exports['qb-target']:AddCircleZone("recycleduty", vector3(994.64,-3100.07,-39.0), 2.0, { name="recycleduty", debugPoly=false, useZ=true, },
-    { options = { { event = "recycle:dutytoggle", icon = "fas fa-hard-hat", label = "Toggle Recycling Duty", }, },
-					distance = 1.5
-    })
-    exports['qb-target']:AddCircleZone("tradeitems", Config.Locations['Trade'].location, 2.0, { name="tradeitems", debugPoly=false, useZ=true, },
+CreateThread(function()
+	if Config.RequireJob then
+		Targets["RecyclingEnter"] =
+		exports['qb-target']:AddBoxZone("RecyclingEnter", vector3(746.82, -1398.93, 26.55), 0.4, 1.6, { name="RecyclingEnter", debugPoly=Config.Debug, minZ=25.2, maxZ=28.0 },
+		{ options = { { event = "jim-recycle:EnterTradeWarehouse", icon = "fas fa-recycle", label = "Enter Warehouse", job = Config.Job }, },
+						distance = 1.5 })
+	else
+		Targets["RecyclingEnter"] =
+		exports['qb-target']:AddBoxZone("RecyclingEnter", vector3(746.82, -1398.93, 26.55), 0.4, 1.6, { name="RecyclingEnter", debugPoly=Config.Debug, minZ=25.2, maxZ=28.0 },
+		{ options = { { event = "jim-recycle:EnterTradeWarehouse", icon = "fas fa-recycle", label = "Enter Warehouse", }, },
+						distance = 1.5 })
+	end
+	Targets["RecyclingExit"] =
+	exports['qb-target']:AddBoxZone("RecyclingExit", vector3(991.97, -3097.81, -39.0), 1.6, 0.4, { name="RecyclingExit", debugPoly=Config.Debug, useZ=true, },
+    { options = { { event = "jim-recycle:ExitTradeWarehouse", icon = "fas fa-recycle", label = "Exit Warehouse", }, },
+					distance = 1.5 })
+	Targets["recycleduty"] =
+    exports['qb-target']:AddCircleZone("recycleduty", vector3(994.64,-3100.07,-39.0), 0.8, { name="recycleduty", debugPoly=Config.Debug, useZ=true, },
+    { options = { { event = "jim-recycle:dutytoggle", icon = "fas fa-hard-hat", label = "Toggle Recycling Duty", }, },
+					distance = 1.5 })
+	Targets["tradeitems"] =
+    exports['qb-target']:AddCircleZone("tradeitems", vector3(Config.Locations['Trade'].location.x, Config.Locations['Trade'].location.y, Config.Locations['Trade'].location.z), 2.0, { name="tradeitems", debugPoly=Config.Debug, useZ=true, },
     { options = { { event = "jim-recycle:Trade:Menu", icon = "fas fa-box", label = "Trade Materials", }, },
-					distance = 1.5
-    })
-    exports['qb-target']:AddCircleZone("sellmats", Config.Locations['Recycle'].location, 2.0, { name="sellmats", debugPoly=false, useZ=true, },
+					distance = 1.5 })
+	Targets["sellmats"] =
+    exports['qb-target']:AddCircleZone("sellmats", vector3(Config.Locations['Recycle'].location.x, Config.Locations['Recycle'].location.y, Config.Locations['Recycle'].location.z), 2.0, { name="sellmats", debugPoly=Config.Debug, useZ=true, },
     { options = { { event = "jim-recycle:Selling:Menu", icon = "fas fa-box", label = "Sell Materials", }, },
-					distance = 2.5
-    })
+					distance = 2.5 })
+					
 	--Dumpster Third Eye
-	exports['qb-target']:AddTargetModel(dumpsters, { options = { { event = "jim-recycle:Dumpsters:Search", icon = "fas fa-dumpster", label = "Search Trash", }, },
-					distance = 1.5
-    })
+	exports['qb-target']:AddTargetModel(dumpsters, { options = { { event = "jim-recycle:Dumpsters:Search", icon = "fas fa-dumpster", label = "Search Trash", }, }, distance = 1.5 })
+					
 	--Bottle Selling Third Eyes
-    exports['qb-target']:AddCircleZone("BottleBuyer", Config.Locations['BottleBank'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
-    { options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", },	},
-					distance = 2.5
-    })
-    exports['qb-target']:AddCircleZone("BottleBuyer2", Config.Locations['BottleBank2'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
-    { options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", },	},
-					distance = 2.5
-    })
-    exports['qb-target']:AddCircleZone("BottleBuyer3", Config.Locations['BottleBank3'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
-    { options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", },	},
-					distance = 2.5
-    })
-    exports['qb-target']:AddCircleZone("BottleBuyer4", Config.Locations['BottleBank4'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
-    { options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", },	},
-					distance = 2.5
-    })
-    exports['qb-target']:AddCircleZone("BottleBuyer5", Config.Locations['BottleBank5'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
-    { options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", },	},
-					distance = 2.5
-    })
-    exports['qb-target']:AddCircleZone("BottleBuyer6", Config.Locations['BottleBank6'].location, 2.0, { name="BottleBuyer", debugPoly=false, useZ=true, }, 
-    { options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", },	},
-					distance = 2.5
-    })
+	for i = 1, 6 do
+		Targets["BottleBank"..i] =
+		exports['qb-target']:AddCircleZone("BottleBank"..i, vector3(Config.Locations["BottleBank"..i].location.x, Config.Locations["BottleBank"..i].location.y, Config.Locations["BottleBank"..i].location.z), 2.0, 
+		{ name="BottleBank"..i, debugPoly=Config.Debug, useZ=true, }, 
+		{ options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", },	},
+						distance = 2.5 })
+	end
 end)
 
 local carryPackage = nil
-
-local onDuty = false
-
-RegisterNetEvent('expand:recyling:EnterTradeWarehouse')
-AddEventHandler('expand:recyling:EnterTradeWarehouse', function()
+RegisterNetEvent('jim-recycle:EnterTradeWarehouse', function()
 	if Config.EnableOpeningHours then
 		local ClockTime = GetClockHours()
 		if ClockTime >= Config.OpenHour and ClockTime <= Config.CloseHour - 1 then
@@ -359,7 +231,7 @@ AddEventHandler('expand:recyling:EnterTradeWarehouse', function()
 				while not IsScreenFadedOut() do
 					Citizen.Wait(10)
 				end
-				SetEntityCoords(GetPlayerPed(-1), Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z)
+				SetEntityCoords(PlayerPedId(), Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z)
 				DoScreenFadeIn(500)
 			else
 				TriggerEvent("QBCore:Notify", "We're currently closed, we're open from "..Config.OpenHour..":00am till "..Config.CloseHour..":00pm", "error")
@@ -373,45 +245,42 @@ AddEventHandler('expand:recyling:EnterTradeWarehouse', function()
 		while not IsScreenFadedOut() do
 			Citizen.Wait(10)
 		end
-		SetEntityCoords(GetPlayerPed(-1), Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z)
+		SetEntityCoords(PlayerPedId(), Config['delivery'].InsideLocation.x, Config['delivery'].InsideLocation.y, Config['delivery'].InsideLocation.z)
 		DoScreenFadeIn(500)
 	end
 end)
 
-RegisterNetEvent('expand:recyling:ExitTradeWarehouse')
-AddEventHandler('expand:recyling:ExitTradeWarehouse', function()
-	TriggerEvent('jim-recycle:removeWarehouseProps')
+RegisterNetEvent('jim-recycle:ExitTradeWarehouse', function()
+	for k, v in pairs(props) do DeleteObject(props[k]) end props = {} 
 	DoScreenFadeOut(500)
 	while not IsScreenFadedOut() do
 		Citizen.Wait(10)
 	end
-	if onDuty then
-		TriggerEvent('recycle:dutytoggle')
-	end
-	SetEntityCoords(GetPlayerPed(-1), Config['delivery'].OutsideLocation.x, Config['delivery'].OutsideLocation.y, Config['delivery'].OutsideLocation.z)
+	if onDuty then TriggerEvent('jim-recycle:dutytoggle') end
+	SetEntityCoords(PlayerPedId(), Config['delivery'].OutsideLocation.x, Config['delivery'].OutsideLocation.y, Config['delivery'].OutsideLocation.z)
 	DoScreenFadeIn(500)
 end)
 
 local packagePos = nil
 
 --
-Citizen.CreateThread(function ()
+CreateThread(function ()
     while true do
         Citizen.Wait(1)
         if onDuty then
             if packagePos ~= nil then
-                local pos = GetEntityCoords(GetPlayerPed(-1), true)
+                local pos = GetEntityCoords(PlayerPedId(), true)
                 if carryPackage == nil then
-                    if #(vector3(pos.x, pos.y, pos.z) - vector3(packagePos.x,packagePos.y,packagePos.z)) < 2.3 then
+                    if #(vector3(pos.x, pos.y, pos.z) - packagePos) < 2.3 then
                         DrawText3D(packagePos.x,packagePos.y,packagePos.z+ 1, "~g~E~w~ - Grab Junk")
                         if IsControlJustReleased(0, 38) then
-                            TaskStartScenarioInPlace(GetPlayerPed(-1), "PROP_HUMAN_BUM_BIN", 0, true)
+                            TaskStartScenarioInPlace(PlayerPedId(), "PROP_HUMAN_BUM_BIN", 0, true)
                             QBCore.Functions.Progressbar("pickup_reycle_package", "Picking up the junk..", 5000, false, true, {}, {}, {}, {}, function() -- Done
-                                ClearPedTasks(GetPlayerPed(-1))
+                                ClearPedTasks(PlayerPedId())
                                 PickupPackage()
                             end)
                         end
-                    elseif #(vector3(pos.x, pos.y, pos.z) - vector3(packagePos.x,packagePos.y,packagePos.z)) < 100 then
+                    elseif #(vector3(pos.x, pos.y, pos.z) - packagePos) < 100 then
                         DrawText3D(packagePos.x, packagePos.y, packagePos.z + 1, "Pallet")
                     end
                 else
@@ -420,13 +289,9 @@ Citizen.CreateThread(function ()
                         if IsControlJustReleased(0, 38) then
                             DropPackage()
                             ScrapAnim()
-                            QBCore.Functions.Progressbar("deliver_reycle_package", "Packing into recyclable box..", 5000, false, true, {
-                                disableMovement = true,
-                                disableCarMovement = true,
-                                disableMouse = false,
-                                disableCombat = true,
-                            }, {}, {}, {}, function() -- Done
-                                StopAnimTask(GetPlayerPed(-1), "mp_car_bomb", "car_bomb_mechanic", 1.0)
+                            QBCore.Functions.Progressbar("deliver_reycle_package", "Packing into recyclable box..", 5000, false, true, { disableMovement = true, disableCarMovement = true, disableMouse = false, disableCombat = true, }, 
+								{}, {}, {}, function() -- Done
+                                StopAnimTask(PlayerPedId(), "mp_car_bomb", "car_bomb_mechanic", 1.0)
                                 TriggerServerEvent('jim-recycle:getrecyclablematerial')
                                 GetRandomPackage()
                             end)
@@ -444,30 +309,24 @@ end)
 
 function GetRandomPackage()
     local randSeed = math.random(1, #Config["delivery"].PackagePickupLocations)
-    packagePos = {}
-    packagePos.x = Config["delivery"].PackagePickupLocations[randSeed].x
-    packagePos.y = Config["delivery"].PackagePickupLocations[randSeed].y
-    packagePos.z = Config["delivery"].PackagePickupLocations[randSeed].z
+    packagePos = vector3(Config["delivery"].PackagePickupLocations[randSeed].x, Config["delivery"].PackagePickupLocations[randSeed].y, Config["delivery"].PackagePickupLocations[randSeed].z)
 end
 
 --Third Eye Commands
-RegisterNetEvent('recycle:dutytoggle')
-AddEventHandler('recycle:dutytoggle', function()
-    onDuty = not onDuty
-    if onDuty then
-		TriggerEvent('QBCore:Notify', 'You went on duty', 'success')
-    else
-        TriggerEvent('QBCore:Notify', 'You went off duty', 'error')
-    end
+RegisterNetEvent('jim-recycle:dutytoggle', function()
+	if Config.RequireJob then
+		TriggerServerEvent("QBCore:ToggleDuty")
+	else
+		onDuty = not onDuty
+		if onDuty then TriggerEvent('QBCore:Notify', 'You went on duty', 'success')
+		else TriggerEvent('QBCore:Notify', 'You went off duty', 'error') end
+	end
 end)
 
+RegisterNetEvent("jim-recycle:CloseMenu", function() exports['qb-menu']:closeMenu() end)
+
 --Sell Anim small Test
-RegisterNetEvent('jim-recycle:SellAnim')
-AddEventHandler('jim-recycle:SellAnim', function(data)
-	if data == -2 then
-		exports['qb-menu']:closeMenu()
-		return
-	end	
+RegisterNetEvent('jim-recycle:SellAnim', function(data)
 	local pid = PlayerPedId()
 	loadAnimDict("mp_common")
 	if data == 1 then
@@ -494,8 +353,7 @@ AddEventHandler('jim-recycle:SellAnim', function(data)
 end)
 
 --Sell Anim small Test
-RegisterNetEvent('jim-recycle:TradeAnim')
-AddEventHandler('jim-recycle:TradeAnim', function(data)
+RegisterNetEvent('jim-recycle:TradeAnim', function(data)
 	local pid = PlayerPedId()
 	loadAnimDict("mp_common")
 	TriggerServerEvent('jim-recycle:TradeItems', data) -- Had to slip in the sell command during the animation command
@@ -518,21 +376,20 @@ AddEventHandler('jim-recycle:TradeAnim', function(data)
 	end
 end)
 
-
 --Material Buyer
 RegisterNetEvent('jim-recycle:Selling:Menu', function()
     exports['qb-menu']:openMenu({
 		{ header = "Material Selling", txt = "Sell batches of materials", isMenuHeader = true },
-		{ header = "", txt = "✘ Close", params = { event = "jim-recycle:SellAnim", args = -2 } },
-		{ header = QBCore.Shared.Items["copper"].label, params = { event = "jim-recycle:SellAnim", args = 'copper' } },
-		{ header = QBCore.Shared.Items["plastic"].label, params = { event = "jim-recycle:SellAnim", args = 'plastic' } },
-		{ header = QBCore.Shared.Items["aluminum"].label, params = { event = "jim-recycle:SellAnim", args = 'aluminum' } },
-		{ header = QBCore.Shared.Items["metalscrap"].label, params = { event = "jim-recycle:SellAnim", args = 'metalscrap' }  },
-		{ header = QBCore.Shared.Items["steel"].label, params = { event = "jim-recycle:SellAnim", args = 'steel' } },
-		{ header = QBCore.Shared.Items["glass"].label, params = { event = "jim-recycle:SellAnim", args = 'glass' } },
-		{ header = QBCore.Shared.Items["iron"].label, params = { event = "jim-recycle:SellAnim", args = 'iron' } },
-		{ header = QBCore.Shared.Items["rubber"].label, params = { event = "jim-recycle:SellAnim", args = 'rubber' } },
-		{ header = "ALL", params = { event = "jim-recycle:SellAnim", args = 1 } }, 
+		{ header = "", txt = "❌ Close", params = { event = "jim-recycle:CloseMenu" } },
+		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["copper"].image.." width=30px>"..QBCore.Shared.Items["copper"].label, params = { event = "jim-recycle:SellAnim", args = 'copper' } },
+		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["plastic"].image.." width=30px>"..QBCore.Shared.Items["plastic"].label, params = { event = "jim-recycle:SellAnim", args = 'plastic' } },
+		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["aluminum"].image.." width=30px>"..QBCore.Shared.Items["aluminum"].label, params = { event = "jim-recycle:SellAnim", args = 'aluminum' } },
+		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["metalscrap"].image.." width=30px>"..QBCore.Shared.Items["metalscrap"].label, params = { event = "jim-recycle:SellAnim", args = 'metalscrap' }  },
+		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["steel"].image.." width=30px>"..QBCore.Shared.Items["steel"].label, params = { event = "jim-recycle:SellAnim", args = 'steel' } },
+		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["glass"].image.." width=30px>"..QBCore.Shared.Items["glass"].label, params = { event = "jim-recycle:SellAnim", args = 'glass' } },
+		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["iron"].image.." width=30px>"..QBCore.Shared.Items["iron"].label, params = { event = "jim-recycle:SellAnim", args = 'iron' } },
+		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["rubber"].image.." width=30px>"..QBCore.Shared.Items["rubber"].label, params = { event = "jim-recycle:SellAnim", args = 'rubber' } },
+		{ header = "- ALL -", params = { event = "jim-recycle:SellAnim", args = 1 } }, 
     })
 end)
 
@@ -540,7 +397,7 @@ end)
 RegisterNetEvent('jim-recycle:Trade:Menu', function()
     exports['qb-menu']:openMenu({
 		{ header = "Material Trading", txt = "Trade collected materials", isMenuHeader = true },
- 		{ header = "", txt = "✘ Close", params = { event = "jim-recycle:SellAnim", args = -2 } },
+ 		{ header = "", txt = "❌ Close", params = { event = "jim-recycle:CloseMenu" } },
 		{ header = "Trade 10 Materials", params = { event = "jim-recycle:TradeAnim", args = 1 } },
 		{ header = "Trade 100 Materials", params = { event = "jim-recycle:TradeAnim", args = 2 } },
     })
@@ -550,14 +407,13 @@ end)
 RegisterNetEvent('jim-recycle:Bottle:Menu', function()
     exports['qb-menu']:openMenu({
 		{ header = "Material Selling", txt = "Sell batches of recyclables", isMenuHeader = true },
-		{ header = "", txt = "✘ Close", params = { event = "jim-recycle:SellAnim", args = -2 } },
-		{ header = "Sell "..QBCore.Shared.Items["bottle"].label, params = { event = "jim-recycle:SellAnim", args = 'bottle' } },
-		{ header = "Sell "..QBCore.Shared.Items["can"].label, params = { event = "jim-recycle:SellAnim", args = 'can' } },
+		{ header = "", txt = "❌ Close", params = { event = "jim-recycle:CloseMenu" } },
+		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["bottle"].image.." width=30px>".."Sell "..QBCore.Shared.Items["bottle"].label, params = { event = "jim-recycle:SellAnim", args = 'bottle' } },
+		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["can"].image.." width=30px>".."Sell "..QBCore.Shared.Items["can"].label, params = { event = "jim-recycle:SellAnim", args = 'can' } },
     })
 end)
 
 --- 3D Text Shit---
-
 function DrawText3D(x, y, z, text)
 	SetTextScale(0.35, 0.35)
     SetTextFont(4)
@@ -573,13 +429,11 @@ function DrawText3D(x, y, z, text)
     ClearDrawOrigin()
 end
 
-
 ---Animations---
-
 function ScrapAnim()
     local time = 5
     loadAnimDict("mp_car_bomb")
-    TaskPlayAnim(GetPlayerPed(-1), "mp_car_bomb", "car_bomb_mechanic" ,3.0, 3.0, -1, 16, 0, false, false, false)
+    TaskPlayAnim(PlayerPedId(), "mp_car_bomb", "car_bomb_mechanic" ,3.0, 3.0, -1, 16, 0, false, false, false)
     openingDoor = true
     Citizen.CreateThread(function()
         while openingDoor do
@@ -588,7 +442,7 @@ function ScrapAnim()
             time = time - 1
             if time <= 0 then
                 openingDoor = false
-                StopAnimTask(GetPlayerPed(-1), "mp_car_bomb", "car_bomb_mechanic", 1.0)
+                StopAnimTask(PlayerPedId(), "mp_car_bomb", "car_bomb_mechanic", 1.0)
             end
         end
     end)
@@ -601,29 +455,28 @@ function loadAnimDict(dict)
     end
 end
 
-
+local randommodel = nil
 
 function PickupPackage()
-    local pos = GetEntityCoords(GetPlayerPed(-1), true)
+    local pos = GetEntityCoords(PlayerPedId(), true)
     RequestAnimDict("anim@heists@box_carry@")
     while (not HasAnimDictLoaded("anim@heists@box_carry@")) do
         Citizen.Wait(7)
     end
-    TaskPlayAnim(GetPlayerPed(-1), "anim@heists@box_carry@" ,"idle", 5.0, -1, -1, 50, 0, false, false, false)
-	local randommodel = math.random(1,3)
-	--if randommodel == 1 then model = GetHashKey("prop_cs_cardbox_01") rot1 = 300.0 rot2 = 250.0
-	--elseif randommodel == 2 then model = GetHashKey("prop_rub_scrap_06") rot1 = 300.0 rot2 = 130.0
-	--elseif randommodel == 3 then model = GetHashKey("v_ret_gc_bag01") rot1 = 300.0 rot2 = 130.0 end
-	model = GetHashKey("prop_rub_scrap_06")
+    TaskPlayAnim(PlayerPedId(), "anim@heists@box_carry@" ,"idle", 5.0, -1, -1, 50, 0, false, false, false)
+	randommodel = math.random(1,3)
+	if randommodel == 1 then model = `prop_cs_cardbox_01` rot1 = 300.0 rot2 = 250.0
+	elseif randommodel == 2 then model = `prop_rub_scrap_06` rot1 = 300.0 rot2 = 130.0
+	elseif randommodel == 3 then model = `v_ret_gc_bag01` rot1 = 300.0 rot2 = 130.0 end
     RequestModel(model)
     while not HasModelLoaded(model) do Citizen.Wait(0) end
     local object = CreateObject(model, pos.x, pos.y, pos.z, true, true, true)
-    AttachEntityToEntity(object, GetPlayerPed(-1), GetPedBoneIndex(GetPlayerPed(-1), 57005), 0.05, 0.1, -0.3, 300.0, 130.0, 20.0, true, true, false, true, 1, true)
+    AttachEntityToEntity(object, PlayerPedId(), GetPedBoneIndex(PlayerPedId(), 57005), 0.05, 0.1, -0.3, rot1, rot2, 20.0, true, true, false, true, 1, true)
     carryPackage = object
 end
 
 function DropPackage()
-    ClearPedTasks(GetPlayerPed(-1))
+    ClearPedTasks(PlayerPedId())
     DetachEntity(carryPackage, true, true)
     DeleteObject(carryPackage)
     carryPackage = nil
@@ -631,16 +484,13 @@ end
 
 
 
------------------------------------------------------
---Dumpster Stuff
-
+--------------Dumpster Stuff----------------
 --Search animations
 function startSearching(time, dict, anim, cb)
     local animDict = dict
     local animation = anim
     local ped = PlayerPedId()
     local playerPed = PlayerPedId()
-
 
     canSearch = false
 
@@ -650,28 +500,24 @@ function startSearching(time, dict, anim, cb)
     end
         TaskPlayAnim(ped, animDict, animation, 8.0, 8.0, time, 1, 1, 0, 0, 0)
     FreezeEntityPosition(playerPed, true)
-
     local ped = PlayerPedId()
-
     Wait(time)
     ClearPedTasks(ped)
     FreezeEntityPosition(playerPed, false)
     canSearch = true
-    TriggerServerEvent(cb)
+    TriggerServerEvent("jim-recycle:Dumpsters:Reward")
 end
 
 --Remove dumpster from table after searching
-RegisterNetEvent('jim-recycle:Dumpsters:Remove')
-AddEventHandler('jim-recycle:Dumpsters:Remove', function(object)
+RegisterNetEvent('jim-recycle:Dumpsters:Remove', function(object)
     for i = 1, #searched do
         if searched[i] == object then
-            table.remove(searched, i)
+            searched[i] = nil
         end
     end
 end)
 
-RegisterNetEvent('jim-recycle:Dumpsters:Search')
-AddEventHandler('jim-recycle:Dumpsters:Search', function()
+RegisterNetEvent('jim-recycle:Dumpsters:Search', function()
     local ped = PlayerPedId()
     local playerPed = PlayerPedId()
     --while true do
@@ -708,7 +554,9 @@ AddEventHandler('jim-recycle:Dumpsters:Search', function()
 								width = math.random(10, 20),
 							}, function()
 								TriggerEvent("QBCore:Notify", "You search the Trash!", "success")
-                                startSearching(searchTime, 'amb@prop_human_bum_bin@base', 'base', 'jim-recycle:Dumpsters:Reward')
+								
+                                startSearching(searchTime, 'amb@prop_human_bum_bin@base', 'base')
+								
                                 searched[i+1] = dumpster
                                 Citizen.Wait(1000)
 							end, function()
@@ -723,4 +571,11 @@ AddEventHandler('jim-recycle:Dumpsters:Search', function()
             end
         Citizen.Wait(wait)
     end
+end)
+
+AddEventHandler('onResourceStop', function(resource) 
+	if resource == GetCurrentResourceName() then 
+		for k, v in pairs(Targets) do exports['qb-target']:RemoveZone(k) end		
+		for k, v in pairs(peds) do DeletePed(peds[k]) end
+	end
 end)
