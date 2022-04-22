@@ -1,8 +1,14 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
+AddEventHandler('onResourceStart', function(resource)
+    if GetCurrentResourceName() == resource then 
+		for k, v in pairs(Config.Prices) do if not QBCore.Shared.Items[k] then print("Missing Item from QBCore.Shared.Items: '"..k.."'") end end
+		if not QBCore.Shared.Items["recyclablematerial"] then print("Missing Item from QBCore.Shared.Items: 'recyclablematerial'") end		
+	end
+end)
+
 --- Event For Getting Recyclable Material----
-RegisterServerEvent("jim-recycle:getrecyclablematerial")
-AddEventHandler("jim-recycle:getrecyclablematerial", function()
+RegisterServerEvent("jim-recycle:getrecyclablematerial", function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local amount = math.random(10, 30)
@@ -10,10 +16,6 @@ AddEventHandler("jim-recycle:getrecyclablematerial", function()
     TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["recyclablematerial"], 'add', amount)
     Citizen.Wait(500)
 end)
-
---------------------------------------------------
-
----- Trade Event Starts Over Here ------
 
 RegisterServerEvent("jim-recycle:TradeItems", function(data)
     local src = source
@@ -51,8 +53,6 @@ RegisterServerEvent("jim-recycle:TradeItems", function(data)
 		end
     end
 end)
-
----- Trade Event End Over Here ------
 
 RegisterServerEvent("jim-recycle:Selling:All", function()
     local src = source
@@ -92,10 +92,10 @@ end)
 RegisterServerEvent('jim-recycle:Dumpsters:Reward', function()
     local src = source 
     local Player = QBCore.Functions.GetPlayer(src)
-	for i = 1, math.random(1, 4), 1 do
+	for i = 1, math.random(1, 4) do
 		local item = Config.DumpItems[math.random(1, #Config.DumpItems)]
-		local amount = math.random(1, 4)
-		Player.Functions.AddItem(item, amount, false, {["quality"] = nil})
+		local amount = math.random(1, 3)
+		Player.Functions.AddItem(item, amount)
 		TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[item], 'add', amount)
 		Citizen.Wait(100)
 	end
@@ -103,7 +103,7 @@ RegisterServerEvent('jim-recycle:Dumpsters:Reward', function()
 	local Odd = math.random(1, 4)
 	if Luck == Odd then
 		local random = math.random(1, 4)
-		Player.Functions.AddItem("rubber", random, false, {["quality"] = nil})
+		Player.Functions.AddItem("rubber", random)
 		TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["rubber"], 'add', random)
 	end
 end)

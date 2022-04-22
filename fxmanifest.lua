@@ -6,5 +6,5 @@ game "gta5"
 
 dependencies { 'qb-menu', 'qb-target', }
 shared_scripts { 'config.lua' }
-client_scripts { 'client.lua' }
+client_scripts { 'client.lua', 'dumpsters.lua' }
 server_script { 'server.lua' }
