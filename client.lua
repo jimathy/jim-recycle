@@ -3,16 +3,15 @@ local QBCore = exports['qb-core']:GetCoreObject()
 isLoggedIn = false
 local PlayerJob = {}
 
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded')
-AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     QBCore.Functions.GetPlayerData(function(PlayerData) PlayerJob = PlayerData.job if PlayerData.job.onduty then if PlayerData.job.name == Config.JobRole then TriggerServerEvent("QBCore:ToggleDuty") end end end)
 end)
 
 local onDuty = false
 RegisterNetEvent('QBCore:Client:SetDuty') AddEventHandler('QBCore:Client:SetDuty', function(duty) onDuty = duty end)
 
-AddEventHandler('onResourceStart', function(resource)
-    if GetCurrentResourceName() == resource then QBCore.Functions.GetPlayerData(function(PlayerData) PlayerJob = PlayerData.job if PlayerData.job.name == Config.JobRole then onDuty = PlayerJob.onduty end end) end
+AddEventHandler('onResourceStart', function(resource) if GetCurrentResourceName() == resource then return end
+	QBCore.Functions.GetPlayerData(function(PlayerData) PlayerJob = PlayerData.job if PlayerData.job.name == Config.JobRole then onDuty = PlayerJob.onduty end end)
 end)
 
 local peds = {}
@@ -167,7 +166,6 @@ function renderPropsWareHouse()
 
 	props[#props+1] = CreateObject(`prop_toolchest_05`,1002.0411987305,-3108.3645019531,-39.999897003174,false,false,false)
 	SetEntityHeading(props[#props],90.0)
-	print(#props)
 end
 
 local Targets = {}
@@ -367,19 +365,23 @@ RegisterNetEvent('jim-recycle:TradeAnim', function(data)
 end)
 
 --Material Buyer
+local function imghead(image) -- Trying to tidy the code up
+	local header = "<img src=nui://"..Config.img..QBCore.Shared.Items[image].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items[image].label
+	return header
+end
 RegisterNetEvent('jim-recycle:Selling:Menu', function()
     exports['qb-menu']:openMenu({
 		{ header = "Material Selling", txt = "Sell batches of materials", isMenuHeader = true },
-		{ header = "", txt = "❌ Close", params = { event = "jim-recycle:CloseMenu" } },
-		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["copper"].image.." width=30px>"..QBCore.Shared.Items["copper"].label, params = { event = "jim-recycle:SellAnim", args = 'copper' } },
-		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["plastic"].image.." width=30px>"..QBCore.Shared.Items["plastic"].label, params = { event = "jim-recycle:SellAnim", args = 'plastic' } },
-		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["aluminum"].image.." width=30px>"..QBCore.Shared.Items["aluminum"].label, params = { event = "jim-recycle:SellAnim", args = 'aluminum' } },
-		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["metalscrap"].image.." width=30px>"..QBCore.Shared.Items["metalscrap"].label, params = { event = "jim-recycle:SellAnim", args = 'metalscrap' }  },
-		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["steel"].image.." width=30px>"..QBCore.Shared.Items["steel"].label, params = { event = "jim-recycle:SellAnim", args = 'steel' } },
-		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["glass"].image.." width=30px>"..QBCore.Shared.Items["glass"].label, params = { event = "jim-recycle:SellAnim", args = 'glass' } },
-		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["iron"].image.." width=30px>"..QBCore.Shared.Items["iron"].label, params = { event = "jim-recycle:SellAnim", args = 'iron' } },
-		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["rubber"].image.." width=30px>"..QBCore.Shared.Items["rubber"].label, params = { event = "jim-recycle:SellAnim", args = 'rubber' } },
-		{ header = "- ALL -", params = { event = "jim-recycle:SellAnim", args = 1 } }, 
+		{ icon = "fas fa-circle-xmark", header = "", txt = "Close", params = { event = "jim-recycle:CloseMenu" } },
+		{ icon = "copper", header = imghead("copper"), params = { event = "jim-recycle:SellAnim", args = 'copper' } },
+		{ icon = "plastic", header = imghead("plastic"), params = { event = "jim-recycle:SellAnim", args = 'plastic' } },
+		{ icon = "aluminum", header = imghead("aluminum"), params = { event = "jim-recycle:SellAnim", args = 'aluminum' } },
+		{ icon = "metalscrap", header = imghead("metalscrap"), params = { event = "jim-recycle:SellAnim", args = 'metalscrap' }  },
+		{ icon = "steel", header = imghead("steel"), params = { event = "jim-recycle:SellAnim", args = 'steel' } },
+		{ icon = "glass", header = imghead("glass"), params = { event = "jim-recycle:SellAnim", args = 'glass' } },
+		{ icon = "iron", header = imghead("iron"), params = { event = "jim-recycle:SellAnim", args = 'iron' } },
+		{ icon = "rubber", header = imghead("rubber"), params = { event = "jim-recycle:SellAnim", args = 'rubber' } },
+		{ icon = "recyclablematerial", header = "- ALL -", params = { event = "jim-recycle:SellAnim", args = 1 } }, 
     })
 end)
 
@@ -387,9 +389,9 @@ end)
 RegisterNetEvent('jim-recycle:Trade:Menu', function()
     exports['qb-menu']:openMenu({
 		{ header = "Material Trading", txt = "Trade collected materials", isMenuHeader = true },
- 		{ header = "", txt = "❌ Close", params = { event = "jim-recycle:CloseMenu" } },
-		{ header = "Trade 10 Materials", params = { event = "jim-recycle:TradeAnim", args = 1 } },
-		{ header = "Trade 100 Materials", params = { event = "jim-recycle:TradeAnim", args = 2 } },
+		{ icon = "fas fa-circle-xmark", header = "", txt = "Close", params = { event = "jim-recycle:CloseMenu" } },
+		{ icon = "recyclablematerial", header = "Trade 10 Materials", params = { event = "jim-recycle:TradeAnim", args = 1 } },
+		{ icon = "recyclablematerial", header = "Trade 100 Materials", params = { event = "jim-recycle:TradeAnim", args = 2 } },
     })
 end)
 
@@ -397,9 +399,9 @@ end)
 RegisterNetEvent('jim-recycle:Bottle:Menu', function()
     exports['qb-menu']:openMenu({
 		{ header = "Material Selling", txt = "Sell batches of recyclables", isMenuHeader = true },
-		{ header = "", txt = "❌ Close", params = { event = "jim-recycle:CloseMenu" } },
-		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["bottle"].image.." width=30px>".."Sell "..QBCore.Shared.Items["bottle"].label, params = { event = "jim-recycle:SellAnim", args = 'bottle' } },
-		{ header = "<img src=nui://"..Config.img..QBCore.Shared.Items["can"].image.." width=30px>".."Sell "..QBCore.Shared.Items["can"].label, params = { event = "jim-recycle:SellAnim", args = 'can' } },
+		{ icon = "fas fa-circle-xmark", header = "", txt = "Close", params = { event = "jim-recycle:CloseMenu" } },
+		{ icon = "bottle", header = imghead("bottle"), params = { event = "jim-recycle:SellAnim", args = 'bottle' } },
+		{ icon = "can", header =  imghead("can"), params = { event = "jim-recycle:SellAnim", args = 'can' } },
     })
 end)
 
@@ -472,9 +474,7 @@ function DropPackage()
     carryPackage = nil
 end
 
-AddEventHandler('onResourceStop', function(resource) 
-	if resource == GetCurrentResourceName() then 
-		for k, v in pairs(Targets) do exports['qb-target']:RemoveZone(k) end		
-		for k, v in pairs(peds) do DeletePed(peds[k]) end
-	end
+AddEventHandler('onResourceStop', function(resource) if resource ~= GetCurrentResourceName() then return end
+	for k, v in pairs(Targets) do exports['qb-target']:RemoveZone(k) end		
+	for k, v in pairs(peds) do DeletePed(peds[k]) end
 end)
