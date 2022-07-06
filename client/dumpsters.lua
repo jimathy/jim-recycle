@@ -3,7 +3,6 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local searched = {34343435323} -- No Touch.
 local canSearch = true -- No touch.
 local searchTime = 3000 -- How long after successful skill check the serach takes
-local useQBLock = true -- Enable this to use qb-lock
 local dumpsters = { -- The mighty list of dumpters/trash cans
     `prop_dumpster_01a`, `prop_dumpster_02a`, `prop_dumpster_02b`, `prop_dumpster_3a`, `prop_dumpster_4a`, `prop_dumpster_4b`,
     `prop_bin_05a`, `prop_bin_06a`, `prop_bin_07a`, `prop_bin_07b`, `prop_bin_07c`, `prop_bin_07d`, `prop_bin_08a`, `prop_bin_08open`,

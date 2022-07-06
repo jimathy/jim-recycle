@@ -76,7 +76,7 @@ RegisterNetEvent('jim-recycle:Scrap:Search', function()
                                 pos = math.random(10, 30),
                                 width = math.random(10, 20),
                             }, function()
-                                TriggerEvent("QBCore:Notify", "You search the Trash!", "success")
+                                TriggerEvent("QBCore:Notify", "You search the Scrap!", "success")
                                 startSearching(GetEntityCoords(scrapped))
                                 searched[i+1] = scrapped
                                 Citizen.Wait(1000)
