@@ -6,6 +6,15 @@ fx_version "cerulean"
 game "gta5"
 
 dependencies { 'qb-menu', 'qb-target', }
-shared_scripts { 'config.lua' }
-client_scripts { 'dumpsters.lua' }
-server_script { 'server.lua' }
+
+client_scripts {
+    '@PolyZone/client.lua',
+    '@PolyZone/BoxZone.lua',
+    '@PolyZone/EntityZone.lua',
+    '@PolyZone/CircleZone.lua',
+    '@PolyZone/ComboZone.lua',
+	'client/*.lua',
+}
+
+server_scripts { 'server/*.lua' }
+shared_scripts { 'config.lua', }
