@@ -1,7 +1,7 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
 AddEventHandler('onResourceStart', function(resource) if GetCurrentResourceName() ~= resource then return end
-	for k in pairs(Config.DumpItems) do if not QBCore.Shared.Items[k] then print("Missing Item from QBCore.Shared.Items: '"..k.."'") end end
+	for _, v in pairs(Config.DumpItems) do if not QBCore.Shared.Items[v] then print("DumpItem: Missing Item from QBCore.Shared.Items: '"..v.."'") end end
 end)
 
 RegisterServerEvent('jim-recycle:Dumpsters:Reward', function()
@@ -14,9 +14,8 @@ RegisterServerEvent('jim-recycle:Dumpsters:Reward', function()
 		TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[item], 'add', amount)
 		Citizen.Wait(100)
 	end
-	local Luck = math.random(1, 4)
-	local Odd = math.random(1, 4)
-	if Luck == Odd then
+	--If two random numbers match, give reward
+	if math.random(1, 4) == math.random(1, 4) then
 		local random = math.random(1, 4)
 		Player.Functions.AddItem("rubber", random)
 		TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["rubber"], 'add', random)

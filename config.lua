@@ -1,7 +1,7 @@
 print("Jim-Recycle v2.0 - Recycling Script by Jimathy")
 
 Config = {
-	Debug = true, -- Toggle Debug Mode
+	Debug = false, -- Toggle Debug Mode
 	Blips = true, -- Enable Blips?
 	BlipNamer = false, -- Enable to Name Blips different things, disable if you already have too many blips as this will group them together
 	Pedspawn = true, -- Do you want to spawn peds for main locations?
@@ -9,8 +9,8 @@ Config = {
 	OpenHour = 9, -- From what hour should the pawnshop be open?
 	CloseHour = 21, -- From what hour should the pawnshop be closed?
 	img = "qb-inventory/html/images/", -- Set this to your inventory
-	RequireJob = false, -- Want this to be locked behind a job?
-	JobRole = nil, -- Whats the job role you want to use this? "nil" for none
+	JimMenu = false, -- If using updated qb-menu icons, set this true
+	JobRole = "mechanic", -- Whats the job role you want to use this? "nil" for none
 
 	OutsideTele = vector4(746.83, -1399.66, 26.6, 230.732),
 	InsideTele = vector4(993.16, -3097.61, -39.90, 82.95),
@@ -21,7 +21,7 @@ Config = {
 			{ name = "Recycle Center", coords = vector4(744.68, -1401.77, 26.55, 248.73), blipTrue = true, sprite = 365, col = 2, model = `S_M_Y_Construct_01`, scenario = "WORLD_HUMAN_CLIPBOARD", },
 		},
 		['Trade'] ={
-			{ name = "Recyclable Trader", coords = vector4(996.58, -3098.45, -39.0, 230.0), blipTrue = false, sprite = 365, col = 2, model = `S_M_Y_Construct_01`, scenario = "WORLD_HUMAN_CLIPBOARD", },
+			{ name = "Recyclable Trader", coords = vector4(997.48, -3097.44, -39.0, 234.53), blipTrue = false, sprite = 365, col = 2, model = `S_M_Y_Construct_01`, scenario = "WORLD_HUMAN_CLIPBOARD", },
 		},
 		['BottleBanks'] = {
 			{ name = "Bottle Bank", coords = vector4(757.06, -1399.68, 26.57 , 178.1), blipTrue = true, sprite = 642, col = 2, model = `S_M_Y_Construct_01`, scenario = "WORLD_HUMAN_CLIPBOARD", },
@@ -32,31 +32,17 @@ Config = {
 			{ name = "Bottle Bank", coords = vector4(-1267.97, -812.08, 17.11 , 128.12), blipTrue = true, sprite = 642, col = 2, model = `S_M_Y_Construct_01`, scenario = "WORLD_HUMAN_CLIPBOARD", },
 		},
 	},
-
 	Prices = {
-		['copper'] = { amount = 10 },
-		['plastic'] = { amount = 10 },
-		['metalscrap'] = { amount = 10 },
-		['steel'] = { amount = 10 },
-		['glass'] = { amount = 10 },
-		['iron'] = { amount = 10 },
-		['rubber'] = { amount = 10 },
-		['aluminum'] = { amount = 10 },
-		['bottle'] = {amount = 5 },
-		['can'] = { amount = 5 },
-	},
-
-	TradeTable = {
-		"metalscrap",
-		"plastic",
-		"copper",
-		"iron",
-		"aluminum",
-		"steel",
-		"glass",
-		"rubber",
-		"bottle",
-		"can",
+		['copper'] = 10,
+		['plastic'] = 10,
+		['metalscrap'] = 10,
+		['steel'] = 10,
+		['glass'] = 10,
+		['iron'] = 10,
+		['rubber'] = 10,
+		['aluminum'] = 10,
+		['bottle'] = 5,
+		['can'] = 5,
 	},
 	DumpItems = {
 		"bottle",
@@ -64,10 +50,13 @@ Config = {
 		"sandwich",
 	},
 	RecycleAmounts = {
-		tenmin = "2",
-		tenmax = "5",
+		tenMin = "2",
+		tenMax = "5",
 
-		bulkmin = "5",
-		bulkmax = "14",
+		hundMin = "5",
+		hundMax = "14",
+
+		thouMin = "10",
+		thouMax = "28",
 	}
 }
