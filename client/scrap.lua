@@ -3,14 +3,12 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local searched = {34343435323} -- No Touch.
 local canSearch = true -- No touch.
 local searchTime = 3000 -- How long after successful skill check the serach takes
-local useQBLock = true -- Enable this to use qb-lock
-local dumpsters = { -- The mighty list of dumpters/trash cans
-    `prop_dumpster_01a`, `prop_dumpster_02a`, `prop_dumpster_02b`, `prop_dumpster_3a`, `prop_dumpster_4a`, `prop_dumpster_4b`,
-    `prop_bin_05a`, `prop_bin_06a`, `prop_bin_07a`, `prop_bin_07b`, `prop_bin_07c`, `prop_bin_07d`, `prop_bin_08a`, `prop_bin_08open`,
-    `prop_bin_09a`, `prop_bin_10a`, `prop_bin_10b`, `prop_bin_11a`, `prop_bin_12a`, `prop_bin_13a`, `prop_bin_14a`, `prop_bin_14b`,
-    `prop_bin_beach_01d`, `prop_bin_delpiero`, `prop_bin_delpiero_b`, `prop_recyclebin_01a`, `prop_recyclebin_02_c`, `prop_recyclebin_02_d`,
-    `prop_recyclebin_02a`, `prop_recyclebin_02b`, `prop_recyclebin_03_a`, `prop_recyclebin_04_a`, `prop_recyclebin_04_b`, `prop_recyclebin_05_a`,
-    `zprop_bin_01a_old`, `hei_heist_kit_bin_01`, `ch_prop_casino_bin_01a`, `vw_prop_vw_casino_bin_01a`, `mp_b_kit_bin_01`,
+local scrap = { -- The mighty list of dumpters/trash cans
+    `prop_wreckedcart`, `prop_snow_rub_trukwreck_2`, `prop_wrecked_buzzard`, `prop_rub_buswreck_01`, `prop_rub_buswreck_03`, `prop_rub_buswreck_06`, `prop_rub_carwreck_10`,
+    `prop_rub_carwreck_11`, `prop_rub_carwreck_12`, `prop_rub_carwreck_13`, `prop_rub_carwreck_14`, `prop_rub_carwreck_15`, `prop_rub_carwreck_16`, `prop_rub_carwreck_17`,
+    `prop_rub_carwreck_2`, `prop_rub_carwreck_3`, `prop_rub_carwreck_5`, `prop_rub_carwreck_7`, `prop_rub_carwreck_8`, `prop_rub_carwreck_9`, `prop_rub_railwreck_1`, `prop_rub_railwreck_2`,
+    `prop_rub_railwreck_3`, `prop_rub_trukwreck_1`, `prop_rub_trukwreck_2`, `prop_rub_wreckage_3`, `prop_rub_wreckage_4`, `prop_rub_wreckage_5`, `prop_rub_wreckage_6`, `prop_rub_wreckage_7`,
+    `prop_rub_wreckage_8`, `prop_rub_wreckage_9`, `ch1_01_sea_wreck_3`, `cs2_30_sea_ch2_30_wreck005`, `cs2_30_sea_ch2_30_wreck7`, `cs4_05_buswreck`,
 }
 
 --Loading/Unloading Asset Functions
@@ -19,7 +17,7 @@ local function unloadAnimDict(dict) if Config.Debug then print("Debug: Removing 
 
 CreateThread(function()
 	--Dumpster Third Eye
-	exports['qb-target']:AddTargetModel(dumpsters, { options = { { event = "jim-recycle:Dumpsters:Search", icon = "fas fa-dumpster", label = "Search Trash", }, }, distance = 1.5 })
+	exports['qb-target']:AddTargetModel(scrap, { options = { { event = "jim-recycle:Scrap:Search", icon = "fas fa-dumpster", label = "Search", }, }, distance = 1.5 })
 end)
 
 --Search animations
@@ -42,20 +40,20 @@ local function startSearching(coords)
     canSearch = true
     unloadAnimDict(dict)
     --Give rewards
-    TriggerServerEvent("jim-recycle:Dumpsters:Reward")
+    TriggerServerEvent("jim-recycle:Scrap:Reward")
 end
 
-RegisterNetEvent('jim-recycle:Dumpsters:Search', function()
+RegisterNetEvent('jim-recycle:Scrap:Search', function()
     if canSearch then
-        local dumpsterFound = false
-        for i = 1, #dumpsters do
-            local dumpster = GetClosestObjectOfType(GetEntityCoords(PlayerPedId()), 1.0, dumpsters[i], false, false, false)
-            if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(dumpster)) < 1.8 then
-                if Config.Debug then print("Debug: Starting Search of entity: '"..dumpster.."'") end
+        local scrapFound = false
+        for i = 1, #scrap do
+            local scrapped = GetClosestObjectOfType(GetEntityCoords(PlayerPedId()), 2.0, scrap[i], false, false, false)
+            if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(scrapped)) < 2.0 then
+                if Config.Debug then print("Debug: Starting Search of entity: '"..scrapped.."'") end
                 for i = 1, #searched do
-                    if searched[i] == dumpster then dumpsterFound = true end -- Theres a dumpster nearby
-                    if i == #searched and dumpsterFound then TriggerEvent("QBCore:Notify", "Already Searched.", "error") return -- Let player know already searched
-                    elseif i == #searched and not dumpsterFound then -- If hasn't been searched yet
+                    if searched[i] == scrapped then scrapFound = true end -- Theres a dumpster nearby
+                    if i == #searched and scrapFound then TriggerEvent("QBCore:Notify", "Already Searched.", "error") return -- Let player know already searched
+                    elseif i == #searched and not scrapFound then -- If hasn't been searched yet
                         local dict = "anim@amb@machinery@speed_drill@"
                         local anim = "look_around_left_02_amy_skater_01"
                         loadAnimDict(dict)
@@ -63,12 +61,12 @@ RegisterNetEvent('jim-recycle:Dumpsters:Search', function()
                         if useQBLock then
                             local success = exports['qb-lock']:StartLockPickCircle(math.random(2,4), math.random(10,15), success)
                             if success then
-                                TriggerEvent("QBCore:Notify", "You search the Trash!", "success")
-                                startSearching(GetEntityCoords(dumpster))
-                                searched[i+1] = dumpster
+                                TriggerEvent("QBCore:Notify", "You search the Scrap!", "success")
+                                startSearching(GetEntityCoords(scrapped))
+                                searched[i+1] = scrapped
                             else
                                 TriggerEvent("QBCore:Notify", "You couldn't find anything.", "error")
-                                searched[i+1] = dumpster
+                                searched[i+1] = scrapped
                                 ClearPedTasks(PlayerPedId())
                             end
                         else
@@ -79,12 +77,12 @@ RegisterNetEvent('jim-recycle:Dumpsters:Search', function()
                                 width = math.random(10, 20),
                             }, function()
                                 TriggerEvent("QBCore:Notify", "You search the Trash!", "success")
-                                startSearching(GetEntityCoords(dumpster))
-                                searched[i+1] = dumpster
+                                startSearching(GetEntityCoords(scrapped))
+                                searched[i+1] = scrapped
                                 Citizen.Wait(1000)
                             end, function()
                                 TriggerEvent("QBCore:Notify", "You couldn't find anything.", "error")
-                                searched[i+1] = dumpster
+                                searched[i+1] = scrapped
                                 ClearPedTasks(PlayerPedId())
                                 Citizen.Wait(1000)
                             end)

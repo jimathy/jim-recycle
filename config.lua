@@ -1,16 +1,17 @@
 print("Jim-Recycle v2.0 - Recycling Script by Jimathy")
 
 Config = {
-	Debug = false, -- Toggle Debug Mode
+	Debug = true, -- Toggle Debug Mode
 	Blips = true, -- Enable Blips?
 	BlipNamer = false, -- Enable to Name Blips different things, disable if you already have too many blips as this will group them together
 	Pedspawn = true, -- Do you want to spawn peds for main locations?
-	EnableOpeningHours = true, -- Enable opening hours? If disabled you can always open the pawnshop.
-	OpenHour = 9, -- From what hour should the pawnshop be open?
-	CloseHour = 21, -- From what hour should the pawnshop be closed?
 	img = "qb-inventory/html/images/", -- Set this to your inventory
 	JimMenu = false, -- If using updated qb-menu icons, set this true
 	JobRole = "mechanic", -- Whats the job role you want to use this? "nil" for none
+	EnableOpeningHours = true, -- Enable opening hours? If disabled you can always open the pawnshop.
+	OpenHour = 9, -- From what hour should the pawnshop be open?
+	CloseHour = 21, -- From what hour should the pawnshop be closed?
+	useQBLock = false, -- Enable to use qb-lock instead of qb-skillbar when searching
 
 	OutsideTele = vector4(746.83, -1399.66, 26.6, 230.732),
 	InsideTele = vector4(993.16, -3097.61, -39.90, 82.95),
@@ -48,6 +49,14 @@ Config = {
 		"bottle",
 		"can",
 		"sandwich",
+	},
+	ScrapItems = {
+		"steel",
+		"copper",
+		"iron",
+		"glass",
+		"bottle",
+		"can",
 	},
 	RecycleAmounts = {
 		tenMin = "2",
