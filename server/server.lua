@@ -26,16 +26,21 @@ RegisterServerEvent("jim-recycle:TradeItems", function(data)
     local Player = QBCore.Functions.GetPlayer(src)
 	local remAmount, min, max
 	if data == 1 then
+		remAmount = 1
+		itemAmount = 1
+		min = 1
+		max = 1
+	elseif data == 2 then
 		remAmount = 10
 		itemAmount = 2
 		min = Config.RecycleAmounts.tenMin
 		max = Config.RecycleAmounts.tenMax
-	elseif data == 2 then
+	elseif data == 3 then
 		remAmount = 100
 		itemAmount = 6
 		min = Config.RecycleAmounts.hundMin
 		max = Config.RecycleAmounts.hundMax
-	elseif data == 3 then
+	elseif data == 4 then
 		remAmount = 1000
 		itemAmount = 8
 		min = Config.RecycleAmounts.thouMin

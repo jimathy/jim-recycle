@@ -408,9 +408,10 @@ RegisterNetEvent('jim-recycle:Trade:Menu', function()
 	local tradeMenu = {
 		{ icon = "recyclablematerial", header = "Material Trading", txt = "Amount held: "..amount, isMenuHeader = true },
 		{ icon = "fas fa-circle-xmark", header = "", txt = "Close", params = { event = "jim-recycle:CloseMenu" } } }
-	if amount >= 10 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = "Trade 10 Materials", params = { event = "jim-recycle:SellAnim", args = 1 } } end
-	if amount >= 100 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = "Trade 100 Materials", params = { event = "jim-recycle:SellAnim", args = 2 } } end
-	if amount >= 1000 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = "Trade 1000 Materials", params = { event = "jim-recycle:SellAnim", args = 3 } } end
+	if amount >= 1 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = "Trade 1 Material", params = { event = "jim-recycle:SellAnim", args = 1 } } end
+	if amount >= 10 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = "Trade 10 Materials", params = { event = "jim-recycle:SellAnim", args = 2 } } end
+	if amount >= 100 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = "Trade 100 Materials", params = { event = "jim-recycle:SellAnim", args = 3 } } end
+	if amount >= 1000 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = "Trade 1000 Materials", params = { event = "jim-recycle:SellAnim", args = 4 } } end
     exports['qb-menu']:openMenu(tradeMenu)
 end)
 
