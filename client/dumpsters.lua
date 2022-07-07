@@ -59,7 +59,7 @@ RegisterNetEvent('jim-recycle:Dumpsters:Search', function()
                         local anim = "look_around_left_02_amy_skater_01"
                         loadAnimDict(dict)
                         TaskPlayAnim(PlayerPedId(), dict, anim, 1.0, 1.0, 3500, 1.5, 5, 0, 0, 0)
-                        if useQBLock then
+                        if Config.useQBLock then
                             local success = exports['qb-lock']:StartLockPickCircle(math.random(2,4), math.random(10,15), success)
                             if success then
                                 TriggerEvent("QBCore:Notify", "You search the Trash!", "success")

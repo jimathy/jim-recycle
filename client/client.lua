@@ -29,6 +29,7 @@ function unloadAnimDict(dict) if Config.Debug then print("Debug: Removing Anim D
 function loadModel(model) if Config.Debug then print("Debug: Loading Model: '"..model.."'") end RequestModel(model) while not HasModelLoaded(model) do Wait(0) end end
 function unloadModel(model) if Config.Debug then print("Debug: Removing Model: '"..model.."'") end SetModelAsNoLongerNeeded(model) end
 function destroyProp(entity) if Config.Debug then print("Debug: Destroying Prop: '"..entity.."'") end SetEntityAsMissionEntity(entity) Wait(5) DetachEntity(entity, true, true) Wait(5) DeleteObject(entity) end
+function conVector3(vector4) return vector3(vector4.x, vector4.y, vector4.z) end
 
 --- Blips + Peds
 CreateThread(function()
@@ -77,21 +78,21 @@ CreateThread(function()
 	--Recyclable Material Trader
 	for i = 1, #Config.Locations["Trade"] do
 		Targets["Trade"..i] =
-			exports['qb-target']:AddCircleZone("Trade"..i, Config.Locations["Trade"][i].coords, 1.1, { name="Trade"..i, debugPoly=Config.Debug, useZ=true, },
+			exports['qb-target']:AddCircleZone("Trade"..i, conVector3(Config.Locations["Trade"][i].coords), 1.1, { name="Trade"..i, debugPoly=Config.Debug, useZ=true, },
 				{ options = { { event = "jim-recycle:Trade:Menu", icon = "fas fa-box", label = "Trade Materials"  }, },
 				distance = 1.5 })
 	end
 	--Sell Materials
 	for i = 1, #Config.Locations["Recycle"] do
 		Targets["Recycle"..i] =
-			exports['qb-target']:AddCircleZone("Recycle"..i, Config.Locations["Recycle"][i].coords, 1.1, { name="Recycle"..i, debugPoly=Config.Debug, useZ=true, },
+			exports['qb-target']:AddCircleZone("Recycle"..i, conVector3(Config.Locations["Recycle"][i].coords), 1.1, { name="Recycle"..i, debugPoly=Config.Debug, useZ=true, },
 				{ options = { { event = "jim-recycle:Selling:Menu", icon = "fas fa-box", label = "Sell Materials" }, },
 				distance = 2.5 })
 	end
 	--Bottle Selling Third Eyes
 	for i = 1, #Config.Locations["BottleBanks"] do
 		Targets["BottleBank"..i] =
-			exports['qb-target']:AddCircleZone("BottleBank"..i, Config.Locations["BottleBanks"][i].coords, 1.2,	{ name="BottleBank"..i, debugPoly=Config.Debug, useZ=true, },
+			exports['qb-target']:AddCircleZone("BottleBank"..i, conVector3(Config.Locations["BottleBanks"][i].coords), 1.2,	{ name="BottleBank"..i, debugPoly=Config.Debug, useZ=true, },
 				{ options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", job = Config.Job  }, },
 				distance = 1.5 })
 	end

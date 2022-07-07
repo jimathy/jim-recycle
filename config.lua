@@ -15,7 +15,6 @@ Config = {
 
 	OutsideTele = vector4(746.83, -1399.66, 26.6, 230.732),
 	InsideTele = vector4(993.16, -3097.61, -39.90, 82.95),
-	DropLocation = vector4(999.02, -3112.98, -39.90, 90.0),
 
 	Locations =  {
 		['Recycle'] = {
