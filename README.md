@@ -21,11 +21,9 @@ FiveM Custom QBCORE recycling script made by me from scratch
 - Features simplistic built in crafting that uses recipes in the config.lua
 
 ## Video Previews
-- Soon™️
-
-## Custom Items & Images
-  ![General](https://i.imgur.com/VGb2iBD.jpeg)
-  ![General](https://media.discordapp.net/attachments/934423317849452594/934519103966838864/FiveM_b2545_GTAProcess_WeElI6GHWi.jpg)
+- Wreck/Scrap Searching: https://streamable.com/2oushi
+- Dumpster Driving: https://streamable.com/pju3wn
+- Recycling center & Material Selling: https://streamable.com/16w1pk
 
 ## Dependencies
 - qb-menu - for the menus
