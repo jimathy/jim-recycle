@@ -44,7 +44,7 @@ RegisterServerEvent("jim-recycle:TradeItems", function(data)
 		remAmount = 1000
 		itemAmount = 8
 		min = Config.RecycleAmounts.thouMin
-		max = Config.RecycleAmounts.tenMax
+		max = Config.RecycleAmounts.thouMax
 	end
 	Player.Functions.RemoveItem("recyclablematerial", remAmount)
 	TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["recyclablematerial"], 'remove', remAmount)
