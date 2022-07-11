@@ -49,7 +49,7 @@ RegisterNetEvent('jim-recycle:Scrap:Search', function()
         for i = 1, #scrap do
             local scrapped = GetClosestObjectOfType(GetEntityCoords(PlayerPedId()), 2.0, scrap[i], false, false, false)
             if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(scrapped)) < 2.0 then
-                if Config.Debug then print("Debug: Starting Search of entity: '"..scrapped.."'") end
+                if Config.Debug then print("^5Debug^7: ^2Starting Search of entity^7: '^6"..scrapped.."^7'") end
                 for i = 1, #searched do
                     if searched[i] == scrapped then scrapFound = true end -- Theres a dumpster nearby
                     if i == #searched and scrapFound then TriggerEvent("QBCore:Notify", "Already Searched.", "error") return -- Let player know already searched

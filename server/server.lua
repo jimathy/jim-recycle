@@ -1,8 +1,8 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
 AddEventHandler('onResourceStart', function(resource) if GetCurrentResourceName() ~= resource then return end
-	for k, v in pairs(Config.Prices) do if not QBCore.Shared.Items[k] then print("Missing Item from QBCore.Shared.Items: '"..k.."'") end end
-	if not QBCore.Shared.Items["recyclablematerial"] then print("Missing Item from QBCore.Shared.Items: 'recyclablematerial'") end
+	for k in pairs(Config.Prices) do if not QBCore.Shared.Items[k] then print("^5Debug^7: ^6Prices^7: ^2Missing Item from ^4QBCore^7.^4Shared^7.^4Items^7: '^6"..k.."^7'") end end
+	if not QBCore.Shared.Items["recyclablematerial"] then print("^5Debug^7: ^2Missing Item from ^4QBCore^7.^4Shared^7.^4Items^7: '^6recyclablematerial^7'") end
 	Config.TradeTable = {} for k in pairs(Config.Prices) do Config.TradeTable[#Config.TradeTable+1] = k end
 end)
 ---ITEM REQUIREMENT CHECKS
@@ -11,11 +11,18 @@ QBCore.Functions.CreateCallback('jim-recycle:GetRecyclable', function(source, cb
 	else cb(0) end
 end)
 
+QBCore.Functions.CreateCallback('jim-recycle:GetCash', function(source, cb)
+	cb(QBCore.Functions.GetPlayer(source).Functions.GetMoney("cash"))
+end)
+RegisterServerEvent("jim-recycle:DoorCharge", function()
+	QBCore.Functions.GetPlayer(source).Functions.RemoveMoney("cash", Config.PayAtDoor)
+end)
+
 --- Event For Getting Recyclable Material----
 RegisterServerEvent("jim-recycle:getrecyclablematerial", function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    local amount = math.random(10, 30)
+    local amount = math.random(Config.RecycleAmounts.recycleMin, Config.RecycleAmounts.recycleMax)
     Player.Functions.AddItem("recyclablematerial", amount)
     TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["recyclablematerial"], 'add', amount)
     Wait(500)

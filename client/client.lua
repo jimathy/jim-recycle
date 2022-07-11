@@ -2,39 +2,40 @@ local QBCore = exports['qb-core']:GetCoreObject()
 
 PlayerJob = {}
 onDuty = false
-peds = {}
+Peds = {}
 Targets = {}
 searchProps = {}
-props = {}
+Props = {}
 scrapPool = {
-	{ model = `prop_rub_scrap_06`, rot1 = 300.0, rot2 = 130.0 },
-	{ model = `prop_cs_cardbox_01`, rot1 = 300.0, rot2 = 250.0 },
-	{ model = `v_ret_gc_bag01`, rot1 = 300.0, rot2 = 130.0 },
+	--{ model = ``, xPos = , yPos = , zPos = , xRot = , yRot = , zRot = },
+	{ model = `sf_prop_sf_art_box_cig_01a`, xPos = 0.16, yPos = -0.06, zPos = 0.21, xRot = 52.0, yRot = 288.0, zRot = 175.0},
+	{ model = `hei_prop_drug_statue_box_01`, xPos = 0.08, yPos = 0.05, zPos = 0.06, xRot = 7.0, yRot = 198.0, zRot = 145.0},
+	{ model = `prop_mat_box`, xPos = 0.0, yPos = 0.28, zPos = 0.36, xRot = 136.0, yRot = 114.0, zRot = 181.0},
+	{ model = `prop_box_ammo03a`, xPos = -0.08, yPos = 0.04, zPos = 0.32, xRot = 76.0, yRot = 110.0, zRot = 185.0},
+	{ model = `prop_rub_scrap_06`, xPos = 0.01, yPos = 0.02, zPos = 0.27, xRot = 85.0, yRot = 371.0, zRot = 177.0 },
+	{ model = `prop_cs_cardbox_01`, xPos = 0.04, yPos = 0.04, zPos = 0.28, xRot = 52.0, yRot = 294.0, zRot = 177.0 },
+	{ model = `v_ret_gc_bag01`, xPos = 0.16, yPos = 0.08, zPos = 0.24, xRot = 68.0, yRot = 394.0, zRot = 141.0 },
+	{ model = `prop_ld_suitcase_01`, xPos = -0.04, yPos = 0.06, zPos = 0.31, xRot = -2.0, yRot = 21.0, zRot = 155.0 },
+	{ model = `v_ind_cs_toolbox2`, xPos = 0.04, yPos = 0.12, zPos = 0.29, xRot = 56.0, yRot = 287.0, zRot = 169.0 },
 }
-
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    QBCore.Functions.GetPlayerData(function(PlayerData) PlayerJob = PlayerData.job
-		if PlayerData.job.name == Config.JobRole then if PlayerData.job.onduty then TriggerServerEvent("QBCore:ToggleDuty") end end end)
-end)
 
 RegisterNetEvent('QBCore:Client:SetDuty') AddEventHandler('QBCore:Client:SetDuty', function(duty) onDuty = duty end)
 
 AddEventHandler('onResourceStart', function(resource) if GetCurrentResourceName() ~= resource then return end
 	QBCore.Functions.GetPlayerData(function(PlayerData) PlayerJob = PlayerData.job if PlayerData.job.name == Config.JobRole then onDuty = PlayerJob.onduty end end)
 end)
---Don't even try to ask me how this works, found it on a tutorial site for organising tables
+--Don't even try to ask me how pairsByKeys works, found it on a tutorial site for organising tables
 function pairsByKeys(t) local a = {} for n in pairs(t) do a[#a+1] = n end table.sort(a)	local i = 0	local iter = function () i = i + 1 if a[i] == nil then return nil else return a[i], t[a[i]]	end	end	return iter end
-function loadAnimDict(dict) if Config.Debug then print("Debug: Loading Anim Dictionary: '"..dict.."'") end while not HasAnimDictLoaded(dict) do RequestAnimDict(dict) Wait(5) end end
-function unloadAnimDict(dict) if Config.Debug then print("Debug: Removing Anim Dictionary: '"..dict.."'") end RemoveAnimDict(dict) end
-function loadModel(model) if Config.Debug then print("Debug: Loading Model: '"..model.."'") end RequestModel(model) while not HasModelLoaded(model) do Wait(0) end end
-function unloadModel(model) if Config.Debug then print("Debug: Removing Model: '"..model.."'") end SetModelAsNoLongerNeeded(model) end
-function destroyProp(entity) if Config.Debug then print("Debug: Destroying Prop: '"..entity.."'") end SetEntityAsMissionEntity(entity) Wait(5) DetachEntity(entity, true, true) Wait(5) DeleteObject(entity) end
-function conVector3(vector4) return vector3(vector4.x, vector4.y, vector4.z) end
+function loadModel(model) if not HasModelLoaded(model) then if Config.Debug then print("^5Debug^7: ^2Loading Model^7: '^6"..model.."^7'") end RequestModel(model) while not HasModelLoaded(model) do Wait(0) end end end
+function unloadModel(model) if Config.Debug then print("^5Debug^7: ^2Removing Model^7: '^6"..model.."^7'") end SetModelAsNoLongerNeeded(model) end
+function loadAnimDict(dict)	if Config.Debug then print("^5Debug^7: ^2Loading Anim Dictionary^7: '^6"..dict.."^7'") end while not HasAnimDictLoaded(dict) do RequestAnimDict(dict) Wait(5) end end
+function unloadAnimDict(dict) if Config.Debug then print("^5Debug^7: ^2Removing Anim Dictionary^7: '^6"..dict.."^7'") end RemoveAnimDict(dict) end
+function destroyProp(entity) if Config.Debug then print("^5Debug^7: ^2Destroying Prop^7: '^6"..entity.."^7'") end SetEntityAsMissionEntity(entity) Wait(5) DetachEntity(entity, true, true) Wait(5) DeleteObject(entity) end
+function conVector3(vector) return vector3(vector.x, vector.y, vector.z) end
 
 --- Blips + Peds
 CreateThread(function()
-	--if Config.Pedspawn then CreatePeds() end
-	for k, v in pairs(Config.Locations) do
+	for _, v in pairs(Config.Locations) do
 		for i = 1, #v do
 			local v = v[i]
 			if Config.Blips and v.blipTrue then
@@ -48,22 +49,26 @@ CreateThread(function()
 				if Config.BlipNamer then AddTextComponentString(v.name)
 				else AddTextComponentString("Recycling") end
 				EndTextCommandSetBlipName(blip)
+				if Config.Debug then print("^5Debug^7: ^6Blip ^2created for location^7: '^6"..v.name.."^7'") end
 			end
 			if Config.Pedspawn then
-				loadModel(v.model)
-				peds[#peds+1] = CreatePed(0, v.model, v.coords.x, v.coords.y, v.coords.z-1.03, v.coords[4], false, false)
-				SetEntityInvincible(peds[#peds], true)
-				SetBlockingOfNonTemporaryEvents(peds[#peds], true)
-				FreezeEntityPosition(peds[#peds], true)
-				TaskStartScenarioInPlace(peds[#peds], v.scenario, 0, true)
-				if Config.Debug then print("Debug: Ped Created") end
+				if not Peds[v.name..i] then
+					loadModel(v.model)
+					Peds[v.name..i] = CreatePed(0, v.model, v.coords.x, v.coords.y, v.coords.z-1.03, v.coords[4], false, false)
+					SetEntityInvincible(Peds[v.name..i], true)
+					SetBlockingOfNonTemporaryEvents(Peds[v.name..i], true)
+					FreezeEntityPosition(Peds[v.name..i], true)
+					TaskStartScenarioInPlace(Peds[v.name..i], v.scenario, 0, true)
+					if Config.Debug then print("^5Debug^7: ^6Ped ^2Created for location^7: '^6"..v.name..i.."^7'") end
+				end
 			end
 		end
 	end
 	--Make Targets
+	local price = "" if Config.PayAtDoor then price = " ($"..Config.PayAtDoor..")" end
 	Targets["RecyclingEnter"] =
 		exports['qb-target']:AddBoxZone("RecyclingEnter", vector3(746.82, -1398.93, 26.55), 0.4, 1.6, { name="RecyclingEnter", debugPoly=Config.Debug, minZ=25.2, maxZ=28.0 },
-			{ options = { { event = "jim-recycle:TeleWareHouse", icon = "fas fa-recycle", label = "Enter Warehouse", enter = true, job = Config.Job }, },
+			{ options = { { event = "jim-recycle:TeleWareHouse", icon = "fas fa-recycle", label = "Enter Warehouse"..price, enter = true, job = Config.Job }, },
 			distance = 1.5 })
 
 	Targets["RecyclingExit"] =
@@ -100,9 +105,9 @@ end)
 ---- Render Props -------
 function MakeProps()
 	for _, v in pairs(searchProps) do unloadModel(GetEntityModel(v)) DeleteObject(v) end
-	for _, v in pairs(props) do unloadModel(GetEntityModel(v)) DeleteObject(v) end
+	for _, v in pairs(Props) do unloadModel(GetEntityModel(v)) DeleteObject(v) end
 	--Floor Level Props (Using these for the selection pool)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,		1003.63, -3108.50, -39.96, 0, 0, 0)
+	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,		1003.63, -3108.50, -39.99, 0, 0, 0)
 	searchProps[#searchProps+1] = CreateObject(`ex_prop_crate_wlife_bc`,		1018.18, -3102.80, -39.99, 0, 0, 0)
 	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_watch`,			1013.33, -3102.80, -39.99, 0, 0, 0)
 	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_SHide`,			1018.18, -3096.95, -39.99, 0, 0, 0)
@@ -113,7 +118,7 @@ function MakeProps()
 	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Jewels_BC`,		1018.18, -3091.60, -39.99, 0, 0, 0)
 	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Jewels_BC`,		1003.63, -3091.60, -39.99, 0, 0, 0)
 	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Art_02_SC`,		1010.90, -3108.50, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,		1010.90, -3096.95, -39.86, 0, 0, 0)
+	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,		1010.90, -3096.95, -39.99, 0, 0, 0)
 	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_clothing_BC`,		1008.48, -3096.95, -39.99, 0, 0, 0)
 	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_biohazard_BC`,	1010.90, -3102.80, -39.99, 0, 0, 0)
 	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,		1006.05, -3108.50, -39.99, 0, 0, 0)
@@ -142,87 +147,87 @@ function MakeProps()
 	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Art_BC`,			993.355, -3108.95, -39.99, 0, 0, 0) SetEntityHeading(searchProps[#searchProps], 90.0)
 
 	--Second Level
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1006.05, -3096.95, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_prop_crate_wlife_sc`,			1003.63, -3102.80, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_prop_crate_jewels_racks_sc`,		1003.63, -3091.60, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_SC`,				1013.33, -3096.95, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_SC`,				1008.48, -3108.50, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Tob_SC`,				1018.18, -3096.95, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_SC`,				1013.33, -3108.50, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_biohazard_BC`,		1003.63, -3108.50, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_RW`,			1013.33, -3091.60, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Ammo_BC`,				1013.33, -3102.80, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,				1003.63, -3096.95, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_biohazard_SC`,		1006.05, -3108.50, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1015.75, -3096.95, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_HighEnd_pharma_SC`,	1015.75, -3091.60, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_SC`,				1018.18, -3102.80, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,				1018.18, -3108.50, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1008.48, -3102.80, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_HighEnd_pharma_BC`,	1018.18, -3091.60, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,				1015.75, -3102.80, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_furJacket_SC`,		1006.05, -3102.80, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Expl_bc`,				1010.90, -3102.80, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1010.90, -3108.50, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,				1010.90, -3096.95, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Tob_SC`,				1010.90, -3091.60, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_SC`,				1015.75, -3108.50, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1008.48, -3091.60, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1008.48, -3096.60, -37.81, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_SC`,			1006.05, -3091.60, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1006.05, -3096.95, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_prop_crate_wlife_sc`,			1003.63, -3102.80, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_prop_crate_jewels_racks_sc`,		1003.63, -3091.60, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_SC`,				1013.33, -3096.95, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_SC`,				1008.48, -3108.50, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Tob_SC`,				1018.18, -3096.95, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_SC`,				1013.33, -3108.50, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_biohazard_BC`,		1003.63, -3108.50, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_RW`,			1013.33, -3091.60, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Ammo_BC`,				1013.33, -3102.80, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,				1003.63, -3096.95, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_biohazard_SC`,		1006.05, -3108.50, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1015.75, -3096.95, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_HighEnd_pharma_SC`,	1015.75, -3091.60, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_SC`,				1018.18, -3102.80, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,				1018.18, -3108.50, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1008.48, -3102.80, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_HighEnd_pharma_BC`,	1018.18, -3091.60, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,				1015.75, -3102.80, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_furJacket_SC`,		1006.05, -3102.80, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Expl_bc`,				1010.90, -3102.80, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1010.90, -3108.50, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,				1010.90, -3096.95, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Tob_SC`,				1010.90, -3091.60, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_SC`,				1015.75, -3108.50, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1008.48, -3091.60, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1008.48, -3096.60, -37.81, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_SC`,			1006.05, -3091.60, -37.81, 0, 0, 0)
 	--These needed headings adjusting
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Med_BC`,				1026.75, -3106.52, -37.81, 0, 0, 0) SetEntityHeading(props[#props], -90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1026.75, -3111.38, -37.81, 0, 0, 0) SetEntityHeading(props[#props], -90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Narc_BC`,				1026.75, -3091.59, -37.81, 0, 0, 0) SetEntityHeading(props[#props], -90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Narc_SC`,				1026.75, -3094.01, -37.81, 0, 0, 0) SetEntityHeading(props[#props], -90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Med_SC`,				1026.75, -3108.88, -37.81, 0, 0, 0) SetEntityHeading(props[#props], -90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_pharma_SC`,			1026.75, -3096.43, -37.81, 0, 0, 0) SetEntityHeading(props[#props], -90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,			993.355, -3106.60, -37.81, 0, 0, 0) SetEntityHeading(props[#props], 90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,			993.355, -3111.30, -37.81, 0, 0, 0) SetEntityHeading(props[#props], 90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,			993.355, -3108.95, -37.81, 0, 0, 0) SetEntityHeading(props[#props], 90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Med_BC`,				1026.75, -3106.52, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1026.75, -3111.38, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Narc_BC`,				1026.75, -3091.59, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Narc_SC`,				1026.75, -3094.01, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Med_SC`,				1026.75, -3108.88, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_pharma_SC`,			1026.75, -3096.43, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,			993.355, -3106.60, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], 90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,			993.355, -3111.30, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], 90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,			993.355, -3108.95, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], 90.0)
 
 	--Third Level
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1013.33, -3102.80, -35.62, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1015.75, -3102.80, -35.62, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_BC`,				1013.33, -3108.50, -35.62, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_BC`,				1015.75, -3108.50, -35.62, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_clothing_BC`,			1018.18, -3096.95, -35.62, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,				1003.63, -3108.50, -35.61, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Wlife_BC`,			1018.18, -3091.60, -35.74, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Med_BC`,				1008.48, -3091.60, -35.62, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Wlife_BC`,			1015.75, -3091.60, -35.74, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1008.48, -3096.95, -35.60, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1010.90, -3096.95, -35.60, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1010.90, -3091.60, -35.62, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,		1013.33, -3091.60, -35.74, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_HighEnd_pharma_BC`,	1003.63, -3091.60, -35.62, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_02_BC`,			1013.33, -3096.95, -35.62, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Tob_BC`,				1010.90, -3108.50, -35.75, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_02_BC`,			1018.18, -3108.50, -35.62, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1003.63, -3096.95, -35.62, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1006.05, -3096.95, -35.60, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1006.05, -3102.80, -35.60, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Art_BC`,				1015.75, -3096.95, -35.62, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1010.90, -3102.80, -35.60, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1008.48, -3102.80, -35.60, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1006.05, -3091.60, -35.62, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1006.05, -3108.50, -35.62, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Tob_BC`,				1018.18, -3102.80, -35.75, 0, 0, 0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Tob_BC`,				1008.48, -3108.50, -35.75, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1013.33, -3102.80, -35.62, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1015.75, -3102.80, -35.62, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Art_BC`,				1013.33, -3108.50, -35.62, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Art_BC`,				1015.75, -3108.50, -35.62, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_clothing_BC`,			1018.18, -3096.95, -35.62, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,				1003.63, -3108.50, -35.61, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Wlife_BC`,			1018.18, -3091.60, -35.74, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Med_BC`,				1008.48, -3091.60, -35.62, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Wlife_BC`,			1015.75, -3091.60, -35.74, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1008.48, -3096.95, -35.60, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1010.90, -3096.95, -35.60, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1010.90, -3091.60, -35.62, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,		1013.33, -3091.60, -35.74, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_HighEnd_pharma_BC`,	1003.63, -3091.60, -35.62, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Art_02_BC`,			1013.33, -3096.95, -35.62, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Tob_BC`,				1010.90, -3108.50, -35.75, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Art_02_BC`,			1018.18, -3108.50, -35.62, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1003.63, -3096.95, -35.62, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1006.05, -3096.95, -35.60, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1006.05, -3102.80, -35.60, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Art_BC`,				1015.75, -3096.95, -35.62, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1010.90, -3102.80, -35.60, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1008.48, -3102.80, -35.60, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1006.05, -3091.60, -35.62, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1006.05, -3108.50, -35.62, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Tob_BC`,				1018.18, -3102.80, -35.75, 0, 0, 0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Tob_BC`,				1008.48, -3108.50, -35.75, 0, 0, 0)
 	--These needed headings adjusting
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1026.75, -3106.52, -35.62, 0, 0, 0) SetEntityHeading(props[#props], -90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1026.75, -3108.88, -35.62, 0, 0, 0) SetEntityHeading(props[#props], -90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1026.75, -3111.38, -35.62, 0, 0, 0) SetEntityHeading(props[#props], -90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,		1026.75, -3091.59, -35.74, 0, 0, 0) SetEntityHeading(props[#props], -90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,		1026.75, -3094.01, -35.74, 0, 0, 0) SetEntityHeading(props[#props], -90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,		1026.75, -3096.43, -35.74, 0, 0, 0) SetEntityHeading(props[#props], -90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				993.355, -3106.60, -35.60, 0, 0, 0) SetEntityHeading(props[#props], 90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				993.355, -3111.30, -35.60, 0, 0, 0) SetEntityHeading(props[#props], 90.0)
-	props[#props+1] = CreateObject(`ex_Prop_Crate_Elec_SC`,				993.355, -3108.95, -35.62, 0, 0, 0) SetEntityHeading(props[#props], 90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1026.75, -3106.52, -35.62, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1026.75, -3108.88, -35.62, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1026.75, -3111.38, -35.62, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,		1026.75, -3091.59, -35.74, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,		1026.75, -3094.01, -35.74, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,		1026.75, -3096.43, -35.74, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				993.355, -3106.60, -35.60, 0, 0, 0) SetEntityHeading(Props[#Props], 90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				993.355, -3111.30, -35.60, 0, 0, 0) SetEntityHeading(Props[#Props], 90.0)
+	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_SC`,				993.355, -3108.95, -35.62, 0, 0, 0) SetEntityHeading(Props[#Props], 90.0)
 
-	--props[#props+1] = CreateObject(`prop_toolchest_05`,					1002.04, -3108.36, -39.99, 0, 0, 0) SetEntityHeading(props[#props], -90.0)
+	--Props[#Props+1] = CreateObject(`prop_toolchest_05`,					1002.04, -3108.36, -39.99, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
 
-	TrollyProp = CreateObject(`prop_large_gold_empty`, 999.32, -3093.2, -39.78, 0, 0, 0) FreezeEntityPosition(TrollyProp, true) SetEntityHeading(TrollyProp, 346.38)
+	TrollyProp = CreateObject(`prop_partsbox_01`, 999.32, -3093.2, -39.78, 0, 0, 0) FreezeEntityPosition(TrollyProp, true) SetEntityHeading(TrollyProp, 256.38)
 end
 function EndJob()
 	if Targets["Package"] then exports["qb-target"]:RemoveTargetEntity(randPackage, "Search") end
@@ -253,6 +258,11 @@ end
 --Event to enter and exit warehouse
 RegisterNetEvent("jim-recycle:TeleWareHouse", function(data)
 	if data.enter then
+		if Config.PayAtDoor then
+			local p = promise.new()	QBCore.Functions.TriggerCallback("jim-recycle:GetCash", function(cb) p:resolve(cb) end)
+			if Citizen.Await(p) >= Config.PayAtDoor then TriggerServerEvent("jim-recycle:DoorCharge")
+			else TriggerEvent("QBCore:Notify", "Not Enough Cash", "error") return end
+		end
 		if Config.EnableOpeningHours then
 			local ClockTime = GetClockHours()
 			if ClockTime >= Config.OpenHour and ClockTime <= Config.CloseHour - 1 then
@@ -276,8 +286,8 @@ RegisterNetEvent("jim-recycle:TeleWareHouse", function(data)
 			DoScreenFadeIn(500)
 		end
 	else
-		--When leaving building, deleteprops and clear prop tables
-		for _, v in pairs(props) do unloadModel(GetEntityModel(v)) DeleteObject(v) end props = {}
+		--When leaving building, deleteProps and clear prop tables
+		for _, v in pairs(Props) do unloadModel(GetEntityModel(v)) DeleteObject(v) end Props = {}
 		for _, v in pairs(searchProps) do unloadModel(GetEntityModel(v)) DeleteObject(v) end searchProps = {}
 		EndJob() -- Resets outlines + targets if needed
 		DoScreenFadeOut(500)
@@ -306,10 +316,10 @@ RegisterNetEvent("jim-recycle:PickupPackage:Hold", function()
 	--Make prop to put in hands
 	loadAnimDict("anim@heists@box_carry@")
     TaskPlayAnim(PlayerPedId(), "anim@heists@box_carry@" ,"idle", 5.0, -1, -1, 50, 0, false, false, false)
-	randomScrap = scrapPool[math.random(1, #scrapPool)]
-    loadModel(randomScrap.model)
-    scrapProp = CreateObject(randomScrap.model, GetEntityCoords(PlayerPedId(), true), true, true, true)
-    AttachEntityToEntity(scrapProp, PlayerPedId(), GetPedBoneIndex(PlayerPedId(), 57005), 0.05, 0.1, -0.3, randomScrap.rot1, randomScrap.rot2, 20.0, true, true, false, true, 1, true)
+	v = scrapPool[math.random(1, #scrapPool)]
+    loadModel(v.model)
+    scrapProp = CreateObject(v.model, GetEntityCoords(PlayerPedId(), true), true, true, true)
+    AttachEntityToEntity(scrapProp, PlayerPedId(), GetPedBoneIndex(PlayerPedId(), 18905), v.xPos, v.yPos, v.zPos, v.xRot, v.yRot, v.zRot, 20.0, true, true, false, true, 1, true)
 	--Create target for drop off location
 	SetEntityDrawOutline(TrollyProp, true)
 	SetEntityDrawOutlineColor(255, 255, 255, 1.0)
@@ -354,7 +364,7 @@ RegisterNetEvent('jim-recycle:dutytoggle', function()
 end)
 
 RegisterNetEvent('jim-recycle:SellAnim', function(item)
-	for _, v in pairs (peds) do
+	for _, v in pairs (Peds) do
       	if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(v)) < 3 then
 			loadAnimDict("mp_common")
 			loadAnimDict("amb@prop_human_atm@male@enter")
@@ -427,8 +437,8 @@ end)
 
 AddEventHandler('onResourceStop', function(resource) if resource ~= GetCurrentResourceName() then return end
 	for k in pairs(Targets) do exports['qb-target']:RemoveZone(k) end
-	for _, v in pairs(peds) do unloadModel(GetEntityModel(v)) DeletePed(v) end
-	for _, v in pairs(props) do unloadModel(GetEntityModel(v)) DeleteObject(v) end
+	for _, v in pairs(Peds) do unloadModel(GetEntityModel(v)) DeletePed(v) end
+	for _, v in pairs(Props) do unloadModel(GetEntityModel(v)) DeleteObject(v) end
 	for _, v in pairs(searchProps) do unloadModel(GetEntityModel(v)) DeleteObject(v) end
 	unloadModel(GetEntityModel(TrollyProp)) DeleteObject(TrollyProp)
 	unloadModel(GetEntityModel(scrapProp)) DeleteObject(scrapProp)
