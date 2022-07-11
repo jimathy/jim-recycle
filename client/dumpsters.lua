@@ -13,8 +13,8 @@ local dumpsters = { -- The mighty list of dumpters/trash cans
 }
 
 --Loading/Unloading Asset Functions
-local function loadAnimDict(dict) if Config.Debug then print("Debug: Loading Anim Dictionary: '"..dict.."'") end while not HasAnimDictLoaded(dict) do RequestAnimDict(dict) Wait(5) end end
-local function unloadAnimDict(dict) if Config.Debug then print("Debug: Removing Anim Dictionary: '"..dict.."'") end RemoveAnimDict(dict) end
+function loadAnimDict(dict)	if Config.Debug then print("^5Debug^7: ^2Loading Anim Dictionary^7: '^6"..dict.."^7'") end while not HasAnimDictLoaded(dict) do RequestAnimDict(dict) Wait(5) end end
+function unloadAnimDict(dict) if Config.Debug then print("^5Debug^7: ^2Removing Anim Dictionary^7: '^6"..dict.."^7'") end RemoveAnimDict(dict) end
 
 CreateThread(function()
 	--Dumpster Third Eye
@@ -50,7 +50,7 @@ RegisterNetEvent('jim-recycle:Dumpsters:Search', function()
         for i = 1, #dumpsters do
             local dumpster = GetClosestObjectOfType(GetEntityCoords(PlayerPedId()), 1.0, dumpsters[i], false, false, false)
             if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(dumpster)) < 1.8 then
-                if Config.Debug then print("Debug: Starting Search of entity: '"..dumpster.."'") end
+                if Config.Debug then print("^5Debug^7: ^2Starting Search of entity^7: '^6"..dumpster.."^7'") end
                 for i = 1, #searched do
                     if searched[i] == dumpster then dumpsterFound = true end -- Theres a dumpster nearby
                     if i == #searched and dumpsterFound then TriggerEvent("QBCore:Notify", "Already Searched.", "error") return -- Let player know already searched

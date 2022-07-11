@@ -1,7 +1,7 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
 AddEventHandler('onResourceStart', function(resource) if GetCurrentResourceName() ~= resource then return end
-	for _, v in pairs(Config.ScrapItems) do if not QBCore.Shared.Items[v] then print("ScrapItem: Missing Item from QBCore.Shared.Items: '"..v.."'") end end
+	for _, v in pairs(Config.ScrapItems) do if not QBCore.Shared.Items[v] then print("^5Debug^7: ^6ScrapItems^7: ^2Missing Item from ^4QBCore^7.^4Shared^7.^4Items^7: '^6"..v.."^7'") end end
 end)
 
 RegisterServerEvent('jim-recycle:Scrap:Reward', function()
