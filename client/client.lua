@@ -363,9 +363,11 @@ RegisterNetEvent('jim-recycle:dutytoggle', function()
 	end
 end)
 
+local Selling = false
 RegisterNetEvent('jim-recycle:SellAnim', function(item)
 	for _, v in pairs (Peds) do
       	if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(v)) < 3 then
+			Selling = true
 			loadAnimDict("mp_common")
 			loadAnimDict("amb@prop_human_atm@male@enter")
 			local model = `prop_paper_bag_small`
@@ -391,11 +393,13 @@ RegisterNetEvent('jim-recycle:SellAnim', function(item)
 				if k == item then TriggerServerEvent('jim-recycle:Selling:Mat', item) return end
 			end
 			TriggerServerEvent("jim-recycle:TradeItems", item)
+			Selling = false
 		end
 	end
 end)
 
 RegisterNetEvent('jim-recycle:Selling:Menu', function()
+	if Selling then return end
 	local sellMenu = {
 		{ icon = "recyclablematerial", header = "Material Selling", txt = "Sell batches of materials", isMenuHeader = true },
 		{ icon = "fas fa-circle-xmark", header = "", txt = "Close", params = { event = "jim-recycle:CloseMenu" } } }
@@ -414,6 +418,7 @@ end)
 
 --Recyclable Trader
 RegisterNetEvent('jim-recycle:Trade:Menu', function()
+	if Selling then return end
 	local p = promise.new() QBCore.Functions.TriggerCallback("jim-recycle:GetRecyclable", function(cb) p:resolve(cb) end) local amount = Citizen.Await(p)
 	local tradeMenu = {
 		{ icon = "recyclablematerial", header = "Material Trading", txt = "Amount held: "..amount, isMenuHeader = true },
