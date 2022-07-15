@@ -74,12 +74,12 @@ CreateThread(function()
 
 	Targets["RecyclingExit"] =
 		exports['qb-target']:AddBoxZone("RecyclingExit", vector3(991.97, -3097.81, -39.0), 1.6, 0.4, { name="RecyclingExit", debugPoly=Config.Debug, useZ=true, },
-    		{ options = { { event = "jim-recycle:TeleWareHouse", icon = "fas fa-recycle", label = "Exit Warehouse", enter =  false }, },
+			{ options = { { event = "jim-recycle:TeleWareHouse", icon = "fas fa-recycle", label = "Exit Warehouse", enter =  false }, },
 			distance = 1.5 })
 
 	Targets["RecycleDuty"] =
-   		exports['qb-target']:AddCircleZone("RecycleDuty", vector3(995.36, -3099.91, -39.2), 0.45, { name="RecycleDuty", debugPoly=Config.Debug, useZ=true, },
-    		{ options = { { event = "jim-recycle:dutytoggle", icon = "fas fa-hard-hat", label = "Toggle Recycling Duty", job = Config.Job }, },
+		exports['qb-target']:AddCircleZone("RecycleDuty", vector3(995.36, -3099.91, -39.2), 0.45, { name="RecycleDuty", debugPoly=Config.Debug, useZ=true, },
+			{ options = { { event = "jim-recycle:dutytoggle", icon = "fas fa-hard-hat", label = "Toggle Recycling Duty", job = Config.Job }, },
 			distance = 1.5 })
 	--Recyclable Material Trader
 	for i = 1, #Config.Locations["Trade"] do
@@ -367,7 +367,7 @@ end)
 local Selling = false
 RegisterNetEvent('jim-recycle:SellAnim', function(item)
 	for _, v in pairs (Peds) do
-      	if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(v)) < 3 then
+		if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(v)) < 3 then
 			Selling = true
 			loadAnimDict("mp_common")
 			loadAnimDict("amb@prop_human_atm@male@enter")
@@ -391,7 +391,7 @@ RegisterNetEvent('jim-recycle:SellAnim', function(item)
 			destroyProp(bag) unloadModel(model)
 			bag = nil
 			for k in pairs(Config.Prices) do
-				if k == item then TriggerServerEvent('jim-recycle:Selling:Mat', item) return end
+				if k == item then TriggerServerEvent('jim-recycle:Selling:Mat', item) Selling = false return end
 			end
 			TriggerServerEvent("jim-recycle:TradeItems", item)
 			Selling = false
