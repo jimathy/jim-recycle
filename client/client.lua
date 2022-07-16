@@ -36,6 +36,25 @@ function conVector3(vector) return vector3(vector.x, vector.y, vector.z) end
 
 --- Blips + Peds
 CreateThread(function()
+	JobLocation = PolyZone:Create({
+		vector2(992.39141845703, -3113.3854980469),
+		vector2(1028.5169677734, -3113.1450195312),
+		vector2(1027.978515625, -3088.9782714844),
+		vector2(992.19049072266, -3089.8234863281)
+	},
+	{ name = "Recycling", debugPoly = Config.Debug })
+	JobLocation:onPlayerInOut(function(isPointInside) 
+		if not isPointInside then 
+			EndJob()
+			if Config.Debug then print("^5Debug^7: ^2Leaving Area^7. ^2Clocking out and cleaning up^7") end
+			if Config.JobRole then 
+				if onDuty then TriggerServerEvent("QBCore:ToggleDuty") end
+			elseif onDuty then
+				onDuty = not onDuty 
+			end
+		end
+	end)
+
 	for _, v in pairs(Config.Locations) do
 		for i = 1, #v do
 			local v = v[i]
