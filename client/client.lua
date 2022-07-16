@@ -52,6 +52,7 @@ CreateThread(function()
 			elseif onDuty then
 				onDuty = not onDuty 
 			end
+		else MakeProps()
 		end
 	end)
 
@@ -124,9 +125,11 @@ CreateThread(function()
 end)
 ---- Render Props -------
 function MakeProps()
+	if Config.Debug then print("^5Debug^7: ^3MakeProps^7() ^2Entering building^7, ^2clearing previous props ^7(^2if any^7)") end
 	for _, v in pairs(searchProps) do unloadModel(GetEntityModel(v)) DeleteObject(v) end
 	for _, v in pairs(Props) do unloadModel(GetEntityModel(v)) DeleteObject(v) end
 	--Floor Level Props (Using these for the selection pool)
+	if Config.Debug then print("^5Debug^7: ^3MakeProps^7() ^2Props cleared^7, ^2spawning props") end
 	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,		1003.63, -3108.50, -39.99, 0, 0, 0)
 	searchProps[#searchProps+1] = CreateObject(`ex_prop_crate_wlife_bc`,		1018.18, -3102.80, -39.99, 0, 0, 0)
 	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_watch`,			1013.33, -3102.80, -39.99, 0, 0, 0)
@@ -246,8 +249,8 @@ function MakeProps()
 	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_SC`,				993.355, -3108.95, -35.62, 0, 0, 0) SetEntityHeading(Props[#Props], 90.0)
 
 	--Props[#Props+1] = CreateObject(`prop_toolchest_05`,					1002.04, -3108.36, -39.99, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
-
-	TrollyProp = CreateObject(`prop_partsbox_01`, 999.32, -3093.2, -39.78, 0, 0, 0) FreezeEntityPosition(TrollyProp, true) SetEntityHeading(TrollyProp, 256.38)
+	loadModel(`ex_Prop_Crate_Closed_BC`)
+	TrollyProp = CreateObject(`ex_Prop_Crate_Closed_BC`, 999.32, -3093.2, -39.78, 0, 0, 0) FreezeEntityPosition(TrollyProp, true) SetEntityHeading(TrollyProp, 166.38)
 end
 function EndJob()
 	if Targets["Package"] then exports["qb-target"]:RemoveTargetEntity(randPackage, "Search") end
@@ -287,7 +290,6 @@ RegisterNetEvent("jim-recycle:TeleWareHouse", function(data)
 			local ClockTime = GetClockHours()
 			if ClockTime >= Config.OpenHour and ClockTime <= Config.CloseHour - 1 then
 				if (ClockTime >= Config.OpenHour and ClockTime < 24) or (ClockTime <= Config.CloseHour -1 and ClockTime > 0) then
-					MakeProps()
 					DoScreenFadeOut(500)
 					while not IsScreenFadedOut() do	Citizen.Wait(10) end
 					SetEntityCoords(PlayerPedId(), Config.InsideTele)
@@ -299,7 +301,6 @@ RegisterNetEvent("jim-recycle:TeleWareHouse", function(data)
 				TriggerEvent("QBCore:Notify", "We're currently closed, we're open from "..Config.OpenHour..":00 until "..Config.CloseHour..":00pm", "error")
 			end
 		else
-			MakeProps()
 			DoScreenFadeOut(500)
 			while not IsScreenFadedOut() do	Citizen.Wait(10) end
 			SetEntityCoords(PlayerPedId(), Config.InsideTele)
