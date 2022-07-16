@@ -414,6 +414,7 @@ RegisterNetEvent('jim-recycle:Selling:Menu', function()
 			params = { event = "jim-recycle:SellAnim", args = k } }
 		Wait(10)
 	end
+	print(#sellMenu)
     exports['qb-menu']:openMenu(sellMenu)
 end)
 
@@ -428,17 +429,25 @@ RegisterNetEvent('jim-recycle:Trade:Menu', function()
 	if amount >= 10 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = "Trade 10 Materials", params = { event = "jim-recycle:SellAnim", args = 2 } } end
 	if amount >= 100 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = "Trade 100 Materials", params = { event = "jim-recycle:SellAnim", args = 3 } } end
 	if amount >= 1000 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = "Trade 1000 Materials", params = { event = "jim-recycle:SellAnim", args = 4 } } end
-    exports['qb-menu']:openMenu(tradeMenu)
+	if #tradeMenu > 2 then exports['qb-menu']:openMenu(tradeMenu)
+	else TriggerEvent("QBCore:Notify", "No Recylable Materials to trade", "error") end
 end)
 
 --Recyclable Trader
 RegisterNetEvent('jim-recycle:Bottle:Menu', function()
-    exports['qb-menu']:openMenu({
-		{ header = "Material Selling", txt = "Sell batches of recyclables", isMenuHeader = true },
-		{ icon = "fas fa-circle-xmark", header = "", txt = "Close", params = { event = "jim-recycle:CloseMenu" } },
-		{ icon = "bottle", header = "<img src=nui://"..Config.img..QBCore.Shared.Items["bottle"].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items["bottle"].label, params = { event = "jim-recycle:SellAnim", args = 'bottle' } },
-		{ icon = "can", header = "<img src=nui://"..Config.img..QBCore.Shared.Items["can"].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items["can"].label, params = { event = "jim-recycle:SellAnim", args = 'can' } },
-    })
+	if Selling then return end
+	local tradeMenu = {
+		{ icon = "recyclablematerial", header = "Material Selling", txt = "Sell batches of recyclables", isMenuHeader = true },
+		{ icon = "fas fa-circle-xmark", header = "", txt = "Close", params = { event = "jim-recycle:CloseMenu" } } }
+
+	local p = promise.new() QBCore.Functions.TriggerCallback("QBCore:HasItem", function(cb) p:resolve(cb) end, "can") 
+	if Citizen.Await(p) then tradeMenu[#tradeMenu+1] = { icon = "can", header = "<img src=nui://"..Config.img..QBCore.Shared.Items["can"].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items["can"].label, params = { event = "jim-recycle:SellAnim", args = 'can' } } end
+	Wait(10)
+	local p2 = promise.new() QBCore.Functions.TriggerCallback("QBCore:HasItem", function(cb) p2:resolve(cb) end, "bottle") 
+	if Citizen.Await(p2) then tradeMenu[#tradeMenu+1] = { icon = "bottle", header = "<img src=nui://"..Config.img..QBCore.Shared.Items["bottle"].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items["bottle"].label, params = { event = "jim-recycle:SellAnim", args = 'bottle' } } end
+    
+	if #tradeMenu > 2 then exports['qb-menu']:openMenu(tradeMenu)
+	else TriggerEvent("QBCore:Notify", "No bottles or cans to trade", "error") end
 end)
 
 AddEventHandler('onResourceStop', function(resource) if resource ~= GetCurrentResourceName() then return end
