@@ -19,14 +19,18 @@ scrapPool = {
 	{ model = `v_ind_cs_toolbox2`, xPos = 0.04, yPos = 0.12, zPos = 0.29, xRot = 56.0, yRot = 287.0, zRot = 169.0 },
 }
 
-RegisterNetEvent('QBCore:Client:SetDuty') AddEventHandler('QBCore:Client:SetDuty', function(duty) onDuty = duty end)
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+	QBCore.Functions.GetPlayerData(function(PlayerData) PlayerJob = PlayerData.job if PlayerData.job.name == Config.JobRole then onDuty = PlayerJob.onduty end end)
+end)
+
+RegisterNetEvent('QBCore:Client:SetDuty', function(duty) if PlayerData.job.name == Config.JobRole then onDuty = duty end end)
 
 AddEventHandler('onResourceStart', function(resource) if GetCurrentResourceName() ~= resource then return end
 	QBCore.Functions.GetPlayerData(function(PlayerData) PlayerJob = PlayerData.job if PlayerData.job.name == Config.JobRole then onDuty = PlayerJob.onduty end end)
 end)
 --Don't even try to ask me how pairsByKeys works, found it on a tutorial site for organising tables
-local time = 20
 function pairsByKeys(t) local a = {} for n in pairs(t) do a[#a+1] = n end table.sort(a)	local i = 0	local iter = function () i = i + 1 if a[i] == nil then return nil else return a[i], t[a[i]]	end	end	return iter end
+local time = 20
 function loadModel(model) if not HasModelLoaded(model) then if Config.Debug then print("^5Debug^7: ^2Loading Model^7: '^6"..model.."^7'") end while not HasModelLoaded(model) do if time > 0 then time = time - 1 RequestModel(model) else time = 30 break end Wait(10)	end	end end
 function unloadModel(model) if Config.Debug then print("^5Debug^7: ^2Removing Model^7: '^6"..model.."^7'") end SetModelAsNoLongerNeeded(model) end
 function loadAnimDict(dict)	if Config.Debug then print("^5Debug^7: ^2Loading Anim Dictionary^7: '^6"..dict.."^7'") end while not HasAnimDictLoaded(dict) do RequestAnimDict(dict) Wait(5) end end
@@ -49,8 +53,8 @@ CreateThread(function()
 			if Config.Debug then print("^5Debug^7: ^3PolyZone^7: ^2Leaving Area^7. ^2Clocking out and cleaning up^7") end
 			if Config.JobRole then 
 				if onDuty then TriggerServerEvent("QBCore:ToggleDuty") end
-			elseif onDuty then
-				onDuty = not onDuty 
+			elseif onDuty == true then
+				onDuty = false
 			end
 		else MakeProps()
 		end
