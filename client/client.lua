@@ -23,7 +23,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
 	QBCore.Functions.GetPlayerData(function(PlayerData) PlayerJob = PlayerData.job if PlayerData.job.name == Config.JobRole then onDuty = PlayerJob.onduty end end)
 end)
 
-RegisterNetEvent('QBCore:Client:SetDuty', function(duty) if PlayerData.job.name == Config.JobRole then onDuty = duty end end)
+RegisterNetEvent('QBCore:Client:SetDuty', function(duty) if Config.JobRole then if PlayerData.job.name == Config.JobRole then onDuty = duty end end end)
 
 AddEventHandler('onResourceStart', function(resource) if GetCurrentResourceName() ~= resource then return end
 	QBCore.Functions.GetPlayerData(function(PlayerData) PlayerJob = PlayerData.job if PlayerData.job.name == Config.JobRole then onDuty = PlayerJob.onduty end end)
