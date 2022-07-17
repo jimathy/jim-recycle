@@ -45,8 +45,8 @@ CreateThread(function()
 	{ name = "Recycling", debugPoly = Config.Debug })
 	JobLocation:onPlayerInOut(function(isPointInside) 
 		if not isPointInside then 
-			EndJob()
-			if Config.Debug then print("^5Debug^7: ^2Leaving Area^7. ^2Clocking out and cleaning up^7") end
+			EndJob() ClearProps()
+			if Config.Debug then print("^5Debug^7: ^3PolyZone^7: ^2Leaving Area^7. ^2Clocking out and cleaning up^7") end
 			if Config.JobRole then 
 				if onDuty then TriggerServerEvent("QBCore:ToggleDuty") end
 			elseif onDuty then
@@ -125,11 +125,8 @@ CreateThread(function()
 end)
 ---- Render Props -------
 function MakeProps()
-	if Config.Debug then print("^5Debug^7: ^3MakeProps^7() ^2Entering building^7, ^2clearing previous props ^7(^2if any^7)") end
-	for _, v in pairs(searchProps) do unloadModel(GetEntityModel(v)) DeleteObject(v) end
-	for _, v in pairs(Props) do unloadModel(GetEntityModel(v)) DeleteObject(v) end
 	--Floor Level Props (Using these for the selection pool)
-	if Config.Debug then print("^5Debug^7: ^3MakeProps^7() ^2Props cleared^7, ^2spawning props") end
+	if Config.Debug then print("^5Debug^7: ^3MakeProps^7() ^2Spawning props") end
 	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,		1003.63, -3108.50, -39.99, 0, 0, 0)
 	searchProps[#searchProps+1] = CreateObject(`ex_prop_crate_wlife_bc`,		1018.18, -3102.80, -39.99, 0, 0, 0)
 	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_watch`,			1013.33, -3102.80, -39.99, 0, 0, 0)
@@ -255,7 +252,6 @@ end
 function EndJob()
 	if Targets["Package"] then exports["qb-target"]:RemoveTargetEntity(randPackage, "Search") end
 	if Targets["DropOff"] then exports["qb-target"]:RemoveTargetEntity(TrollyProp, "Drop Off") end
-	unloadModel(GetEntityModel(TrollyProp)) DeleteObject(TrollyProp)
 	for i = 1, #searchProps do SetEntityDrawOutline(searchProps[i], false) end
 	randPackage = nil
 	if scrapProp then
@@ -263,6 +259,15 @@ function EndJob()
 		scrapProp = nil
 	end
 end
+
+function ClearProps()
+	if Config.Debug then print("^5Debug^7: ^3ClearProps^7() ^2Exiting building^7, ^2clearing previous props ^7(^2if any^7)") end
+	for _, v in pairs(searchProps) do unloadModel(GetEntityModel(v)) DeleteObject(v) end searchProps = {}
+	for _, v in pairs(Props) do unloadModel(GetEntityModel(v)) DeleteObject(v) end Props = {}
+	if Targets["DropOff"] then exports["qb-target"]:RemoveTargetEntity(TrollyProp, "Drop Off") end
+	unloadModel(GetEntityModel(TrollyProp)) DeleteObject(TrollyProp)
+end
+
 --Pick one of the crates for the player to choose, generate outline + target
 function PickRandomPackage()
 	--If somehow already exists, remove target
@@ -307,9 +312,6 @@ RegisterNetEvent("jim-recycle:TeleWareHouse", function(data)
 			DoScreenFadeIn(500)
 		end
 	else
-		--When leaving building, deleteProps and clear prop tables
-		for _, v in pairs(Props) do unloadModel(GetEntityModel(v)) DeleteObject(v) end Props = {}
-		for _, v in pairs(searchProps) do unloadModel(GetEntityModel(v)) DeleteObject(v) end searchProps = {}
 		EndJob() -- Resets outlines + targets if needed
 		DoScreenFadeOut(500)
 		while not IsScreenFadedOut() do	Citizen.Wait(10) end
