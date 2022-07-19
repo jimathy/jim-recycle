@@ -290,15 +290,15 @@ end
 --Event to enter and exit warehouse
 RegisterNetEvent("jim-recycle:TeleWareHouse", function(data)
 	if data.enter then
-		if Config.PayAtDoor then
-			local p = promise.new()	QBCore.Functions.TriggerCallback("jim-recycle:GetCash", function(cb) p:resolve(cb) end)
-			if Citizen.Await(p) >= Config.PayAtDoor then TriggerServerEvent("jim-recycle:DoorCharge")
-			else TriggerEvent("QBCore:Notify", "Not Enough Cash", "error") return end
-		end
 		if Config.EnableOpeningHours then
 			local ClockTime = GetClockHours()
 			if ClockTime >= Config.OpenHour and ClockTime <= Config.CloseHour - 1 then
 				if (ClockTime >= Config.OpenHour and ClockTime < 24) or (ClockTime <= Config.CloseHour -1 and ClockTime > 0) then
+					if Config.PayAtDoor then
+						local p = promise.new()	QBCore.Functions.TriggerCallback("jim-recycle:GetCash", function(cb) p:resolve(cb) end)
+						if Citizen.Await(p) >= Config.PayAtDoor then TriggerServerEvent("jim-recycle:DoorCharge")
+						else TriggerEvent("QBCore:Notify", "Not Enough Cash", "error") return end
+					end
 					DoScreenFadeOut(500)
 					while not IsScreenFadedOut() do	Citizen.Wait(10) end
 					SetEntityCoords(PlayerPedId(), Config.InsideTele)
