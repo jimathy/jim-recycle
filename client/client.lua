@@ -93,7 +93,7 @@ CreateThread(function()
 	local price = "" if Config.PayAtDoor then price = " ($"..Config.PayAtDoor..")" end
 	Targets["RecyclingEnter"] =
 		exports['qb-target']:AddBoxZone("RecyclingEnter", vector3(746.82, -1398.93, 26.55), 0.4, 1.6, { name="RecyclingEnter", debugPoly=Config.Debug, minZ=25.2, maxZ=28.0 },
-			{ options = { { event = "jim-recycle:TeleWareHouse", icon = "fas fa-recycle", label = "Enter Warehouse"..price, enter = true, job = Config.Job }, },
+			{ options = { { event = "jim-recycle:TeleWareHouse", icon = "fas fa-recycle", label = "Enter Warehouse"..price, enter = true, job = Config.JobRole }, },
 			distance = 1.5 })
 
 	Targets["RecyclingExit"] =
@@ -103,7 +103,7 @@ CreateThread(function()
 
 	Targets["RecycleDuty"] =
 		exports['qb-target']:AddCircleZone("RecycleDuty", vector3(995.36, -3099.91, -39.2), 0.45, { name="RecycleDuty", debugPoly=Config.Debug, useZ=true, },
-			{ options = { { event = "jim-recycle:dutytoggle", icon = "fas fa-hard-hat", label = "Toggle Recycling Duty", job = Config.Job }, },
+			{ options = { { event = "jim-recycle:dutytoggle", icon = "fas fa-hard-hat", label = "Toggle Recycling Duty", job = Config.JobRole }, },
 			distance = 1.5 })
 	--Recyclable Material Trader
 	for i = 1, #Config.Locations["Trade"] do
@@ -123,7 +123,7 @@ CreateThread(function()
 	for i = 1, #Config.Locations["BottleBanks"] do
 		Targets["BottleBank"..i] =
 			exports['qb-target']:AddCircleZone("BottleBank"..i, conVector3(Config.Locations["BottleBanks"][i].coords), 1.2,	{ name="BottleBank"..i, debugPoly=Config.Debug, useZ=true, },
-				{ options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", job = Config.Job  }, },
+				{ options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", job = Config.JobRole  }, },
 				distance = 1.5 })
 	end
 end)
