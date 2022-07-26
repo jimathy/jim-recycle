@@ -46,6 +46,18 @@ Config = {
 		['bottle'] = 5,
 		['can'] = 5,
 	},
+	TradeTable = {
+		"copper",
+		"plastic",
+		"metalscrap",
+		"steel",
+		"glass",
+		"iron",
+		"rubber",
+		"aluminum",
+		"bottle",
+		"can",
+	},
 	DumpItems = {
 		"bottle",
 		"can",

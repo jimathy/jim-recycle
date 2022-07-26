@@ -3,7 +3,6 @@ local QBCore = exports['qb-core']:GetCoreObject()
 AddEventHandler('onResourceStart', function(resource) if GetCurrentResourceName() ~= resource then return end
 	for k in pairs(Config.Prices) do if not QBCore.Shared.Items[k] then print("^5Debug^7: ^6Prices^7: ^2Missing Item from ^4QBCore^7.^4Shared^7.^4Items^7: '^6"..k.."^7'") end end
 	if not QBCore.Shared.Items["recyclablematerial"] then print("^5Debug^7: ^2Missing Item from ^4QBCore^7.^4Shared^7.^4Items^7: '^6recyclablematerial^7'") end
-	Config.TradeTable = {} for k in pairs(Config.Prices) do Config.TradeTable[#Config.TradeTable+1] = k end
 end)
 ---ITEM REQUIREMENT CHECKS
 QBCore.Functions.CreateCallback('jim-recycle:GetRecyclable', function(source, cb)
