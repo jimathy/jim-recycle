@@ -8,7 +8,7 @@ searchProps = {}
 Props = {}
 scrapPool = {
 	--{ model = ``, xPos = , yPos = , zPos = , xRot = , yRot = , zRot = },
-	{ model = `sf_prop_sf_art_box_cig_01a`, xPos = 0.16, yPos = -0.06, zPos = 0.21, xRot = 52.0, yRot = 288.0, zRot = 175.0},
+	--{ model = `sf_prop_sf_art_box_cig_01a`, xPos = 0.16, yPos = -0.06, zPos = 0.21, xRot = 52.0, yRot = 288.0, zRot = 175.0},
 	{ model = `hei_prop_drug_statue_box_01`, xPos = 0.08, yPos = 0.05, zPos = 0.06, xRot = 7.0, yRot = 198.0, zRot = 145.0},
 	{ model = `prop_mat_box`, xPos = 0.0, yPos = 0.28, zPos = 0.36, xRot = 136.0, yRot = 114.0, zRot = 181.0},
 	{ model = `prop_box_ammo03a`, xPos = -0.08, yPos = 0.04, zPos = 0.32, xRot = 76.0, yRot = 110.0, zRot = 185.0},
@@ -134,7 +134,6 @@ CreateThread(function()
 end)
 ---- Render Props -------
 function MakeProps()
-	for k in pairs(scrapPool) do loadModel(scrapPool[k].model) end
 	--Floor Level Props (Using these for the selection pool)
 	if Config.Debug then print("^5Debug^7: ^3MakeProps^7() ^2Spawning props") end
 	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,		1003.63, -3108.50, -39.99, 0, 0, 0)
@@ -258,6 +257,7 @@ function MakeProps()
 	--Props[#Props+1] = CreateObject(`prop_toolchest_05`,					1002.04, -3108.36, -39.99, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
 	loadModel(`ex_Prop_Crate_Closed_BC`)
 	TrollyProp = CreateObject(`ex_Prop_Crate_Closed_BC`, 999.32, -3093.2, -39.78, 0, 0, 0) FreezeEntityPosition(TrollyProp, true) SetEntityHeading(TrollyProp, 166.38)
+	for k in pairs(scrapPool) do loadModel(scrapPool[k].model) end
 end
 function EndJob()
 	if Targets["Package"] then exports["qb-target"]:RemoveTargetEntity(randPackage, "Search") end
