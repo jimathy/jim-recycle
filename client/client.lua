@@ -451,7 +451,6 @@ RegisterNetEvent('jim-recycle:Selling:Menu', function()
 			params = { event = "jim-recycle:SellAnim", args = k } }
 		Wait(10)
 	end
-	print(#sellMenu)
     exports['qb-menu']:openMenu(sellMenu)
 end)
 
