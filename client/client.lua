@@ -1,4 +1,5 @@
 local QBCore = exports['qb-core']:GetCoreObject()
+RegisterNetEvent('QBCore:Client:UpdateObject', function() QBCore = exports['qb-core']:GetCoreObject() end)
 
 PlayerJob = {}
 onDuty = false
@@ -6,6 +7,8 @@ Peds = {}
 Targets = {}
 searchProps = {}
 Props = {}
+local TrollyProp = nil
+
 scrapPool = {
 	--{ model = ``, xPos = , yPos = , zPos = , xRot = , yRot = , zRot = },
 	--{ model = `sf_prop_sf_art_box_cig_01a`, xPos = 0.16, yPos = -0.06, zPos = 0.21, xRot = 52.0, yRot = 288.0, zRot = 175.0},
@@ -255,13 +258,11 @@ function MakeProps()
 	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_SC`,				993.355, -3108.95, -35.62, 0, 0, 0) SetEntityHeading(Props[#Props], 90.0)
 
 	--Props[#Props+1] = CreateObject(`prop_toolchest_05`,					1002.04, -3108.36, -39.99, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
-	loadModel(`ex_Prop_Crate_Closed_BC`)
-	TrollyProp = CreateObject(`ex_Prop_Crate_Closed_BC`, 999.32, -3093.2, -39.78, 0, 0, 0) FreezeEntityPosition(TrollyProp, true) SetEntityHeading(TrollyProp, 166.38)
 	for k in pairs(scrapPool) do loadModel(scrapPool[k].model) end
 end
 function EndJob()
-	if Targets["Package"] then exports["qb-target"]:RemoveTargetEntity(randPackage, "Search") end
-	if Targets["DropOff"] then exports["qb-target"]:RemoveTargetEntity(TrollyProp, "Drop Off") end
+	if Targets["Package"] then exports["qb-target"]:RemoveTargetEntity(randPackage) end
+	destroyProp(TrollyProp) TrollyProp = nil
 	for i = 1, #searchProps do SetEntityDrawOutline(searchProps[i], false) end
 	randPackage = nil
 	if scrapProp then
@@ -275,12 +276,16 @@ function ClearProps()
 	for _, v in pairs(searchProps) do unloadModel(GetEntityModel(v)) DeleteObject(v) end searchProps = {}
 	for _, v in pairs(Props) do unloadModel(GetEntityModel(v)) DeleteObject(v) end Props = {}
 	for k in pairs(scrapPool) do unloadModel(scrapPool[k].model) end
-	if Targets["DropOff"] then exports["qb-target"]:RemoveTargetEntity(TrollyProp, "Drop Off") end
+	if Targets["DropOff"] then exports["qb-target"]:RemoveTargetEntity(TrollyProp) end
 	unloadModel(GetEntityModel(TrollyProp)) DeleteObject(TrollyProp)
 end
 
 --Pick one of the crates for the player to choose, generate outline + target
 function PickRandomPackage()
+	if not TrollyProp then
+		loadModel(`ex_Prop_Crate_Closed_BC`)
+		TrollyProp = CreateObject(`ex_Prop_Crate_Closed_BC`, 999.32, -3093.2, -39.78, 0, 0, 0) FreezeEntityPosition(TrollyProp, true) SetEntityHeading(TrollyProp, 166.38)
+	end
 	--If somehow already exists, remove target
 	if Targets["Package"] then exports["qb-target"]:RemoveTargetEntity(randPackage, "Search") end
 	--Pick random prop to use
@@ -443,6 +448,7 @@ RegisterNetEvent('jim-recycle:Selling:Menu', function()
 		{ icon = "fas fa-circle-xmark", header = "", txt = "Close", params = { event = "jim-recycle:CloseMenu" } } }
 	for k, v in pairsByKeys(Config.Prices) do
 		local p = promise.new() QBCore.Functions.TriggerCallback("QBCore:HasItem", function(cb) p:resolve(cb) end, k)
+		print(k)
 		sellMenu[#sellMenu+1] = {
 			hidden = not Citizen.Await(p),
 			icon = k,
@@ -476,11 +482,9 @@ RegisterNetEvent('jim-recycle:Bottle:Menu', function()
 		{ icon = "recyclablematerial", header = "Material Selling", txt = "Sell batches of recyclables", isMenuHeader = true },
 		{ icon = "fas fa-circle-xmark", header = "", txt = "Close", params = { event = "jim-recycle:CloseMenu" } } }
 
-	local p = promise.new() QBCore.Functions.TriggerCallback("QBCore:HasItem", function(cb) p:resolve(cb) end, "can")
-	if Citizen.Await(p) then tradeMenu[#tradeMenu+1] = { icon = "can", header = "<img src=nui://"..Config.img..QBCore.Shared.Items["can"].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items["can"].label, params = { event = "jim-recycle:SellAnim", args = 'can' } } end
+	if QBCore.Functions.HasItem("can", 1) then tradeMenu[#tradeMenu+1] = { icon = "can", header = "<img src=nui://"..Config.img..QBCore.Shared.Items["can"].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items["can"].label, params = { event = "jim-recycle:SellAnim", args = 'can' } } end
 	Wait(10)
-	local p2 = promise.new() QBCore.Functions.TriggerCallback("QBCore:HasItem", function(cb) p2:resolve(cb) end, "bottle")
-	if Citizen.Await(p2) then tradeMenu[#tradeMenu+1] = { icon = "bottle", header = "<img src=nui://"..Config.img..QBCore.Shared.Items["bottle"].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items["bottle"].label, params = { event = "jim-recycle:SellAnim", args = 'bottle' } } end
+	if QBCore.Functions.HasItem("bottle", 1) then tradeMenu[#tradeMenu+1] = { icon = "bottle", header = "<img src=nui://"..Config.img..QBCore.Shared.Items["bottle"].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items["bottle"].label, params = { event = "jim-recycle:SellAnim", args = 'bottle' } } end
 
 	if #tradeMenu > 2 then exports['qb-menu']:openMenu(tradeMenu)
 	else TriggerEvent("QBCore:Notify", "No bottles or cans to trade", "error") end
