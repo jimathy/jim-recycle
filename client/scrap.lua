@@ -18,7 +18,7 @@ local function unloadAnimDict(dict) if Config.Debug then print("Debug: Removing 
 
 CreateThread(function()
 	--Dumpster Third Eye
-	exports['qb-target']:AddTargetModel(scrap, { options = { { event = "jim-recycle:Scrap:Search", icon = "fas fa-dumpster", label = "Search", }, }, distance = 1.5 })
+	exports['qb-target']:AddTargetModel(scrap, { options = { { event = "jim-recycle:Scrap:Search", icon = "fas fa-dumpster", label = Loc[Config.Lan].target["search"], }, }, distance = 1.5 })
 end)
 
 --Search animations
@@ -53,7 +53,7 @@ RegisterNetEvent('jim-recycle:Scrap:Search', function()
                 if Config.Debug then print("^5Debug^7: ^2Starting Search of entity^7: '^6"..scrapped.."^7'") end
                 for i = 1, #searched do
                     if searched[i] == scrapped then scrapFound = true end -- Theres a dumpster nearby
-                    if i == #searched and scrapFound then TriggerEvent("QBCore:Notify", "Already Searched.", "error") return -- Let player know already searched
+                    if i == #searched and scrapFound then TriggerEvent("QBCore:Notify", Loc[Config.Lan].error["searched"], "error") return -- Let player know already searched
                     elseif i == #searched and not scrapFound then -- If hasn't been searched yet
                         local dict = "anim@amb@machinery@speed_drill@"
                         local anim = "look_around_left_02_amy_skater_01"
@@ -62,11 +62,11 @@ RegisterNetEvent('jim-recycle:Scrap:Search', function()
                         if Config.useQBLock then
                             local success = exports['qb-lock']:StartLockPickCircle(math.random(2,4), math.random(10,15), success)
                             if success then
-                                TriggerEvent("QBCore:Notify", "You search the Scrap!", "success")
+                                TriggerEvent("QBCore:Notify", Loc[Config.Lan].success["get_scrap"], "success")
                                 startSearching(GetEntityCoords(scrapped))
                                 searched[i+1] = scrapped
                             else
-                                TriggerEvent("QBCore:Notify", "You couldn't find anything.", "error")
+                                TriggerEvent("QBCore:Notify", Loc[Config.Lan].error["nothing"], "error")
                                 searched[i+1] = scrapped
                                 ClearPedTasks(PlayerPedId())
                             end
@@ -77,12 +77,12 @@ RegisterNetEvent('jim-recycle:Scrap:Search', function()
                                 pos = math.random(10, 30),
                                 width = math.random(10, 20),
                             }, function()
-                                TriggerEvent("QBCore:Notify", "You search the Scrap!", "success")
+                                TriggerEvent("QBCore:Notify", Loc[Config.Lan].success["get_scrap"], "success")
                                 startSearching(GetEntityCoords(scrapped))
                                 searched[i+1] = scrapped
                                 Citizen.Wait(1000)
                             end, function()
-                                TriggerEvent("QBCore:Notify", "You couldn't find anything.", "error")
+                                TriggerEvent("QBCore:Notify", Loc[Config.Lan].error["nothing"], "error")
                                 searched[i+1] = scrapped
                                 ClearPedTasks(PlayerPedId())
                                 Citizen.Wait(1000)
