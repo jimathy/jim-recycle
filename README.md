@@ -14,7 +14,7 @@ FiveM Custom QBCORE recycling script made by me from scratch
   - Can place them anywhere, doesn't have to be just one mining location
   - I opted for a drilling animation as opposed to the pickaxe swinging
   - Nicely animated for better immersion
-  
+
 - NPC's spawn on the blip locations
   - These locations can also give third eye and select ones have context menus for selling points
 
@@ -30,21 +30,23 @@ FiveM Custom QBCORE recycling script made by me from scratch
 - qb-target - for the third eye selection
 
 # How to install
-## Minimal
+
 If you want to use your own items or repurpose this script:
 - Place in your resources folder
 - add the following code to your server.cfg/resources.cfg **below** `[qb]`
 ```
 ensure jim-recycle
 ```
-If you want to use my items then:
+### Item installation
 
 - Add the images to your inventory folder
-
-- Put these lines in your items.lua
+  - for example: `[qb] > qb-inventory > html > images`
+- **This script supports automatic installation of items to items.lua with newer QBCore exports**
+  - You still need to install images
+- If you're having issues or your core doesn't support this then, put these lines in your items.lua
 
 ```lua
--- jim-recycle stuff
+-- Jim-Recycle Items
 ["recyclablematerial"]  = {["name"] = "recyclablematerial",   ["label"] = "Recycle Box",      ["weight"] = 100, ["type"] = "item", 		["image"] = "recyclablematerial.png",   ["unique"] = false, 	["useable"] = false, 	["shouldClose"] = false, ["combinable"] = nil,   ["description"] = "A box of Recyclable Materials"},
 ["bottle"]              = {["name"] = "bottle",               ["label"] = "Empty Bottle",     ["weight"] = 10,  ["type"] = "item", 		["image"] = "bottle.png",               ["unique"] = false, 	["useable"] = false, 	["shouldClose"] = false, ["combinable"] = nil,   ["description"] = "A glass bottle"},
 ["can"]                 = {["name"] = "can",                  ["label"] = "Empty Can",        ["weight"] = 10,  ["type"] = "item", 		["image"] = "can.png",                  ["unique"] = false, 	["useable"] = false, 	["shouldClose"] = false, ["combinable"] = nil,   ["description"] = "An empty can, good for recycling"},

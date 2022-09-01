@@ -1,21 +1,18 @@
 local QBCore = exports['qb-core']:GetCoreObject()
+RegisterNetEvent('QBCore:Server:UpdateObject', function() if source ~= '' then return false end QBCore = exports['qb-core']:GetCoreObject() end)
 
 AddEventHandler('onResourceStart', function(resource) if GetCurrentResourceName() ~= resource then return end
 	for k in pairs(Config.Prices) do if not QBCore.Shared.Items[k] then print("^5Debug^7: ^6Prices^7: ^2Missing Item from ^4QBCore^7.^4Shared^7.^4Items^7: '^6"..k.."^7'") end end
 	if not QBCore.Shared.Items["recyclablematerial"] then print("^5Debug^7: ^2Missing Item from ^4QBCore^7.^4Shared^7.^4Items^7: '^6recyclablematerial^7'") end
 end)
----ITEM REQUIREMENT CHECKS
+
 QBCore.Functions.CreateCallback('jim-recycle:GetRecyclable', function(source, cb)
 	if QBCore.Functions.GetPlayer(source).Functions.GetItemByName("recyclablematerial") then cb(QBCore.Functions.GetPlayer(source).Functions.GetItemByName("recyclablematerial").amount)
 	else cb(0) end
 end)
 
-QBCore.Functions.CreateCallback('jim-recycle:GetCash', function(source, cb)
-	cb(QBCore.Functions.GetPlayer(source).Functions.GetMoney("cash"))
-end)
-RegisterServerEvent("jim-recycle:DoorCharge", function()
-	QBCore.Functions.GetPlayer(source).Functions.RemoveMoney("cash", Config.PayAtDoor)
-end)
+QBCore.Functions.CreateCallback('jim-recycle:GetCash', function(source, cb)	cb(QBCore.Functions.GetPlayer(source).Functions.GetMoney("cash")) end)
+RegisterServerEvent("jim-recycle:DoorCharge", function() QBCore.Functions.GetPlayer(source).Functions.RemoveMoney("cash", Config.PayAtDoor) end)
 
 --- Event For Getting Recyclable Material----
 RegisterServerEvent("jim-recycle:getrecyclablematerial", function()
@@ -74,4 +71,27 @@ RegisterNetEvent("jim-recycle:Selling:Mat", function(item)
         TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[item], 'remove', amount)
         TriggerClientEvent("QBCore:Notify", src, "Payment received. Total: $"..pay, "success")
     end
+end)
+
+RegisterNetEvent('jim-recycle:server:toggleItem', function(give, item, amount)
+	local src = source
+	if give == 0 or give == false then
+		if QBCore.Functions.HasItem(src, item, amount or 1) then -- check if you still have the item
+			if QBCore.Functions.GetPlayer(src).Functions.RemoveItem(item, amount or 1) then
+				TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[item], "remove", amount or 1)
+			end
+		else TriggerEvent("jim-recycle:server:DupeWarn", item, src) end -- if not boot the player
+	else
+		if QBCore.Functions.GetPlayer(src).Functions.AddItem(item, amount or 1) then
+			TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[item], "add", amount or 1)
+		end
+	end
+end)
+
+RegisterNetEvent("jim-recycle:server:DupeWarn", function(item, newsrc)
+	local src = newsrc or source
+	local P = QBCore.Functions.GetPlayer(src)
+	print("^5DupeWarn: ^1"..P.PlayerData.charinfo.firstname.." "..P.PlayerData.charinfo.lastname.."^7(^1"..tostring(src).."^7) ^2Tried to remove item ^7('^3"..item.."^7')^2 but it wasn't there^7")
+	DropPlayer(src, "Kicked for attempting to duplicate items")
+	print("^5DupeWarn: ^1"..P.PlayerData.charinfo.firstname.." "..P.PlayerData.charinfo.lastname.."^7(^1"..tostring(src).."^7) ^2Dropped from server for item duplicating^7")
 end)

@@ -1,6 +1,6 @@
 name "Jim-Recycle"
 author "Jimathy"
-version "v2.2"
+version "v2.4"
 description "Recycling Script By Jimathy"
 fx_version "cerulean"
 game "gta5"
@@ -16,4 +16,4 @@ client_scripts {
 	'client/*.lua',
 }
 server_scripts { 'server/*.lua' }
-shared_scripts { 'config.lua', }
+shared_scripts { 'config.lua', 'shared/*.lua' }

@@ -1,4 +1,4 @@
-print("^2Jim^7-^2Recycle v^42^7.^42 ^7- ^2Recycling Script by ^1Jimathy^7")
+print("^2Jim^7-^2Recycle v^42^7.^44 ^7- ^2Recycling Script by ^1Jimathy^7")
 
 Config = {
 	Debug = false, -- Toggle Debug Mode
@@ -12,6 +12,8 @@ Config = {
 	OpenHour = 9, -- From what hour should the pawnshop be open?
 	CloseHour = 21, -- From what hour should the pawnshop be closed?
 	PayAtDoor = nil, -- Set to nil stop turn this off, set to a number to enable
+
+	Notifu = "qb",
 
 	useQBLock = false, -- Enable to use qb-lock instead of qb-skillbar when searching
 
@@ -43,8 +45,8 @@ Config = {
 		['iron'] = 10,
 		['rubber'] = 10,
 		['aluminum'] = 10,
-		['bottle'] = 5,
-		['can'] = 5,
+	--	['bottle'] = 5,
+	--	['can'] = 5,
 	},
 	TradeTable = {
 		"copper",

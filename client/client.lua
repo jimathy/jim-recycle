@@ -374,7 +374,7 @@ RegisterNetEvent("jim-recycle:PickupPackage:Finish", function()
 	--Once this is triggered it can't be stopped, so remove the target and prop
 	if Targets["DropOff"] then exports["qb-target"]:RemoveTargetEntity(TrollyProp, "Drop Off") Targets["DropOff"] = nil end
 	SetEntityDrawOutline(TrollyProp, false) destroyProp(TrollyProp) TrollyProp = nil
-	--Remove and the whole prop, seen as how no ones qb-target works and its my fault 😊
+	--Remove target and the whole prop, seen as how no ones qb-target works and its my fault 😊
 	TrollyProp = CreateObject(`ex_Prop_Crate_Closed_BC`, 999.32, -3093.2, -39.78, 0, 0, 0) FreezeEntityPosition(TrollyProp, true) SetEntityHeading(TrollyProp, 166.38)
 
 	--Load and Start animation
@@ -447,10 +447,8 @@ RegisterNetEvent('jim-recycle:Selling:Menu', function()
 		{ icon = "recyclablematerial", header = "Material Selling", txt = "Sell batches of materials", isMenuHeader = true },
 		{ icon = "fas fa-circle-xmark", header = "", txt = "Close", params = { event = "jim-recycle:CloseMenu" } } }
 	for k, v in pairsByKeys(Config.Prices) do
-		local p = promise.new() QBCore.Functions.TriggerCallback("QBCore:HasItem", function(cb) p:resolve(cb) end, k)
-		print(k)
 		sellMenu[#sellMenu+1] = {
-			hidden = not Citizen.Await(p),
+			hidden = (not QBCore.Functions.HasItem(k, 1)),
 			icon = k,
 			header = "<img src=nui://"..Config.img..QBCore.Shared.Items[k].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items[k].label,
 			txt = "Sell All for $"..v.." each",
