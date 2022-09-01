@@ -19,7 +19,7 @@ function unloadAnimDict(dict) if Config.Debug then print("^5Debug^7: ^2Removing 
 
 CreateThread(function()
 	--Dumpster Third Eye
-	exports['qb-target']:AddTargetModel(dumpsters, { options = { { event = "jim-recycle:Dumpsters:Search", icon = "fas fa-dumpster", label = "Search Trash", }, }, distance = 1.5 })
+	exports['qb-target']:AddTargetModel(dumpsters, { options = { { event = "jim-recycle:Dumpsters:Search", icon = "fas fa-dumpster", label = Loc[Config.Lan].target["search_trash"], }, }, distance = 1.5 })
 end)
 
 --Search animations
@@ -54,7 +54,7 @@ RegisterNetEvent('jim-recycle:Dumpsters:Search', function()
                 if Config.Debug then print("^5Debug^7: ^2Starting Search of entity^7: '^6"..dumpster.."^7'") end
                 for i = 1, #searched do
                     if searched[i] == dumpster then dumpsterFound = true end -- Theres a dumpster nearby
-                    if i == #searched and dumpsterFound then TriggerEvent("QBCore:Notify", "Already Searched.", "error") return -- Let player know already searched
+                    if i == #searched and dumpsterFound then TriggerEvent("QBCore:Notify", Loc[Config.Lan].error["searched"], "error") return -- Let player know already searched
                     elseif i == #searched and not dumpsterFound then -- If hasn't been searched yet
                         local dict = "anim@amb@machinery@speed_drill@"
                         local anim = "look_around_left_02_amy_skater_01"
@@ -63,11 +63,11 @@ RegisterNetEvent('jim-recycle:Dumpsters:Search', function()
                         if Config.useQBLock then
                             local success = exports['qb-lock']:StartLockPickCircle(math.random(2,4), math.random(10,15), success)
                             if success then
-                                TriggerEvent("QBCore:Notify", "You search the Trash!", "success")
+                                TriggerEvent("QBCore:Notify", Loc[Config.Lan].success["get_trash"], "success")
                                 startSearching(GetEntityCoords(dumpster))
                                 searched[i+1] = dumpster
                             else
-                                TriggerEvent("QBCore:Notify", "You couldn't find anything.", "error")
+                                TriggerEvent("QBCore:Notify", Loc[Config.Lan].error["nothing"], "error")
                                 searched[i+1] = dumpster
                                 ClearPedTasks(PlayerPedId())
                             end
@@ -78,12 +78,12 @@ RegisterNetEvent('jim-recycle:Dumpsters:Search', function()
                                 pos = math.random(10, 30),
                                 width = math.random(10, 20),
                             }, function()
-                                TriggerEvent("QBCore:Notify", "You search the Trash!", "success")
+                                TriggerEvent("QBCore:Notify", Loc[Config.Lan].success["get_trash"], "success")
                                 startSearching(GetEntityCoords(dumpster))
                                 searched[i+1] = dumpster
                                 Citizen.Wait(1000)
                             end, function()
-                                TriggerEvent("QBCore:Notify", "You couldn't find anything.", "error")
+                                TriggerEvent("QBCore:Notify", Loc[Config.Lan].error["nothing"], "error")
                                 searched[i+1] = dumpster
                                 ClearPedTasks(PlayerPedId())
                                 Citizen.Wait(1000)
