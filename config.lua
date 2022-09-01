@@ -1,6 +1,7 @@
 print("^2Jim^7-^2Recycle v^42^7.^44 ^7- ^2Recycling Script by ^1Jimathy^7")
 
 Config = {
+	Lan = "en",
 	Debug = false, -- Toggle Debug Mode
 	Blips = true, -- Enable Blips?
 	BlipNamer = false, -- Enable to Name Blips different things, disable if you already have too many blips as this will group them together
@@ -85,3 +86,5 @@ Config = {
 		thouMax = 28,
 	}
 }
+
+Loc = {}
