@@ -69,6 +69,6 @@ RegisterNetEvent("jim-recycle:Selling:Mat", function(item)
         Player.Functions.RemoveItem(item, amount)
         Player.Functions.AddMoney('cash', pay)
         TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[item], 'remove', amount)
-        TriggerClientEvent("QBCore:Notify", src, "Payment received. Total: $"..pay, "success")
+        TriggerClientEvent("QBCore:Notify", src, Loc[Config.Lan].success["get_paid"]..pay, "success")
     end
 end)

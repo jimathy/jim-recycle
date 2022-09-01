@@ -80,7 +80,7 @@ CreateThread(function()
 				SetBlipDisplay(blip, 6)
 				BeginTextCommandSetBlipName('STRING')
 				if Config.BlipNamer then AddTextComponentString(v.name)
-				else AddTextComponentString("Recycling") end
+				else AddTextComponentString(Loc[Config.Lan].blip["name"]) end
 				EndTextCommandSetBlipName(blip)
 				if Config.Debug then print("^5Debug^7: ^6Blip ^2created for location^7: '^6"..v.name.."^7'") end
 			end
@@ -101,37 +101,37 @@ CreateThread(function()
 	local price = "" if Config.PayAtDoor then price = " ($"..Config.PayAtDoor..")" end
 	Targets["RecyclingEnter"] =
 		exports['qb-target']:AddBoxZone("RecyclingEnter", vector3(746.82, -1398.93, 26.55), 0.4, 1.6, { name="RecyclingEnter", debugPoly=Config.Debug, minZ=25.2, maxZ=28.0 },
-			{ options = { { event = "jim-recycle:TeleWareHouse", icon = "fas fa-recycle", label = "Enter Warehouse"..price, enter = true, job = Config.JobRole }, },
+			{ options = { { event = "jim-recycle:TeleWareHouse", icon = "fas fa-recycle", label = Loc[Config.Lan].target["enter"]..price, enter = true, job = Config.JobRole }, },
 			distance = 1.5 })
 
 	Targets["RecyclingExit"] =
 		exports['qb-target']:AddBoxZone("RecyclingExit", vector3(991.97, -3097.81, -39.0), 1.6, 0.4, { name="RecyclingExit", debugPoly=Config.Debug, useZ=true, },
-			{ options = { { event = "jim-recycle:TeleWareHouse", icon = "fas fa-recycle", label = "Exit Warehouse", enter =  false }, },
+			{ options = { { event = "jim-recycle:TeleWareHouse", icon = "fas fa-recycle", label = Loc[Config.Lan].target["exit"], enter =  false }, },
 			distance = 1.5 })
 
 	Targets["RecycleDuty"] =
 		exports['qb-target']:AddCircleZone("RecycleDuty", vector3(995.36, -3099.91, -39.2), 0.45, { name="RecycleDuty", debugPoly=Config.Debug, useZ=true, },
-			{ options = { { event = "jim-recycle:dutytoggle", icon = "fas fa-hard-hat", label = "Toggle Recycling Duty", job = Config.JobRole }, },
+			{ options = { { event = "jim-recycle:dutytoggle", icon = "fas fa-hard-hat", label = Loc[Config.Lan].target["duty"], job = Config.JobRole }, },
 			distance = 1.5 })
 	--Recyclable Material Trader
 	for i = 1, #Config.Locations["Trade"] do
 		Targets["Trade"..i] =
 			exports['qb-target']:AddCircleZone("Trade"..i, conVector3(Config.Locations["Trade"][i].coords), 1.1, { name="Trade"..i, debugPoly=Config.Debug, useZ=true, },
-				{ options = { { event = "jim-recycle:Trade:Menu", icon = "fas fa-box", label = "Trade Materials"  }, },
+				{ options = { { event = "jim-recycle:Trade:Menu", icon = "fas fa-box", label = Loc[Config.Lan].target["trade"]  }, },
 				distance = 1.5 })
 	end
 	--Sell Materials
 	for i = 1, #Config.Locations["Recycle"] do
 		Targets["Recycle"..i] =
 			exports['qb-target']:AddCircleZone("Recycle"..i, conVector3(Config.Locations["Recycle"][i].coords), 1.1, { name="Recycle"..i, debugPoly=Config.Debug, useZ=true, },
-				{ options = { { event = "jim-recycle:Selling:Menu", icon = "fas fa-box", label = "Sell Materials" }, },
+				{ options = { { event = "jim-recycle:Selling:Menu", icon = "fas fa-box", label = Loc[Config.Lan].target["sell"] }, },
 				distance = 2.5 })
 	end
 	--Bottle Selling Third Eyes
 	for i = 1, #Config.Locations["BottleBanks"] do
 		Targets["BottleBank"..i] =
 			exports['qb-target']:AddCircleZone("BottleBank"..i, conVector3(Config.Locations["BottleBanks"][i].coords), 1.2,	{ name="BottleBank"..i, debugPoly=Config.Debug, useZ=true, },
-				{ options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = "Sell Bottles", job = Config.JobRole  }, },
+				{ options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = Loc[Config.Lan].target["sell_bottles"], job = Config.JobRole  }, },
 				distance = 1.5 })
 	end
 end)
@@ -296,7 +296,7 @@ function PickRandomPackage()
 	--Generate Target Location on the selected package
 	Targets["Package"] =
 		exports['qb-target']:AddTargetEntity(randPackage,
-			{ options = { { event = "jim-recycle:PickupPackage:Start", icon = 'fas fa-magnifying-glass', label = 'Search', } },
+			{ options = { { event = "jim-recycle:PickupPackage:Start", icon = 'fas fa-magnifying-glass', label = Loc[Config.Lan].target["search"], } },
 			distance = 2.5,	})
 end
 --Event to enter and exit warehouse
@@ -309,17 +309,17 @@ RegisterNetEvent("jim-recycle:TeleWareHouse", function(data)
 					if Config.PayAtDoor then
 						local p = promise.new()	QBCore.Functions.TriggerCallback("jim-recycle:GetCash", function(cb) p:resolve(cb) end)
 						if Citizen.Await(p) >= Config.PayAtDoor then TriggerServerEvent("jim-recycle:DoorCharge")
-						else TriggerEvent("QBCore:Notify", "Not Enough Cash", "error") return end
+						else TriggerEvent("QBCore:Notify", Loc[Config.Lan].error["no_money"], "error") return end
 					end
 					DoScreenFadeOut(500)
 					while not IsScreenFadedOut() do	Citizen.Wait(10) end
 					SetEntityCoords(PlayerPedId(), Config.InsideTele)
 					DoScreenFadeIn(500)
 				else
-					TriggerEvent("QBCore:Notify", "We're currently closed, we're open from "..Config.OpenHour..":00am till "..Config.CloseHour..":00pm", "error")
+					TriggerEvent("QBCore:Notify", Loc[Config.Lan].error["wrong_time"]..Config.OpenHour..":00am"..Loc[Config.Lan].error["till"]..Config.CloseHour..":00pm", "error")
 				end
 			else
-				TriggerEvent("QBCore:Notify", "We're currently closed, we're open from "..Config.OpenHour..":00 until "..Config.CloseHour..":00pm", "error")
+				TriggerEvent("QBCore:Notify", Loc[Config.Lan].error["wrong_time"]..Config.OpenHour..":00"..Loc[Config.Lan].error["till"]..Config.CloseHour..":00pm", "error")
 			end
 		else
 			DoScreenFadeOut(500)
@@ -339,7 +339,7 @@ end)
 
 RegisterNetEvent("jim-recycle:PickupPackage:Start", function()
 	TaskStartScenarioInPlace(PlayerPedId(), "CODE_HUMAN_MEDIC_KNEEL", 0, true)
-	QBCore.Functions.Progressbar("open_locker_drill", "Searching", 5000, false, true, {
+	QBCore.Functions.Progressbar("open_locker_drill", Loc[Config.Lan].progressbar["search"], 5000, false, true, {
 		disableMovement = true,	disableCarMovement = true, disableMouse = false, disableCombat = true, }, {}, {}, {}, function() -- Done
 		ClearPedTasksImmediately(PlayerPedId())
 		TriggerEvent("jim-recycle:PickupPackage:Hold")
@@ -365,7 +365,7 @@ RegisterNetEvent("jim-recycle:PickupPackage:Hold", function()
 	SetEntityDrawOutlineShader(1)
 	Targets["DropOff"] =
 		exports['qb-target']:AddTargetEntity(TrollyProp,
-			{ options = { { event = "jim-recycle:PickupPackage:Finish", icon = 'fas fa-recycle', label = 'Drop Off', } },
+			{ options = { { event = "jim-recycle:PickupPackage:Finish", icon = 'fas fa-recycle', label = Loc[Config.Lan].target["drop_off"], } },
 			distance = 2.5,	})
 
 end)
@@ -401,8 +401,8 @@ RegisterNetEvent('jim-recycle:dutytoggle', function()
 		TriggerServerEvent("QBCore:ToggleDuty")
 	else
 		onDuty = not onDuty
-		if onDuty then TriggerEvent('QBCore:Notify', 'You went on duty', 'success') PickRandomPackage()
-		else TriggerEvent('QBCore:Notify', 'You went off duty', 'error') EndJob() end
+		if onDuty then TriggerEvent('QBCore:Notify', Loc[Config.Lan].success["on_duty"], 'success') PickRandomPackage()
+		else TriggerEvent('QBCore:Notify', Loc[Config.Lan].error["off_duty"], 'error') EndJob() end
 	end
 end)
 
@@ -444,14 +444,14 @@ end)
 RegisterNetEvent('jim-recycle:Selling:Menu', function()
 	if Selling then return end
 	local sellMenu = {
-		{ icon = "recyclablematerial", header = "Material Selling", txt = "Sell batches of materials", isMenuHeader = true },
-		{ icon = "fas fa-circle-xmark", header = "", txt = "Close", params = { event = "jim-recycle:CloseMenu" } } }
+		{ icon = "recyclablematerial", header = Loc[Config.Lan].menu["sell_mats"], txt = Loc[Config.Lan].menu["sell_mats_txt"], isMenuHeader = true },
+		{ icon = "fas fa-circle-xmark", header = "", txt = Loc[Config.Lan].menu["close"], params = { event = "jim-recycle:CloseMenu" } } }
 	for k, v in pairsByKeys(Config.Prices) do
 		sellMenu[#sellMenu+1] = {
 			hidden = (not QBCore.Functions.HasItem(k, 1)),
 			icon = k,
 			header = "<img src=nui://"..Config.img..QBCore.Shared.Items[k].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items[k].label,
-			txt = "Sell All for $"..v.." each",
+			txt = Loc[Config.Lan].menu["sell_all"]..v..Loc[Config.Lan].menu["each"],
 			params = { event = "jim-recycle:SellAnim", args = k } }
 		Wait(10)
 	end
@@ -463,29 +463,29 @@ RegisterNetEvent('jim-recycle:Trade:Menu', function()
 	if Selling then return end
 	local p = promise.new() QBCore.Functions.TriggerCallback("jim-recycle:GetRecyclable", function(cb) p:resolve(cb) end) local amount = Citizen.Await(p)
 	local tradeMenu = {
-		{ icon = "recyclablematerial", header = "Material Trading", txt = "Amount held: "..amount, isMenuHeader = true },
-		{ icon = "fas fa-circle-xmark", header = "", txt = "Close", params = { event = "jim-recycle:CloseMenu" } } }
-	if amount >= 1 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = "Trade 1 Material", params = { event = "jim-recycle:SellAnim", args = 1 } } end
-	if amount >= 10 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = "Trade 10 Materials", params = { event = "jim-recycle:SellAnim", args = 2 } } end
-	if amount >= 100 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = "Trade 100 Materials", params = { event = "jim-recycle:SellAnim", args = 3 } } end
-	if amount >= 1000 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = "Trade 1000 Materials", params = { event = "jim-recycle:SellAnim", args = 4 } } end
+		{ icon = "recyclablematerial", header = Loc[Config.Lan].menu["mats_trade"], txt = Loc[Config.Lan].menu["trade_amount"]..amount, isMenuHeader = true },
+		{ icon = "fas fa-circle-xmark", header = "", txt = Loc[Config.Lan].menu["close"], params = { event = "jim-recycle:CloseMenu" } } }
+	if amount >= 1 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = Loc[Config.Lan].menu["trade1"], params = { event = "jim-recycle:SellAnim", args = 1 } } end
+	if amount >= 10 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = Loc[Config.Lan].menu["trade10"], params = { event = "jim-recycle:SellAnim", args = 2 } } end
+	if amount >= 100 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = Loc[Config.Lan].menu["trade100"], params = { event = "jim-recycle:SellAnim", args = 3 } } end
+	if amount >= 1000 then tradeMenu[#tradeMenu+1] = { icon = "recyclablematerial", header = Loc[Config.Lan].menu["trade1000"], params = { event = "jim-recycle:SellAnim", args = 4 } } end
 	if #tradeMenu > 2 then exports['qb-menu']:openMenu(tradeMenu)
-	else TriggerEvent("QBCore:Notify", "No Recylable Materials to trade", "error") end
+	else TriggerEvent("QBCore:Notify", Loc[Config.Lan].error["no_mats"], "error") end
 end)
 
 --Recyclable Trader
 RegisterNetEvent('jim-recycle:Bottle:Menu', function()
 	if Selling then return end
 	local tradeMenu = {
-		{ icon = "recyclablematerial", header = "Material Selling", txt = "Sell batches of recyclables", isMenuHeader = true },
-		{ icon = "fas fa-circle-xmark", header = "", txt = "Close", params = { event = "jim-recycle:CloseMenu" } } }
+		{ icon = "recyclablematerial", header = Loc[Config.Lan].menu["sell_mats"], txt = Loc[Config.Lan].menu["sell_mats_txt"], isMenuHeader = true },
+		{ icon = "fas fa-circle-xmark", header = "", txt = Loc[Config.Lan].menu["close"], params = { event = "jim-recycle:CloseMenu" } } }
 
 	if QBCore.Functions.HasItem("can", 1) then tradeMenu[#tradeMenu+1] = { icon = "can", header = "<img src=nui://"..Config.img..QBCore.Shared.Items["can"].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items["can"].label, params = { event = "jim-recycle:SellAnim", args = 'can' } } end
 	Wait(10)
 	if QBCore.Functions.HasItem("bottle", 1) then tradeMenu[#tradeMenu+1] = { icon = "bottle", header = "<img src=nui://"..Config.img..QBCore.Shared.Items["bottle"].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items["bottle"].label, params = { event = "jim-recycle:SellAnim", args = 'bottle' } } end
 
 	if #tradeMenu > 2 then exports['qb-menu']:openMenu(tradeMenu)
-	else TriggerEvent("QBCore:Notify", "No bottles or cans to trade", "error") end
+	else TriggerEvent("QBCore:Notify", Loc[Config.Lan].error["no_bottles"], "error") end
 end)
 
 AddEventHandler('onResourceStop', function(resource) if resource ~= GetCurrentResourceName() then return end
