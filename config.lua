@@ -13,8 +13,6 @@ Config = {
 	CloseHour = 21, -- From what hour should the pawnshop be closed?
 	PayAtDoor = nil, -- Set to nil stop turn this off, set to a number to enable
 
-	Notifu = "qb",
-
 	useQBLock = false, -- Enable to use qb-lock instead of qb-skillbar when searching
 
 	OutsideTele = vector4(746.83, -1399.66, 26.6, 230.732),
