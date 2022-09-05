@@ -31,20 +31,6 @@ RegisterNetEvent('QBCore:Client:SetDuty', function(duty) if Config.JobRole then 
 AddEventHandler('onResourceStart', function(resource) if GetCurrentResourceName() ~= resource then return end
 	QBCore.Functions.GetPlayerData(function(PlayerData) PlayerJob = PlayerData.job if PlayerData.job.name == Config.JobRole then onDuty = PlayerJob.onduty end end)
 end)
---Don't even try to ask me how pairsByKeys works, found it on a tutorial site for organising tables
-function pairsByKeys(t) local a = {} for n in pairs(t) do a[#a+1] = n end table.sort(a)	local i = 0	local iter = function () i = i + 1 if a[i] == nil then return nil else return a[i], t[a[i]]	end	end	return iter end
-local time = 1000
-function loadModel(model) if not HasModelLoaded(model) then if Config.Debug then print("^5Debug^7: ^2Loading Model^7: '^6"..model.."^7'") end
-	while not HasModelLoaded(model) do if time > 0 then time = time - 1 RequestModel(model)
-		else time = 1000 print("^5Debug^7: ^3LoadModel^7: ^2Timed out loading model ^7'^6"..model.."^7'") break end
-		Wait(10) end
-	end
-end
-function unloadModel(model) if Config.Debug then print("^5Debug^7: ^2Removing Model^7: '^6"..model.."^7'") end SetModelAsNoLongerNeeded(model) end
-function loadAnimDict(dict) if Config.Debug then print("^5Debug^7: ^2Loading Anim Dictionary^7: '^6"..dict.."^7'") end while not HasAnimDictLoaded(dict) do RequestAnimDict(dict) Wait(5) end end
-function unloadAnimDict(dict) if Config.Debug then print("^5Debug^7: ^2Removing Anim Dictionary^7: '^6"..dict.."^7'") end RemoveAnimDict(dict) end
-function destroyProp(entity) if Config.Debug then print("^5Debug^7: ^2Destroying Prop^7: '^6"..entity.."^7'") end SetEntityAsMissionEntity(entity) Wait(5) DetachEntity(entity, true, true) Wait(5) DeleteObject(entity) end
-function conVector3(vector) return vector3(vector.x, vector.y, vector.z) end
 
 --- Blips + Peds
 CreateThread(function()
@@ -71,28 +57,11 @@ CreateThread(function()
 	for _, v in pairs(Config.Locations) do
 		for i = 1, #v do
 			local v = v[i]
-			if Config.Blips and v.blipTrue then
-				local blip = AddBlipForCoord(v.coords)
-				SetBlipAsShortRange(blip, true)
-				SetBlipSprite(blip, v.sprite)
-				SetBlipColour(blip, v.col)
-				SetBlipScale(blip, 0.7)
-				SetBlipDisplay(blip, 6)
-				BeginTextCommandSetBlipName('STRING')
-				if Config.BlipNamer then AddTextComponentString(v.name)
-				else AddTextComponentString(Loc[Config.Lan].blip["name"]) end
-				EndTextCommandSetBlipName(blip)
-				if Config.Debug then print("^5Debug^7: ^6Blip ^2created for location^7: '^6"..v.name.."^7'") end
-			end
+			if Config.Blips and v.blipTrue then blip = makeBlip({coords = v.coords, sprite = v.sprite, col = v.col, name = v.name})	end
 			if Config.Pedspawn then
 				if not Peds[v.name..i] then
 					loadModel(v.model)
-					Peds[v.name..i] = CreatePed(0, v.model, v.coords.x, v.coords.y, v.coords.z-1.03, v.coords[4], false, false)
-					SetEntityInvincible(Peds[v.name..i], true)
-					SetBlockingOfNonTemporaryEvents(Peds[v.name..i], true)
-					FreezeEntityPosition(Peds[v.name..i], true)
-					TaskStartScenarioInPlace(Peds[v.name..i], v.scenario, 0, true)
-					if Config.Debug then print("^5Debug^7: ^6Ped ^2Created for location^7: '^6"..v.name..i.."^7'") end
+					Peds[v.name..i] = makePed(v.model, v.coords, true, false, v.scenario, nil)
 				end
 			end
 		end
@@ -116,21 +85,21 @@ CreateThread(function()
 	--Recyclable Material Trader
 	for i = 1, #Config.Locations["Trade"] do
 		Targets["Trade"..i] =
-			exports['qb-target']:AddCircleZone("Trade"..i, conVector3(Config.Locations["Trade"][i].coords), 1.1, { name="Trade"..i, debugPoly=Config.Debug, useZ=true, },
+			exports['qb-target']:AddCircleZone("Trade"..i, Config.Locations["Trade"][i].coords.xyz, 1.1, { name="Trade"..i, debugPoly=Config.Debug, useZ=true, },
 				{ options = { { event = "jim-recycle:Trade:Menu", icon = "fas fa-box", label = Loc[Config.Lan].target["trade"]  }, },
 				distance = 1.5 })
 	end
 	--Sell Materials
 	for i = 1, #Config.Locations["Recycle"] do
 		Targets["Recycle"..i] =
-			exports['qb-target']:AddCircleZone("Recycle"..i, conVector3(Config.Locations["Recycle"][i].coords), 1.1, { name="Recycle"..i, debugPoly=Config.Debug, useZ=true, },
+			exports['qb-target']:AddCircleZone("Recycle"..i, Config.Locations["Recycle"][i].coords.xyz, 1.1, { name="Recycle"..i, debugPoly=Config.Debug, useZ=true, },
 				{ options = { { event = "jim-recycle:Selling:Menu", icon = "fas fa-box", label = Loc[Config.Lan].target["sell"] }, },
 				distance = 2.5 })
 	end
 	--Bottle Selling Third Eyes
 	for i = 1, #Config.Locations["BottleBanks"] do
 		Targets["BottleBank"..i] =
-			exports['qb-target']:AddCircleZone("BottleBank"..i, conVector3(Config.Locations["BottleBanks"][i].coords), 1.2,	{ name="BottleBank"..i, debugPoly=Config.Debug, useZ=true, },
+			exports['qb-target']:AddCircleZone("BottleBank"..i, Config.Locations["BottleBanks"][i].coords.xyz, 1.2,	{ name="BottleBank"..i, debugPoly=Config.Debug, useZ=true, },
 				{ options = { { event = "jim-recycle:Bottle:Menu", icon = "fas fa-certificate", label = Loc[Config.Lan].target["sell_bottles"], job = Config.JobRole  }, },
 				distance = 1.5 })
 	end
@@ -139,125 +108,124 @@ end)
 function MakeProps()
 	--Floor Level Props (Using these for the selection pool)
 	if Config.Debug then print("^5Debug^7: ^3MakeProps^7() ^2Spawning props") end
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,		1003.63, -3108.50, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_prop_crate_wlife_bc`,		1018.18, -3102.80, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_watch`,			1013.33, -3102.80, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_SHide`,			1018.18, -3096.95, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Oegg`,			1006.05, -3091.60, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_MiniG`,			1018.18, -3108.50, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_FReel`,			1008.48, -3102.80, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,		1015.75, -3102.80, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Jewels_BC`,		1018.18, -3091.60, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Jewels_BC`,		1003.63, -3091.60, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Art_02_SC`,		1010.90, -3108.50, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,		1010.90, -3096.95, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_clothing_BC`,		1008.48, -3096.95, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_biohazard_BC`,	1010.90, -3102.80, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,		1006.05, -3108.50, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Art_BC`,			1015.75, -3108.50, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Money_BC`,		1003.63, -3096.95, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_clothing_SC`,		1013.33, -3091.60, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Art_02_BC`,		1013.33, -3108.50, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Money_SC`,		1010.90, -3091.60, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Med_SC`,			1008.48, -3091.60, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,		1008.48, -3108.50, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Jewels_racks_BC`,	1003.63, -3102.80, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Money_SC`,		1006.05, -3096.95, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Money_SC`,		1015.75, -3091.60, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,		1015.75, -3096.95, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Jewels_SC`,		1006.05, -3102.80, -39.99, 0, 0, 0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,		1013.33, -3096.95, -39.99, 0, 0, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Bull_SC_02`,		coords = vector4(1003.63, -3108.50, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_prop_crate_wlife_bc`,		coords = vector4(1018.18, -3102.80, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_watch`,			coords = vector4(1013.33, -3102.80, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_SHide`,			coords = vector4(1018.18, -3096.95, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Oegg`,			coords = vector4(1006.05, -3091.60, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_MiniG`,			coords = vector4(1018.18, -3108.50, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_FReel`,			coords = vector4(1008.48, -3102.80, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,		coords = vector4(1015.75, -3102.80, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Jewels_BC`,		coords = vector4(1018.18, -3091.60, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Jewels_BC`,		coords = vector4(1003.63, -3091.60, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Art_02_SC`,		coords = vector4(1010.90, -3108.50, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Bull_SC_02`,		coords = vector4(1010.90, -3096.95, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_clothing_BC`,		coords = vector4(1008.48, -3096.95, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_biohazard_BC`,	coords = vector4(1010.90, -3102.80, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Bull_BC_02`,		coords = vector4(1006.05, -3108.50, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Art_BC`,			coords = vector4(1015.75, -3108.50, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Money_BC`,		coords = vector4(1003.63, -3096.95, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_clothing_SC`,		coords = vector4(1013.33, -3091.60, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Art_02_BC`,		coords = vector4(1013.33, -3108.50, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Money_SC`,		coords = vector4(1010.90, -3091.60, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Med_SC`,			coords = vector4(1008.48, -3091.60, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Bull_SC_02`,		coords = vector4(1008.48, -3108.50, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Jewels_racks_BC`,	coords = vector4(1003.63, -3102.80, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Money_SC`,		coords = vector4(1006.05, -3096.95, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Money_SC`,		coords = vector4(1015.75, -3091.60, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Bull_SC_02`,		coords = vector4(1015.75, -3096.95, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Jewels_SC`,		coords = vector4(1006.05, -3102.80, -39.99, 0.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Bull_BC_02`,		coords = vector4(1013.33, -3096.95, -39.99, 0.0)}, 1, 0)
 	--These needed headings adjusting
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,		1026.75, -3096.43, -39.99, 0, 0, 0) SetEntityHeading(searchProps[#searchProps], -90.0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Jewels_BC`,		1026.75, -3106.52, -39.99, 0, 0, 0) SetEntityHeading(searchProps[#searchProps], -90.0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,		1026.75, -3091.59, -39.99, 0, 0, 0) SetEntityHeading(searchProps[#searchProps], -90.0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Jewels_racks_SC`,	1026.75, -3111.38, -39.99, 0, 0, 0) SetEntityHeading(searchProps[#searchProps], -90.0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Jewels_BC`,		1026.75, -3108.88, -39.99, 0, 0, 0) SetEntityHeading(searchProps[#searchProps], -90.0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_XLDiam`,			1026.75, -3094.01, -39.99, 0, 0, 0) SetEntityHeading(searchProps[#searchProps], -90.0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Art_02_BC`,		993.355, -3106.60, -39.99, 0, 0, 0) SetEntityHeading(searchProps[#searchProps], 90.0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Art_SC`,			993.355, -3111.30, -39.99, 0, 0, 0) SetEntityHeading(searchProps[#searchProps], 90.0)
-	searchProps[#searchProps+1] = CreateObject(`ex_Prop_Crate_Art_BC`,			993.355, -3108.95, -39.99, 0, 0, 0) SetEntityHeading(searchProps[#searchProps], 90.0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Bull_BC_02`,		coords = vector4(1026.75, -3096.43, -39.99, -90.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Jewels_BC`,		coords = vector4(1026.75, -3106.52, -39.99, -90.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Bull_BC_02`,		coords = vector4(1026.75, -3091.59, -39.99, -90.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Jewels_racks_SC`,	coords = vector4(1026.75, -3111.38, -39.99, -90.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Jewels_BC`,		coords = vector4(1026.75, -3108.88, -39.99, -90.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_XLDiam`,			coords = vector4(1026.75, -3094.01, -39.99, -90.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Art_02_BC`,		coords = vector4(993.355, -3106.60, -39.99, 90.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Art_SC`,			coords = vector4(993.355, -3111.30, -39.99, 90.0)}, 1, 0)
+	searchProps[#searchProps+1] = makeProp({prop = `ex_Prop_Crate_Art_BC`,			coords = vector4(993.355, -3108.95, -39.99, 90.0)}, 1, 0)
 
 	--Second Level
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1006.05, -3096.95, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_prop_crate_wlife_sc`,			1003.63, -3102.80, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_prop_crate_jewels_racks_sc`,		1003.63, -3091.60, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_SC`,				1013.33, -3096.95, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_SC`,				1008.48, -3108.50, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Tob_SC`,				1018.18, -3096.95, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_SC`,				1013.33, -3108.50, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_biohazard_BC`,		1003.63, -3108.50, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_RW`,			1013.33, -3091.60, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Ammo_BC`,				1013.33, -3102.80, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,				1003.63, -3096.95, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_biohazard_SC`,		1006.05, -3108.50, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1015.75, -3096.95, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_HighEnd_pharma_SC`,	1015.75, -3091.60, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_SC`,				1018.18, -3102.80, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,				1018.18, -3108.50, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1008.48, -3102.80, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_HighEnd_pharma_BC`,	1018.18, -3091.60, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,				1015.75, -3102.80, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_furJacket_SC`,		1006.05, -3102.80, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Expl_bc`,				1010.90, -3102.80, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1010.90, -3108.50, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,				1010.90, -3096.95, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Tob_SC`,				1010.90, -3091.60, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_SC`,				1015.75, -3108.50, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1008.48, -3091.60, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1008.48, -3096.60, -37.81, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_SC`,			1006.05, -3091.60, -37.81, 0, 0, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,			coords = vector4(1006.05, -3096.95, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_prop_crate_wlife_sc`,			coords = vector4(1003.63, -3102.80, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_prop_crate_jewels_racks_sc`,		coords = vector4(1003.63, -3091.60, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Gems_SC`,				coords = vector4(1013.33, -3096.95, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Elec_SC`,				coords = vector4(1008.48, -3108.50, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Tob_SC`,				coords = vector4(1018.18, -3096.95, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Elec_SC`,				coords = vector4(1013.33, -3108.50, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_biohazard_BC`,		coords = vector4(1003.63, -3108.50, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_RW`,			coords = vector4(1013.33, -3091.60, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Ammo_BC`,				coords = vector4(1013.33, -3102.80, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Gems_BC`,				coords = vector4(1003.63, -3096.95, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_biohazard_SC`,		coords = vector4(1006.05, -3108.50, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,			coords = vector4(1015.75, -3096.95, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_HighEnd_pharma_SC`,	coords = vector4(1015.75, -3091.60, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Gems_SC`,				coords = vector4(1018.18, -3102.80, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Gems_BC`,				coords = vector4(1018.18, -3108.50, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,			coords = vector4(1008.48, -3102.80, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_HighEnd_pharma_BC`,	coords = vector4(1018.18, -3091.60, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Gems_BC`,				coords = vector4(1015.75, -3102.80, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_furJacket_SC`,		coords = vector4(1006.05, -3102.80, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Expl_bc`,				coords = vector4(1010.90, -3102.80, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Elec_BC`,				coords = vector4(1010.90, -3108.50, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Gems_BC`,				coords = vector4(1010.90, -3096.95, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Tob_SC`,				coords = vector4(1010.90, -3091.60, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Gems_SC`,				coords = vector4(1015.75, -3108.50, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,			coords = vector4(1008.48, -3091.60, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,			coords = vector4(1008.48, -3096.60, -37.81, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_SC`,			coords = vector4(1006.05, -3091.60, -37.81, 0.0)}, 1, 0)
 	--These needed headings adjusting
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Med_BC`,				1026.75, -3106.52, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1026.75, -3111.38, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Narc_BC`,				1026.75, -3091.59, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Narc_SC`,				1026.75, -3094.01, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Med_SC`,				1026.75, -3108.88, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_pharma_SC`,			1026.75, -3096.43, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,			993.355, -3106.60, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], 90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Bull_BC_02`,			993.355, -3111.30, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], 90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Bull_SC_02`,			993.355, -3108.95, -37.81, 0, 0, 0) SetEntityHeading(Props[#Props], 90.0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Med_BC`,				coords = vector4(1026.75, -3106.52, -37.81, -90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,			coords = vector4(1026.75, -3111.38, -37.81, -90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Narc_BC`,				coords = vector4(1026.75, -3091.59, -37.81, -90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Narc_SC`,				coords = vector4(1026.75, -3094.01, -37.81, -90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Med_SC`,				coords = vector4(1026.75, -3108.88, -37.81, -90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_pharma_SC`,			coords = vector4(1026.75, -3096.43, -37.81, -90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Bull_BC_02`,			coords = vector4(993.355, -3106.60, -37.81, 90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Bull_BC_02`,			coords = vector4(993.355, -3111.30, -37.81, 90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Bull_SC_02`,			coords = vector4(993.355, -3108.95, -37.81, 90.0)}, 1, 0)
 
 	--Third Level
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1013.33, -3102.80, -35.62, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1015.75, -3102.80, -35.62, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Art_BC`,				1013.33, -3108.50, -35.62, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Art_BC`,				1015.75, -3108.50, -35.62, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_clothing_BC`,			1018.18, -3096.95, -35.62, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Gems_BC`,				1003.63, -3108.50, -35.61, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Wlife_BC`,			1018.18, -3091.60, -35.74, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Med_BC`,				1008.48, -3091.60, -35.62, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Wlife_BC`,			1015.75, -3091.60, -35.74, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1008.48, -3096.95, -35.60, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1010.90, -3096.95, -35.60, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1010.90, -3091.60, -35.62, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,		1013.33, -3091.60, -35.74, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_HighEnd_pharma_BC`,	1003.63, -3091.60, -35.62, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Art_02_BC`,			1013.33, -3096.95, -35.62, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Tob_BC`,				1010.90, -3108.50, -35.75, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Art_02_BC`,			1018.18, -3108.50, -35.62, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1003.63, -3096.95, -35.62, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1006.05, -3096.95, -35.60, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1006.05, -3102.80, -35.60, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Art_BC`,				1015.75, -3096.95, -35.62, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1010.90, -3102.80, -35.60, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				1008.48, -3102.80, -35.60, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1006.05, -3091.60, -35.62, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1006.05, -3108.50, -35.62, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Tob_BC`,				1018.18, -3102.80, -35.75, 0, 0, 0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Tob_BC`,				1008.48, -3108.50, -35.75, 0, 0, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,			coords = vector4(1013.33, -3102.80, -35.62, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,			coords = vector4(1015.75, -3102.80, -35.62, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Art_BC`,				coords = vector4(1013.33, -3108.50, -35.62, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Art_BC`,				coords = vector4(1015.75, -3108.50, -35.62, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_clothing_BC`,			coords = vector4(1018.18, -3096.95, -35.62, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Gems_BC`,				coords = vector4(1003.63, -3108.50, -35.61, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Wlife_BC`,			coords = vector4(1018.18, -3091.60, -35.74, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Med_BC`,				coords = vector4(1008.48, -3091.60, -35.62, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Wlife_BC`,			coords = vector4(1015.75, -3091.60, -35.74, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Elec_BC`,				coords = vector4(1008.48, -3096.95, -35.60, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Elec_BC`,				coords = vector4(1010.90, -3096.95, -35.60, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,			coords = vector4(1010.90, -3091.60, -35.62, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_furJacket_BC`,		coords = vector4(1013.33, -3091.60, -35.74, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_HighEnd_pharma_BC`,	coords = vector4(1003.63, -3091.60, -35.62, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Art_02_BC`,			coords = vector4(1013.33, -3096.95, -35.62, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Tob_BC`,				coords = vector4(1010.90, -3108.50, -35.75, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Art_02_BC`,			coords = vector4(1018.18, -3108.50, -35.62, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,			coords = vector4(1003.63, -3096.95, -35.62, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Elec_BC`,				coords = vector4(1006.05, -3096.95, -35.60, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Elec_BC`,				coords = vector4(1006.05, -3102.80, -35.60, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Art_BC`,				coords = vector4(1015.75, -3096.95, -35.62, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Elec_BC`,				coords = vector4(1010.90, -3102.80, -35.60, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Elec_BC`,				coords = vector4(1008.48, -3102.80, -35.60, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,			coords = vector4(1006.05, -3091.60, -35.62, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,			coords = vector4(1006.05, -3108.50, -35.62, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Tob_BC`,				coords = vector4(1018.18, -3102.80, -35.75, 0.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Tob_BC`,				coords = vector4(1008.48, -3108.50, -35.75, 0.0)}, 1, 0)
 	--These needed headings adjusting
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1026.75, -3106.52, -35.62, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1026.75, -3108.88, -35.62, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Closed_BC`,			1026.75, -3111.38, -35.62, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,		1026.75, -3091.59, -35.74, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,		1026.75, -3094.01, -35.74, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_furJacket_BC`,		1026.75, -3096.43, -35.74, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				993.355, -3106.60, -35.60, 0, 0, 0) SetEntityHeading(Props[#Props], 90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_BC`,				993.355, -3111.30, -35.60, 0, 0, 0) SetEntityHeading(Props[#Props], 90.0)
-	Props[#Props+1] = CreateObject(`ex_Prop_Crate_Elec_SC`,				993.355, -3108.95, -35.62, 0, 0, 0) SetEntityHeading(Props[#Props], 90.0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,			coords = vector4(1026.75, -3106.52, -35.62, -90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,			coords = vector4(1026.75, -3108.88, -35.62, -90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Closed_BC`,			coords = vector4(1026.75, -3111.38, -35.62, -90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_furJacket_BC`,		coords = vector4(1026.75, -3091.59, -35.74, -90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_furJacket_BC`,		coords = vector4(1026.75, -3094.01, -35.74, -90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_furJacket_BC`,		coords = vector4(1026.75, -3096.43, -35.74, -90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Elec_BC`,				coords = vector4(993.355, -3106.60, -35.60, 90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Elec_BC`,				coords = vector4(993.355, -3111.30, -35.60, 90.0)}, 1, 0)
+	Props[#Props+1] = makeProp({prop = `ex_Prop_Crate_Elec_SC`,				coords = vector4(993.355, -3108.95, -35.62, 90.0)}, 1, 0)
 
-	--Props[#Props+1] = CreateObject(`prop_toolchest_05`,					1002.04, -3108.36, -39.99, 0, 0, 0) SetEntityHeading(Props[#Props], -90.0)
 	for k in pairs(scrapPool) do loadModel(scrapPool[k].model) end
 end
 function EndJob()
@@ -365,8 +333,8 @@ RegisterNetEvent("jim-recycle:PickupPackage:Hold", function()
 	SetEntityDrawOutlineShader(1)
 	Targets["DropOff"] =
 		exports['qb-target']:AddTargetEntity(TrollyProp,
-			{ options = { { event = "jim-recycle:PickupPackage:Finish", icon = 'fas fa-recycle', label = Loc[Config.Lan].target["drop_off"], } },
-			distance = 2.5,	})
+		{ options = { { event = "jim-recycle:PickupPackage:Finish", icon = 'fas fa-recycle', label = Loc[Config.Lan].target["drop_off"], } },
+		distance = 2.5,	})
 
 end)
 
@@ -413,13 +381,11 @@ RegisterNetEvent('jim-recycle:SellAnim', function(item)
 			Selling = true
 			loadAnimDict("mp_common")
 			loadAnimDict("amb@prop_human_atm@male@enter")
-			local model = `prop_paper_bag_small`
-			loadModel(model)
-			if bag == nil then bag = CreateObject(model, 0.0, 0.0, 0.0, true, false, false) end
+			if bag == nil then bag = makeProp({prop = `prop_paper_bag_small`, coords = vector4(0,0,0,0)}, 0, 1) end
 			AttachEntityToEntity(bag, v, GetPedBoneIndex(v, 57005), 0.1, -0.0, 0.0, -90.0, 0.0, 0.0, true, true, false, true, 1, true)
 			--Calculate if you're facing the ped--
 			ClearPedTasksImmediately(v)
-			if not IsPedHeadingTowardsPosition(PlayerPedId(), GetEntityCoords(v), 20.0) then TaskTurnPedToFaceCoord(PlayerPedId(), GetEntityCoords(v), 1500) Wait(1500) end
+			lookEnt(v)
 			TaskPlayAnim(PlayerPedId(), "amb@prop_human_atm@male@enter", "enter", 1.0, 1.0, 0.3, 16, 0.2, 0, 0, 0)	--Start animations
             TaskPlayAnim(v, "mp_common", "givetake2_b", 1.0, 1.0, 0.3, 16, 0.2, 0, 0, 0)
 			Wait(1000)
@@ -430,7 +396,7 @@ RegisterNetEvent('jim-recycle:SellAnim', function(item)
 			TaskStartScenarioInPlace(v, "WORLD_HUMAN_CLIPBOARD", -1, true)
 			unloadAnimDict("mp_common")
 			unloadAnimDict("amb@prop_human_atm@male@enter")
-			destroyProp(bag) unloadModel(model)
+			destroyProp(bag) unloadModel(`prop_paper_bag_small`)
 			bag = nil
 			for k in pairs(Config.Prices) do
 				if k == item then TriggerServerEvent('jim-recycle:Selling:Mat', item) Selling = false return end
@@ -448,12 +414,11 @@ RegisterNetEvent('jim-recycle:Selling:Menu', function()
 		{ icon = "fas fa-circle-xmark", header = "", txt = Loc[Config.Lan].menu["close"], params = { event = "jim-recycle:CloseMenu" } } }
 	for k, v in pairsByKeys(Config.Prices) do
 		sellMenu[#sellMenu+1] = {
-			hidden = (not QBCore.Functions.HasItem(k, 1)),
+			disabled = not HasItem(k, 1),
 			icon = k,
 			header = "<img src=nui://"..Config.img..QBCore.Shared.Items[k].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items[k].label,
 			txt = Loc[Config.Lan].menu["sell_all"]..v..Loc[Config.Lan].menu["each"],
 			params = { event = "jim-recycle:SellAnim", args = k } }
-		Wait(10)
 	end
     exports['qb-menu']:openMenu(sellMenu)
 end)
@@ -480,9 +445,8 @@ RegisterNetEvent('jim-recycle:Bottle:Menu', function()
 		{ icon = "recyclablematerial", header = Loc[Config.Lan].menu["sell_mats"], txt = Loc[Config.Lan].menu["sell_mats_txt"], isMenuHeader = true },
 		{ icon = "fas fa-circle-xmark", header = "", txt = Loc[Config.Lan].menu["close"], params = { event = "jim-recycle:CloseMenu" } } }
 
-	if QBCore.Functions.HasItem("can", 1) then tradeMenu[#tradeMenu+1] = { icon = "can", header = "<img src=nui://"..Config.img..QBCore.Shared.Items["can"].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items["can"].label, params = { event = "jim-recycle:SellAnim", args = 'can' } } end
-	Wait(10)
-	if QBCore.Functions.HasItem("bottle", 1) then tradeMenu[#tradeMenu+1] = { icon = "bottle", header = "<img src=nui://"..Config.img..QBCore.Shared.Items["bottle"].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items["bottle"].label, params = { event = "jim-recycle:SellAnim", args = 'bottle' } } end
+	tradeMenu[#tradeMenu+1] = { disabled = not HasItem("can", 1), icon = "can", header = "<img src=nui://"..Config.img..QBCore.Shared.Items["can"].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items["can"].label, params = { event = "jim-recycle:SellAnim", args = 'can' } }
+	tradeMenu[#tradeMenu+1] = { disabled = not HasItem("bottle", 1), icon = "bottle", header = "<img src=nui://"..Config.img..QBCore.Shared.Items["bottle"].image.." width=30px onerror='this.onerror=null; this.remove();'> "..QBCore.Shared.Items["bottle"].label, params = { event = "jim-recycle:SellAnim", args = 'bottle' } }
 
 	if #tradeMenu > 2 then exports['qb-menu']:openMenu(tradeMenu)
 	else TriggerEvent("QBCore:Notify", Loc[Config.Lan].error["no_bottles"], "error") end

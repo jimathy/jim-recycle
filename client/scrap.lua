@@ -26,7 +26,7 @@ local function startSearching(coords)
     canSearch = false
     --Calculate if you're facing the trash--
     if #(coords - GetEntityCoords(PlayerPedId())) > 1.5 then TaskGoStraightToCoord(PlayerPedId(), coords, 0.4, 200, 0.0, 0) Wait(300) end
-    if not IsPedHeadingTowardsPosition(PlayerPedId(), coords, 20.0) then TaskTurnPedToFaceCoord(PlayerPedId(), coords, 1500) Wait(1500) end
+    lookEnt(coords)
     local dict = 'amb@prop_human_bum_bin@base'
     local anim = 'base'
     loadAnimDict(dict)

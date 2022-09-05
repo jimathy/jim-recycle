@@ -49,8 +49,8 @@ RegisterServerEvent("jim-recycle:TradeItems", function(data)
 		min = Config.RecycleAmounts.thouMin
 		max = Config.RecycleAmounts.thouMax
 	end
-	Player.Functions.RemoveItem("recyclablematerial", remAmount)
-	TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["recyclablematerial"], 'remove', remAmount)
+	if Player.Functions.RemoveItem("recyclablematerial", remAmount) then
+		TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items["recyclablematerial"], 'remove', remAmount) end
 	Wait(1000)
 	for i = 1, itemAmount do
 		randItem = Config.TradeTable[math.random(1, #Config.TradeTable)]
@@ -66,9 +66,8 @@ RegisterNetEvent("jim-recycle:Selling:Mat", function(item)
     if Player.Functions.GetItemByName(item) ~= nil then
         local amount = Player.Functions.GetItemByName(item).amount
         local pay = (amount * Config.Prices[item])
-        Player.Functions.RemoveItem(item, amount)
+        if Player.Functions.RemoveItem(item, amount) then TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[item], 'remove', amount) end
         Player.Functions.AddMoney('cash', pay)
-        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items[item], 'remove', amount)
         TriggerClientEvent("QBCore:Notify", src, Loc[Config.Lan].success["get_paid"]..pay, "success")
     end
 end)

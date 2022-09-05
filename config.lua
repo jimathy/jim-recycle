@@ -1,13 +1,13 @@
-print("^2Jim^7-^2Recycle v^42^7.^44 ^7- ^2Recycling Script by ^1Jimathy^7")
+print("^2Jim^7-^2Recycle v^42^7.^45 ^7- ^2Recycling Script by ^1Jimathy^7")
 
 Config = {
 	Lan = "en",
-	Debug = false, -- Toggle Debug Mode
+	Debug = true, -- Toggle Debug Mode
 	Blips = true, -- Enable Blips?
 	BlipNamer = false, -- Enable to Name Blips different things, disable if you already have too many blips as this will group them together
 	Pedspawn = true, -- Do you want to spawn peds for main locations?
 	img = "qb-inventory/html/images/", -- Set this to your inventory
-	JimMenu = false, -- If using updated qb-menu icons, set this true
+	JimMenu = true, -- If using updated qb-menu icons, set this true
 	JobRole = nil, -- Whats the job role you want to use this? "nil" for none
 	EnableOpeningHours = true, -- Enable opening hours? If disabled you can always open the pawnshop.
 	OpenHour = 9, -- From what hour should the pawnshop be open?
@@ -44,8 +44,8 @@ Config = {
 		['iron'] = 10,
 		['rubber'] = 10,
 		['aluminum'] = 10,
-	--	['bottle'] = 5,
-	--	['can'] = 5,
+		['bottle'] = 5,
+		['can'] = 5,
 	},
 	TradeTable = {
 		"copper",
