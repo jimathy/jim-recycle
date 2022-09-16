@@ -8,7 +8,7 @@ Config = {
 	Pedspawn = true, -- Do you want to spawn peds for main locations?
 	img = "qb-inventory/html/images/", -- Set this to your inventory
 	JimMenu = true, -- If using updated qb-menu icons, set this true
-	JobRole = nil, -- Whats the job role you want to use this? "nil" for none
+	JobRole = nil, -- Whats the job role you want to use this? "nil" for none. Example: JobRole = "recycle",
 	EnableOpeningHours = true, -- Enable opening hours? If disabled you can always open the pawnshop.
 	OpenHour = 9, -- From what hour should the pawnshop be open?
 	CloseHour = 21, -- From what hour should the pawnshop be closed?
