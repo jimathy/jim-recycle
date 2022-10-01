@@ -16,6 +16,7 @@ local dumpsters = { -- The mighty list of dumpters/trash cans
 --Loading/Unloading Asset Functions
 function loadAnimDict(dict)	if Config.Debug then print("^5Debug^7: ^2Loading Anim Dictionary^7: '^6"..dict.."^7'") end while not HasAnimDictLoaded(dict) do RequestAnimDict(dict) Wait(5) end end
 function unloadAnimDict(dict) if Config.Debug then print("^5Debug^7: ^2Removing Anim Dictionary^7: '^6"..dict.."^7'") end RemoveAnimDict(dict) end
+function getCoord(numA, numB) local base = 10^(numB or 0) return math.floor(numA * base + 0.5) / base end
 
 --Dumpster Third Eye
 CreateThread(function()
