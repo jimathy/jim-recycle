@@ -29,6 +29,7 @@ Loc["en"] = {
         ["search"] = "Search",
         ["drop_off"] = "Drop Off",
         ["search_trash"] = "Search Trash",
+        ["dump_stash"] = "Throw something in there..",
     },
     menu = {
         ["close"] = "Close",
