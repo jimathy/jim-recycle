@@ -17,9 +17,27 @@ local dumpsters = { -- The mighty list of dumpters/trash cans
 function loadAnimDict(dict)	if Config.Debug then print("^5Debug^7: ^2Loading Anim Dictionary^7: '^6"..dict.."^7'") end while not HasAnimDictLoaded(dict) do RequestAnimDict(dict) Wait(5) end end
 function unloadAnimDict(dict) if Config.Debug then print("^5Debug^7: ^2Removing Anim Dictionary^7: '^6"..dict.."^7'") end RemoveAnimDict(dict) end
 
+--Dumpster Third Eye
 CreateThread(function()
-	--Dumpster Third Eye
-	exports['qb-target']:AddTargetModel(dumpsters, { options = { { event = "jim-recycle:Dumpsters:Search", icon = "fas fa-dumpster", label = Loc[Config.Lan].target["search_trash"], }, }, distance = 1.5 })
+	if Config.DumpsterStash then
+		exports['qb-target']:AddTargetModel(dumpsters, { options = { { event = "jim-recycle:Dumpsters:Search", icon = "fas fa-dumpster", label = Loc[Config.Lan].target["search_trash"], }, 
+			{   icon = 'fas fa-dumpster', label = Loc[Config.Lan].target["dump_stash"], action = function(entity)
+				local DumpsterCoords = GetEntityCoords(entity)
+				if DumpsterCoords.x < 0 then DumpsterX = -DumpsterCoords.x else DumpsterX = DumpsterCoords.x end
+				if DumpsterCoords.y < 0 then DumpsterY = -DumpsterCoords.y else DumpsterY = DumpsterCoords.y end
+				DumpsterX = getCoord(DumpsterX, 1)
+				DumpsterY = getCoord(DumpsterY, 1)
+				TriggerEvent("inventory:client:SetCurrentStash", "Dumpster | "..DumpsterX.." | "..DumpsterY)
+				TriggerServerEvent("inventory:server:OpenInventory", "stash", "Dumpster | "..DumpsterX.." | "..DumpsterY, {
+				    maxweight = 100000,
+				    slots = 10,
+				})
+			    end
+			}
+		}, distance = 1.5 })
+	else
+		exports['qb-target']:AddTargetModel(dumpsters, { options = { { event = "jim-recycle:Dumpsters:Search", icon = "fas fa-dumpster", label = Loc[Config.Lan].target["search_trash"], }, }, distance = 1.5 })
+	end
 end)
 
 --Search animations
