@@ -13,9 +13,6 @@ local dumpsters = { -- The mighty list of dumpters/trash cans
     `zprop_bin_01a_old`, `hei_heist_kit_bin_01`, `ch_prop_casino_bin_01a`, `vw_prop_vw_casino_bin_01a`, `mp_b_kit_bin_01`, `prop_bin_01a`,
 }
 
---Loading/Unloading Asset Functions
-function loadAnimDict(dict)	if Config.Debug then print("^5Debug^7: ^2Loading Anim Dictionary^7: '^6"..dict.."^7'") end while not HasAnimDictLoaded(dict) do RequestAnimDict(dict) Wait(5) end end
-function unloadAnimDict(dict) if Config.Debug then print("^5Debug^7: ^2Removing Anim Dictionary^7: '^6"..dict.."^7'") end RemoveAnimDict(dict) end
 function getCoord(numA, numB) local base = 10^(numB or 0) return math.floor(numA * base + 0.5) / base end
 
 --Dumpster Third Eye
