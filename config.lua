@@ -16,15 +16,15 @@ Config = {
 
 	Minigame = "qb-skillbar", -- Enable minigame when searching. qb-skillbar/qb-lock/ps-ui
 
-	OutsideTele = vector4(746.83, -1399.66, 26.6, 230.732),
-	InsideTele = vector4(993.16, -3097.61, -39.90, 82.95),
+	OutsideTele = vector4(746.75518798828, -1399.5516357422, 26.609373092651, 180.86077880859),
+	InsideTele = vector4(736.95355224609, -1374.2559814453, 12.635090827942, 266.58343505859),
 
 	Locations =  {
 		['Recycle'] = {
 			{ name = "Recycle Center", coords = vector4(744.68, -1401.77, 26.55, 248.73), blipTrue = true, sprite = 365, col = 2, model = `G_M_M_ChemWork_01`, scenario = "WORLD_HUMAN_CLIPBOARD", },
 		},
 		['Trade'] ={
-			{ name = "Recyclable Trader", coords = vector4(997.48, -3097.44, -39.0, 234.53), blipTrue = false, sprite = 365, col = 2, model = `G_M_M_ChemWork_01`, scenario = "WORLD_HUMAN_CLIPBOARD", },
+			{ name = "Recyclable Trader", coords = vector4(742.36309814453, -1373.9674072266, 12.631042480469, 234.4), blipTrue = false, sprite = 365, col = 2, model = `G_M_M_ChemWork_01`, scenario = "WORLD_HUMAN_CLIPBOARD", },
 		},
 		['BottleBanks'] = {
 			{ name = "Bottle Bank", coords = vector4(757.06, -1399.68, 26.57 , 178.1), blipTrue = true, sprite = 642, col = 2, model = `G_M_M_ChemWork_01`, scenario = "WORLD_HUMAN_CLIPBOARD", },
