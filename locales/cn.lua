@@ -28,7 +28,8 @@ Loc["cn"] = {
         ["sell_bottles"] = "出售瓶子",
         ["search"] = "搜索",
         ["drop_off"] = "放下",
-        ["search_trash"] = "搜索垃圾",
+        ["search_trash"] = "搜索垃圾箱",
+        ["dump_stash"] = "扔些东西进去...",
     },
     menu = {
         ["close"] = "关闭",

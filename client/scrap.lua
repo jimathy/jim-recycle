@@ -12,10 +12,6 @@ local scrap = { -- The mighty list of dumpters/trash cans
     `prop_rub_wreckage_8`, `prop_rub_wreckage_9`, `ch1_01_sea_wreck_3`, `cs2_30_sea_ch2_30_wreck005`, `cs2_30_sea_ch2_30_wreck7`, `cs4_05_buswreck`,
 }
 
---Loading/Unloading Asset Functions
-local function loadAnimDict(dict) if Config.Debug then print("Debug: Loading Anim Dictionary: '"..dict.."'") end while not HasAnimDictLoaded(dict) do RequestAnimDict(dict) Wait(5) end end
-local function unloadAnimDict(dict) if Config.Debug then print("Debug: Removing Anim Dictionary: '"..dict.."'") end RemoveAnimDict(dict) end
-
 CreateThread(function()
 	--Dumpster Third Eye
 	exports['qb-target']:AddTargetModel(scrap, { options = { { event = "jim-recycle:Scrap:Search", icon = "fas fa-dumpster", label = Loc[Config.Lan].target["search"], }, }, distance = 1.5 })
