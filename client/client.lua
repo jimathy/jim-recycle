@@ -376,6 +376,7 @@ end)
 
 local Selling = false
 RegisterNetEvent('jim-recycle:SellAnim', function(item)
+	LocalPlayer.state:set("inv_busy", true, true)
 	for _, v in pairs (Peds) do
 		if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(v)) < 3 then
 			Selling = true
@@ -393,6 +394,7 @@ RegisterNetEvent('jim-recycle:SellAnim', function(item)
             Wait(1000)
             StopAnimTask(PlayerPedId(), "amb@prop_human_atm@male@enter", "enter", 1.0)
 			StopAnimTask(v, "mp_common", "givetake2_b", 1.0)
+			LocalPlayer.state:set("inv_busy", false, true)
 			TaskStartScenarioInPlace(v, "WORLD_HUMAN_CLIPBOARD", -1, true)
 			unloadAnimDict("mp_common")
 			unloadAnimDict("amb@prop_human_atm@male@enter")
@@ -402,6 +404,7 @@ RegisterNetEvent('jim-recycle:SellAnim', function(item)
 				if k == item then TriggerServerEvent('jim-recycle:Selling:Mat', item) Selling = false return end
 			end
 			TriggerServerEvent("jim-recycle:TradeItems", item)
+			LocalPlayer.state:set("inv_busy", false, true)
 			Selling = false
 		end
 	end
