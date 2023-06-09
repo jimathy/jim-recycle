@@ -379,6 +379,7 @@ RegisterNetEvent('jim-recycle:SellAnim', function(item)
 	for _, v in pairs (Peds) do
 		if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(v)) < 3 then
 			Selling = true
+			LocalPlayer.state:set("inv_busy", true, true)
 			loadAnimDict("mp_common")
 			loadAnimDict("amb@prop_human_atm@male@enter")
 			if bag == nil then bag = makeProp({prop = `prop_paper_bag_small`, coords = vector4(0,0,0,0)}, 0, 1) end
@@ -402,6 +403,7 @@ RegisterNetEvent('jim-recycle:SellAnim', function(item)
 				if k == item then TriggerServerEvent('jim-recycle:Selling:Mat', item) Selling = false return end
 			end
 			TriggerServerEvent("jim-recycle:TradeItems", item)
+			LocalPlayer.state:set("inv_busy", false, true)
 			Selling = false
 		end
 	end
