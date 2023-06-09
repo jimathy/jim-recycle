@@ -376,10 +376,10 @@ end)
 
 local Selling = false
 RegisterNetEvent('jim-recycle:SellAnim', function(item)
+	LocalPlayer.state:set("inv_busy", true, true)
 	for _, v in pairs (Peds) do
 		if #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(v)) < 3 then
 			Selling = true
-			LocalPlayer.state:set("inv_busy", true, true)
 			loadAnimDict("mp_common")
 			loadAnimDict("amb@prop_human_atm@male@enter")
 			if bag == nil then bag = makeProp({prop = `prop_paper_bag_small`, coords = vector4(0,0,0,0)}, 0, 1) end
@@ -394,6 +394,7 @@ RegisterNetEvent('jim-recycle:SellAnim', function(item)
             Wait(1000)
             StopAnimTask(PlayerPedId(), "amb@prop_human_atm@male@enter", "enter", 1.0)
 			StopAnimTask(v, "mp_common", "givetake2_b", 1.0)
+			LocalPlayer.state:set("inv_busy", false, true)
 			TaskStartScenarioInPlace(v, "WORLD_HUMAN_CLIPBOARD", -1, true)
 			unloadAnimDict("mp_common")
 			unloadAnimDict("amb@prop_human_atm@male@enter")
