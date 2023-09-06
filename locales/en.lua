@@ -42,6 +42,7 @@ Loc["en"] = {
         ["trade10"] = "Trade 10 Materials",
         ["trade100"] = "Trade 100 Materials",
         ["trade1000"] = "Trade 1000 Materials",
+        ["trade"] = "Materials",
     },
     progressbar = {
         ["search"] = "Searching",
