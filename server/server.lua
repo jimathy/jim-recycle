@@ -34,7 +34,7 @@ RegisterNetEvent("jim-recycle:Selling:Mat", function(data)
 	local pay = (amount * Config.Prices[data.item])
 
 	if HasItem(src, data.item, amount) then
-		TriggerEvent("jim-recycle:server:toggleItem", false, data.item, amount, src)\
+		TriggerEvent("jim-recycle:server:toggleItem", false, data.item, amount, src)
 		Core.Functions.GetPlayer(src).Functions.AddMoney('cash', pay)
 		triggerNotify(nil, Loc[Config.Lan].success["get_paid"]..pay, "success", src)
 	end
