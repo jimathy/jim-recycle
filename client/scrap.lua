@@ -8,16 +8,13 @@ if Config.ScrapyardSearching.Enable then if Config.Debug then print("^5Debug^7: 
         label = Loc[Config.Lan].target["search"],
     }, }, distance = 1.5 })
 
-
     --Search animations
     local function startSearching(coords) local Ped = PlayerPedId()
-        Searching = true
-        lockInv(true)
         --Calculate if you're facing the trash--
         if #(coords - GetEntityCoords(Ped)) > 1.5 then TaskGoStraightToCoord(Ped, coords.x, coords.y, coords.z, 0.4, 200, 0.0, 0) Wait(300) end
         lookEnt(coords)
         loadAnimDict('amb@prop_human_bum_bin@base')
-        --Play Serach animation
+        --Play Search animation
         TaskPlayAnim(Ped, 'amb@prop_human_bum_bin@base', 'base', 2.0, 2.0, Config.ScrapyardSearching.searchTime, 1, 1, 0, 0, 0)
         FreezeEntityPosition(Ped, true)
         Wait(Config.DumpsterDiving.searchTime)
@@ -34,60 +31,47 @@ if Config.ScrapyardSearching.Enable then if Config.Debug then print("^5Debug^7: 
         lockInv(false)
     end
 
-    RegisterNetEvent('jim-recycle:Scrap:Search', function() local Ped = PlayerPedId()
-        if not Searching then Searching = true else return end
+    RegisterNetEvent('jim-recycle:Scrap:Search', function(data) local Ped = PlayerPedId()
+        local searchSuccess = nil
+        if not Searching then Searching = true else print("test") return end
         lockInv(true)
-        local scrapFound = false
-        local searched = Config.DumpsterDiving.searched
-        local scrapModels = Config.ScrapyardSearching.models
-        for i = 1, #scrapModels do
-            local toScrap = GetClosestObjectOfType(GetEntityCoords(Ped), 2.0, scrapModels[i], false, false, false)
-            if #(GetEntityCoords(Ped) - GetEntityCoords(toScrap)) < 2.0 then
-                if Config.Debug then print("^5Debug^7: ^2Starting Search of entity^7: '^6"..toScrap.."^7'") end
-                for i = 1, #searched do
-                    if searched[i] == toScrap then scrapFound = true end -- Theres a dumpster nearby
-                    if i == #searched and scrapFound then triggerNotify(nil, Loc[Config.Lan].error["searched"], "error") return -- Let player know already searched
-                    elseif i == #searched and not scrapFound then -- If hasn't been searched yet
-                        loadAnimDict("anim@amb@machinery@speed_drill@")
-                        TaskPlayAnim(Ped, "anim@amb@machinery@speed_drill@", "look_around_left_02_amy_skater_01", 1.0, 1.0, 3500, 1.5, 5, 0, 0, 0)
-                        local searchSuccess = false
-                        if Config.DumpsterDiving.skillcheck == "qb-lock" then
-                            local Skillbar = exports['qb-lock']:StartLockPickCircle(math.random(2,4), math.random(7,10), success)
-                            if Skillbar then searchSuccess = true end
-                        elseif Config.DumpsterDiving.skillcheck == "ps-ui" then
-                            exports['ps-ui']:Circle(function(Skillbar)
-                                if Skillbar then searchSuccess = true end
-                            end, 2, 20)
-                        elseif Config.DumpsterDiving.skillcheck == "qb-skillbar" then
-                            local Skillbar = exports['qb-skillbar']:GetSkillbarObject()
-                            Skillbar.Start({ duration = math.random(2500,5000), pos = math.random(10, 30), width = math.random(10, 20),	},	function()
-                            -- On success
-                                searchSuccess = true
-                            end, function() -- On fail
-                            end)
-                        elseif Config.DumpsterDiving.skillcheck == "ox_lib" then
-                            local Skillbar = exports.ox_lib:skillCheck({'easy', 'easy', 'easy' }, {'1', '2', '3', '4'})
-                            if Skillbar then searchSuccess = true end
-                        else
-                            triggerNotify(nil, Loc[Config.Lan].success["get_trash"], "success")
-                            startSearching(GetEntityCoords(toScrap))
-                        end
-
-                        if searchSuccess then
-                            triggerNotify(nil, Loc[Config.Lan].success["get_scrap"], "success")
-                            startSearching(GetEntityCoords(toScrap))
-                        else
-                            triggerNotify(nil, Loc[Config.Lan].error["nothing"], "error")
-                        end
-                        Config.DumpsterDiving.searched[i+1] = toScrap
-                        ClearPedTasks(Ped)
-                        Wait(1000)
-                        Searching = false
-                        break
-                    end
-                end
+        local searched = false
+        if Config.Debug then print("^5Debug^7: ^2Starting Search of entity^7: '^6"..data.entity.."^7'") end
+        for i = 1, #Config.ScrapyardSearching.searched do
+            if Config.ScrapyardSearching.searched[i] == data.entity then
+                triggerNotify(nil, Loc[Config.Lan].error["searched"], "error") searched = true Searching = false return
             end
         end
-        lockInv(false)
+        if not searched then -- If hasn't been searched yet
+            loadAnimDict("anim@amb@machinery@speed_drill@")
+            TaskPlayAnim(Ped, "anim@amb@machinery@speed_drill@", "look_around_left_02_amy_skater_01", 1.0, 1.0, 3500, 1.5, 5, 0, 0, 0)
+            if Config.ScrapyardSearching.skillcheck == "qb-lock" then
+                local Skillbar = exports['qb-lock']:StartLockPickCircle(math.random(2,4), math.random(7,10), success)
+                if Skillbar then searchSuccess = true else searchSuccess = false end
+            elseif Config.ScrapyardSearching.skillcheck == "ps-ui" then
+                exports['ps-ui']:Circle(function(Skillbar)
+                    if Skillbar then searchSuccess = true else searchSuccess = false end
+                end, 2, 20)
+            elseif Config.ScrapyardSearching.skillcheck == "qb-skillbar" then
+                local Skillbar = exports['qb-skillbar']:GetSkillbarObject()
+                Skillbar.Start({ duration = math.random(2500,5000), pos = math.random(10, 30), width = math.random(10, 20),	},
+                function() searchSuccess = true end, function() searchSuccess = false end)
+            elseif Config.ScrapyardSearching.skillcheck == "ox_lib" then
+                local Skillbar = exports.ox_lib:skillCheck({'easy', 'easy', 'easy' }, {'1', '2', '3', '4'})
+                if Skillbar then searchSuccess = true else searchSuccess = false end
+            else
+                searchSuccess = true
+            end
+            while searchSuccess == nil do Wait(1) end
+            if searchSuccess then
+                triggerNotify(nil, Loc[Config.Lan].success["get_scrap"], "success")
+                startSearching(GetEntityCoords(data.entity))
+            else
+                triggerNotify(nil, Loc[Config.Lan].error["nothing"], "error")
+            end
+            Config.ScrapyardSearching.searched[#Config.ScrapyardSearching.searched+1] = data.entity
+            Wait(1000)
+            ClearPedTasks(Ped)
+        end
     end)
 end
