@@ -8,7 +8,7 @@ end)
 Core.Functions.CreateCallback('jim-recycle:GetCash', function(source, cb) cb(Core.Functions.GetPlayer(source).Functions.GetMoney("cash")) end)
 
 RegisterServerEvent("jim-recycle:DoorCharge", function()
-	if Config.Inv == "ox" then TriggerEvent("jim-recycle:server:toggleItem", false, "cash", Config.PayAtDoor, src)
+	if Config.Inv == "ox" then TriggerEvent("jim-recycle:server:toggleItem", false, "money", Config.PayAtDoor, src)
 	else Core.Functions.GetPlayer(source).Functions.RemoveMoney("cash", Config.PayAtDoor) end
 end)
 

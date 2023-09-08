@@ -146,8 +146,14 @@ RegisterNetEvent("jim-recycle:TeleWareHouse", function(data) local Ped = PlayerP
 						if HasItem("money", Config.PayAtDoor) then toggleItem(false, "money", Config.PayAtDoor)
 						else triggerNotify(nil, Loc[Config.Lan].error["no_money"], "error") return end
 					else
-						local p = promise.new()	Core.Functions.TriggerCallback("jim-recycle:GetCash", function(cb) p:resolve(cb) end)
-						if Citizen.Await(p) >= Config.PayAtDoor then TriggerServerEvent("jim-recycle:DoorCharge")
+						local cash = 0
+						if Config.Inv == "ox" then
+							if HasItem("money", Config.PayAtDoor) then cash = Config.PayAtDoor end
+						else
+							local p = promise.new()	Core.Functions.TriggerCallback("jim-recycle:GetCash", function(cb) p:resolve(cb) end)
+							cash = Citizen.Await(p)
+						end
+						if cash >= Config.PayAtDoor then TriggerServerEvent("jim-recycle:DoorCharge")
 						else triggerNotify(nil, Loc[Config.Lan].error["no_money"], "error") return end
 					end
 				end
