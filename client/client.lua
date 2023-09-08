@@ -306,7 +306,7 @@ RegisterNetEvent('jim-recycle:Trade:Menu', function(data)
 	local tradeMenu = {}
 	local icon = "nui://"..Config.img..Core.Shared.Items["recyclablematerial"].image
 	if Config.Menu == "qb" then
-		tradeMenu[#tradeMenu+1] = { icon = icon, header = Loc[Config.Lan].menu["mats_trade"], txt = Loc[Config.Lan].menu["trade_amount"]..amount, isMenuHeader = true }
+		tradeMenu[#tradeMenu+1] = { icon = icon, header = Loc[Config.Lan].menu["mats_trade"], isMenuHeader = true }
 		tradeMenu[#tradeMenu+1] = { icon = "fas fa-circle-xmark", header = "", txt = Loc[Config.Lan].menu["close"], params = { event = "jim-recycle:CloseMenu" } }
 	end
 	local tradeTable = {}
