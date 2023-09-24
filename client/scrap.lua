@@ -68,6 +68,7 @@ if Config.ScrapyardSearching.Enable then if Config.Debug then print("^5Debug^7: 
                 startSearching(GetEntityCoords(data.entity))
             else
                 triggerNotify(nil, Loc[Config.Lan].error["nothing"], "error")
+                lockInv(false)
             end
             Config.ScrapyardSearching.searched[#Config.ScrapyardSearching.searched+1] = data.entity
             Wait(1000)
