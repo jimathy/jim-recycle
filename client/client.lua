@@ -277,7 +277,7 @@ RegisterNetEvent('jim-recycle:SellAnim', function(data) local Ped = PlayerPedId(
 	destroyProp(bag) unloadModel(`prop_paper_bag_small`)
 	bag = nil
 	for k in pairs(Config.Prices) do
-		if k == data.item then TriggerServerEvent('jim-recycle:Selling:Mat', {item = data.item, Ped = data.Ped }) Selling = false return end
+		if k == data.item then TriggerServerEvent('jim-recycle:Selling:Mat', {item = data.item, Ped = data.Ped }) Selling = false lockInv(false) return end
 	end
 	TriggerServerEvent("jim-recycle:TradeItems", { item = data.item, amount = data.amount })
 	Selling = false
