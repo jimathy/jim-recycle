@@ -39,7 +39,11 @@ if Config.DumpsterDiving.Enable then if Config.Debug then print("^5Debug^7: ^2Lo
         if Config.Debug then print("^5Debug^7: ^2Starting Search of entity^7: '^6"..data.entity.."^7'") end
         for i = 1, #Config.DumpsterDiving.searched do
             if Config.DumpsterDiving.searched[i] == data.entity then
-                triggerNotify(nil, Loc[Config.Lan].error["searched"], "error") searched = true Searching = false return
+                triggerNotify(nil, Loc[Config.Lan].error["searched"], "error")
+                searched = true
+                Searching = false
+                lockInv(false)
+                return
             end
         end
         if not searched then -- If hasn't been searched yet
@@ -66,6 +70,7 @@ if Config.DumpsterDiving.Enable then if Config.Debug then print("^5Debug^7: ^2Lo
             if searchSuccess then
                 triggerNotify(nil, Loc[Config.Lan].success["get_trash"], "success")
                 startSearching(GetEntityCoords(data.entity))
+                Searching = false
             else
                 lockInv(false)
                 triggerNotify(nil, Loc[Config.Lan].error["nothing"], "error")

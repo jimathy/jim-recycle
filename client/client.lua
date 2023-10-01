@@ -277,7 +277,7 @@ RegisterNetEvent('jim-recycle:SellAnim', function(data) local Ped = PlayerPedId(
 	destroyProp(bag) unloadModel(`prop_paper_bag_small`)
 	bag = nil
 	for k in pairs(Config.Prices) do
-		if k == data.item then TriggerServerEvent('jim-recycle:Selling:Mat', {item = data.item, Ped = data.Ped }) Selling = false lockInv(false) return end
+		if k == data.item then TriggerServerEvent('jim-recycle:Selling:Mat', {item = data.item, Ped = data.Ped }) Selling = false return end
 	end
 	TriggerServerEvent("jim-recycle:TradeItems", { item = data.item, amount = data.amount })
 	Selling = false
@@ -301,8 +301,8 @@ RegisterNetEvent('jim-recycle:Selling:Menu', function(data)
 			event = "jim-recycle:SellAnim", args = { Ped = data.Ped, item = item },
 		}
 	end
-	if Config.Menu == "ox" then	exports.ox_lib:registerContext({id = 'sellMenu', title = Loc[Config.Lan].menu["sell_mats"], position = 'top-right', options = sellMenu })	exports.ox_lib:showContext("sellMenu")
-	elseif Config.Menu == "qb" then	exports['qb-menu']:openMenu(sellMenu) end
+	if Config.Menu == "ox" then exports.ox_lib:registerContext({id = 'sellMenu', title = Loc[Config.Lan].menu["sell_mats"], position = 'top-right', options = sellMenu })	exports.ox_lib:showContext("sellMenu")
+	elseif Config.Menu == "qb" then exports['qb-menu']:openMenu(sellMenu) end
 	lookEnt(data.Ped)
 end)
 
@@ -333,8 +333,8 @@ RegisterNetEvent('jim-recycle:Trade:Menu', function(data)
 		}
 		Wait(0)
 	end
-	if Config.Menu == "ox" then	exports.ox_lib:registerContext({id = 'tradeMenu', title = Loc[Config.Lan].menu["sell_mats"], position = 'top-right', options = tradeMenu })	exports.ox_lib:showContext("tradeMenu")
-	elseif Config.Menu == "qb" then	exports['qb-menu']:openMenu(tradeMenu) end
+	if Config.Menu == "ox" then exports.ox_lib:registerContext({id = 'tradeMenu', title = Loc[Config.Lan].menu["sell_mats"], position = 'top-right', options = tradeMenu })	exports.ox_lib:showContext("tradeMenu")
+	elseif Config.Menu == "qb" then exports['qb-menu']:openMenu(tradeMenu) end
 	lookEnt(data.Ped)
 end)
 
@@ -356,8 +356,8 @@ RegisterNetEvent('jim-recycle:Bottle:Menu', function(data)
 			event = "jim-recycle:SellAnim", args = { item = item, Ped = data.Ped },
 		}
 	end
-	if Config.Menu == "ox" then	exports.ox_lib:registerContext({id = 'tradeMenu', title = Loc[Config.Lan].menu["sell_mats"], position = 'top-right', options = tradeMenu })	exports.ox_lib:showContext("tradeMenu")
-	elseif Config.Menu == "qb" then	exports['qb-menu']:openMenu(tradeMenu) end
+	if Config.Menu == "ox" then exports.ox_lib:registerContext({id = 'tradeMenu', title = Loc[Config.Lan].menu["sell_mats"], position = 'top-right', options = tradeMenu })	exports.ox_lib:showContext("tradeMenu")
+	elseif Config.Menu == "qb" then exports['qb-menu']:openMenu(tradeMenu) end
 	lookEnt(data.Ped)
 end)
 

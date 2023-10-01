@@ -1,4 +1,4 @@
-print("^2Jim^7-^2Recycle ^7v^42^7.^47 ^7- ^2Recycling Script by ^1Jimathy^7")
+print("^2Jim^7-^2Recycle ^7v^42^7.^47^7.^42 ^7- ^2Recycling Script by ^1Jimathy^7")
 
 Config = {
 	Debug = false, -- Toggle Debug Mode
