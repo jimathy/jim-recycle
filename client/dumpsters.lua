@@ -1,13 +1,46 @@
+local QBCore = exports['qb-core']:GetCoreObject()
+RegisterNetEvent('QBCore:Client:UpdateObject', function() QBCore = exports['qb-core']:GetCoreObject() end)
+
+local dumpsters = { -- The mighty list of dumpters/trash cans
+    `prop_dumpster_01a`, `prop_dumpster_02a`, `prop_dumpster_02b`, `prop_dumpster_3a`, `prop_dumpster_4a`, `prop_dumpster_4b`,
+    `prop_bin_05a`, `prop_bin_06a`, `prop_bin_07a`, `prop_bin_07b`, `prop_bin_07c`, `prop_bin_07d`, `prop_bin_08a`, `prop_bin_08open`,
+    `prop_bin_09a`, `prop_bin_10a`, `prop_bin_10b`, `prop_bin_11a`, `prop_bin_12a`, `prop_bin_13a`, `prop_bin_14a`, `prop_bin_14b`,
+    `prop_bin_beach_01d`, `prop_bin_delpiero`, `prop_bin_delpiero_b`, `prop_recyclebin_01a`, `prop_recyclebin_02_c`, `prop_recyclebin_02_d`,
+    `prop_recyclebin_02a`, `prop_recyclebin_02b`, `prop_recyclebin_03_a`, `prop_recyclebin_04_a`, `prop_recyclebin_04_b`, `prop_recyclebin_05_a`,
+    `zprop_bin_01a_old`, `hei_heist_kit_bin_01`, `ch_prop_casino_bin_01a`, `vw_prop_vw_casino_bin_01a`, `mp_b_kit_bin_01`, `prop_bin_01a`,
+}
+
 if Config.DumpsterDiving.Enable then if Config.Debug then print("^5Debug^7: ^2Loading^7: '^6Dumpster Diving^7'") end
     local Searching = false -- No touch
     --Dumpster Third Eye
-    exports['qb-target']:AddTargetModel(Config.DumpsterDiving.models,
+    function getCoord(numA, numB) local base = 10^(numB or 0) return math.floor(numA * base + 0.5) / base end
+    CreateThread(function()
+	--Dumpster Third Eye
+	if Config.DumpsterStash then
+		exports['qb-target']:AddTargetModel(dumpsters, { options = { { event = "jim-recycle:Dumpsters:Search", icon = "fas fa-dumpster", label = Loc[Config.Lan].target["search_trash"], }, 
+			{   icon = 'fas fa-dumpster', label = Loc[Config.Lan].target["dump_stash"], action = function(entity)
+				local DumpsterCoords = GetEntityCoords(entity)
+				if DumpsterCoords.x < 0 then DumpsterX = -DumpsterCoords.x else DumpsterX = DumpsterCoords.x end
+				if DumpsterCoords.y < 0 then DumpsterY = -DumpsterCoords.y else DumpsterY = DumpsterCoords.y end
+				DumpsterX = getCoord(DumpsterX, 1)
+				DumpsterY = getCoord(DumpsterY, 1)
+				TriggerEvent("inventory:client:SetCurrentStash", "Dumpster | "..DumpsterX.." | "..DumpsterY)
+				TriggerServerEvent("inventory:server:OpenInventory", "stash", "Dumpster | "..DumpsterX.." | "..DumpsterY, {
+				    maxweight = 100000,
+				    slots = 10,
+				})
+			    end
+			}
+		}, distance = 1.5 })
+	else
+		exports['qb-target']:AddTargetModel(Config.DumpsterDiving.models,
         { options = {
             { event = "jim-recycle:Dumpsters:Search",
             icon = "fas fa-dumpster",
             label = Loc[Config.Lan].target["search_trash"],
         }, }, distance = 1.5 })
-
+	end
+end)
     --Search animations
     local function startSearching(coords) local Ped = PlayerPedId()
         --Calculate if you're facing the trash--
