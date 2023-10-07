@@ -36,6 +36,8 @@ function makeProp(data, freeze, synced)
 	return prop
 end
 
+function getCoord(numA, numB) local base = 10^(numB or 0) return math.floor(numA * base + 0.5) / base end
+
 function destroyProp(entity)
 	if Config.Debug then print("^5Debug^7: ^2Destroying Prop^7: '^6"..entity.."^7'") end
 	SetEntityAsMissionEntity(entity) Wait(5)

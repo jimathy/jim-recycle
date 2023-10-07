@@ -10,7 +10,9 @@ Config = {
 	Menu = "qb",
 	ProgressBar = "qb",
 	Notify = "qb",
-
+	
+	DumpsterStash = true, -- Set to true if you want to turn on the dumpster stashes
+	
 	Overrides = {
 		ScrapyardSeraching = true,
 		DumpsterDiving = true,
