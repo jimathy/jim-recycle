@@ -1,12 +1,13 @@
 if Config.ScrapyardSearching.Enable then if Config.Debug then print("^5Debug^7: ^2Loading^7: '^6Scrapyard Searching^7'") end
     local Searching = false
 	--Dumpster Third Eye
-	exports['qb-target']:AddTargetModel(Config.ScrapyardSearching.models,
-    { options = {
-        { event = "jim-recycle:Scrap:Search",
-        icon = "fas fa-dumpster",
-        label = Loc[Config.Lan].target["search"],
-    }, }, distance = 1.5 })
+	exports['qb-target']:AddTargetModel(Config.ScrapyardSearching.models, { options = {
+        {
+            action = function(entity) TriggerEvent("jim-recycle:Scrap:Search", { entity = entity }) end,
+            icon = "fas fa-dumpster",
+            label = Loc[Config.Lan].target["search"],
+        },
+    }, distance = 1.5 })
 
     --Search animations
     local function startSearching(coords) local Ped = PlayerPedId()
@@ -33,7 +34,7 @@ if Config.ScrapyardSearching.Enable then if Config.Debug then print("^5Debug^7: 
 
     RegisterNetEvent('jim-recycle:Scrap:Search', function(data) local Ped = PlayerPedId()
         local searchSuccess = nil
-        if not Searching then Searching = true else print("test") return end
+        if not Searching then Searching = true else return end
         lockInv(true)
         local searched = false
         if Config.Debug then print("^5Debug^7: ^2Starting Search of entity^7: '^6"..data.entity.."^7'") end

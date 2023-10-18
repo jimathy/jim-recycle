@@ -3,10 +3,12 @@ if Config.DumpsterDiving.Enable then if Config.Debug then print("^5Debug^7: ^2Lo
     --Dumpster Third Eye
     exports['qb-target']:AddTargetModel(Config.DumpsterDiving.models,
         { options = {
-            { event = "jim-recycle:Dumpsters:Search",
-            icon = "fas fa-dumpster",
-            label = Loc[Config.Lan].target["search_trash"],
-        }, }, distance = 1.5 })
+            {
+                action = function(entity) TriggerEvent("jim-recycle:Dumpsters:Search", { entity = entity }) end,
+                icon = "fas fa-dumpster",
+                label = Loc[Config.Lan].target["search_trash"],
+            },
+        }, distance = 1.5 })
 
     --Search animations
     local function startSearching(coords) local Ped = PlayerPedId()
