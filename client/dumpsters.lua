@@ -77,6 +77,7 @@ if Config.DumpsterDiving.Enable then if Config.Debug then print("^5Debug^7: ^2Lo
                 lockInv(false)
                 Searching = false
                 triggerNotify(nil, Loc[Config.Lan].error["nothing"], "error")
+                    Searching = false
             end
             Config.DumpsterDiving.searched[#Config.DumpsterDiving.searched+1] = data.entity
             Wait(1000)
