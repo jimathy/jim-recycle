@@ -1,6 +1,29 @@
 if Config.DumpsterDiving.Enable then if Config.Debug then print("^5Debug^7: ^2Loading^7: '^6Dumpster Diving^7'") end
     local Searching = false -- No touch
     --Dumpster Third Eye
+	if Config.DumpsterStash then
+		exports['qb-target']:AddTargetModel(Config.DumpsterDiving.models,
+        { options = {
+            {
+                action = function(entity) TriggerEvent("jim-recycle:Dumpsters:Search", { entity = entity }) end,
+                icon = "fas fa-dumpster",
+                label = Loc[Config.Lan].target["search_trash"],
+            }, 
+			{   icon = 'fas fa-dumpster', label = Loc[Config.Lan].target["dump_stash"], action = function(entity)
+				local DumpsterCoords = GetEntityCoords(entity)
+				if DumpsterCoords.x < 0 then DumpsterX = -DumpsterCoords.x else DumpsterX = DumpsterCoords.x end
+				if DumpsterCoords.y < 0 then DumpsterY = -DumpsterCoords.y else DumpsterY = DumpsterCoords.y end
+				DumpsterX = getCoord(DumpsterX, 1)
+				DumpsterY = getCoord(DumpsterY, 1)
+				TriggerEvent("inventory:client:SetCurrentStash", "Dumpster | "..DumpsterX.." | "..DumpsterY)
+				TriggerServerEvent("inventory:server:OpenInventory", "stash", "Dumpster | "..DumpsterX.." | "..DumpsterY, {
+				    maxweight = 100000,
+				    slots = 10,
+				})
+			    end
+			}
+		}, distance = 1.5 })
+	else
     exports['qb-target']:AddTargetModel(Config.DumpsterDiving.models,
         { options = {
             {
@@ -9,6 +32,7 @@ if Config.DumpsterDiving.Enable then if Config.Debug then print("^5Debug^7: ^2Lo
                 label = Loc[Config.Lan].target["search_trash"],
             },
         }, distance = 1.5 })
+    end
 
     --Search animations
     local function startSearching(coords) local Ped = PlayerPedId()
