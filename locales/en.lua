@@ -1,3 +1,5 @@
+Loc = Loc or {}
+
 Loc["en"] = {
     error = {
         ["cancel"] = "Cancelled",
@@ -9,11 +11,12 @@ Loc["en"] = {
         ["no_bottles"] = "No bottles or cans to trade",
         ["searched"] = "Already Searched.",
         ["nothing"] = "You couldn't find anything.",
+        ["full"] = "Your pockets are full"
     },
     success = {
         ["on_duty"] = "You went on duty",
         ["get_trash"] = "You search the Trash!",
-        ["get_scrap"] = "You search the Scrap!",
+        ["get_scrap"] = "You search for Scrap!",
         ["get_paid"] = "Payment received. Total: $",
     },
     blip = {
@@ -47,4 +50,10 @@ Loc["en"] = {
     progressbar = {
         ["search"] = "Searching",
     },
-} 
+    info = {
+
+        ["sell_all"] = "Sell ALL at $",
+		["sell_each"] = "each",
+        ["sell_txt"] = "Sell Batches for cash",
+    }
+}
