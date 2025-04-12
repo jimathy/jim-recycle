@@ -171,9 +171,9 @@ Config.Other = {
 		},
 		["Trade"] = {
 			{ amount = 1, itemGive = 1, Min = 1, Max = 1, },
-			{ amount = 10, itemGive = 10, Min = 5, Max = 10, },
-			{ amount = 50, itemGive = 50, Min = 40, Max = 50, },
-			{ amount = 100, itemGive = 100, Min = 70, Max = 100, },
+			{ amount = 10, itemGive = 1, Min = 2, Max = 5, },
+			{ amount = 50, itemGive = 6, Min = 5, Max = 14, },
+			{ amount = 100, itemGive = 8, Min = 10, Max = 28, },
 		},
 	}
 }
