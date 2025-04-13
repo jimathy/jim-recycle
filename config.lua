@@ -154,7 +154,8 @@ Config.Other = {
 			can = 1,
 		},
 	},
-	TradeTable = {
+	-- Trading menu
+	TradeTable = {	-- The items you can trade reycle boxes for
 		"copper",
 		"plastic",
 		"metalscrap",
@@ -164,16 +165,16 @@ Config.Other = {
 		"rubber",
 		"aluminum",
 	},
-	RecycleAmounts = {
+	RecycleAmounts = {		-- How much you can get per run to recycle box in
 		["Recycle"] = {
 			Min = 2,
 			Max = 5,
 		},
-		["Trade"] = {
-			{ amount = 1, itemGive = 1, Min = 1, Max = 1, },
-			{ amount = 10, itemGive = 1, Min = 2, Max = 5, },
-			{ amount = 50, itemGive = 6, Min = 5, Max = 14, },
-			{ amount = 100, itemGive = 8, Min = 10, Max = 28, },
-		},
+        ["Trade"] = {		-- How much per item you will recieve
+            { amount = 1, itemGive = 1, Min = 1, Max = 1, },
+            { amount = 10, itemGive = 1, Min = 2, Max = 5, },
+            { amount = 50, itemGive = 6, Min = 5, Max = 14, },
+            { amount = 100, itemGive = 8, Min = 10, Max = 28, },
+        },
 	}
 }

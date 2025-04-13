@@ -38,9 +38,9 @@ FiveM Custom QBCORE recycling script made by me from scratch
 
 ```lua
 -- Jim-Recycle Items
-["recyclablematerial"]  = {["name"] = "recyclablematerial",   ["label"] = "Recycle Box",      ["weight"] = 100, ["type"] = "item", 		["image"] = "recyclablematerial.png",   ["unique"] = false, 	["useable"] = false, 	["shouldClose"] = false, ["combinable"] = nil,   ["description"] = "A box of Recyclable Materials"},
-["bottle"]              = {["name"] = "bottle",               ["label"] = "Empty Bottle",     ["weight"] = 10,  ["type"] = "item", 		["image"] = "bottle.png",               ["unique"] = false, 	["useable"] = false, 	["shouldClose"] = false, ["combinable"] = nil,   ["description"] = "A glass bottle"},
-["can"]                 = {["name"] = "can",                  ["label"] = "Empty Can",        ["weight"] = 10,  ["type"] = "item", 		["image"] = "can.png",                  ["unique"] = false, 	["useable"] = false, 	["shouldClose"] = false, ["combinable"] = nil,   ["description"] = "An empty can, good for recycling"},
+recyclablematerial  = { name = "recyclablematerial",   label = "Recycle Box",      weight = 100, type = "item", 		image = "recyclablematerial.png",   unique = false, 	useable = false, 	shouldClose = false, combinable = nil,   description = "A box of Recyclable Materials"},
+bottle              = { name = "bottle",               label = "Empty Bottle",     weight = 10,  type = "item", 		image = "bottle.png",               unique = false, 	useable = false, 	shouldClose = false, combinable = nil,   description = "A glass bottle"},
+can                 = { name = "can",                  label = "Empty Can",        weight = 10,  type = "item", 		image = "can.png",                  unique = false, 	useable = false, 	shouldClose = false, combinable = nil,   description = "An empty can, good for recycling"},
 ```
 
 
@@ -48,7 +48,7 @@ FiveM Custom QBCORE recycling script made by me from scratch
 - You first NEED jim_bridge: https://github.com/jimathy/jim_bridge
   - Download this and place it in your `[standalone]` folder
 - Unzip `jim-recycle` and place the folder into your resources folder eg. `resources/[jim]`
-- add the following line to your server.cfh **below** `[ox]`
+- add the following line to your server.cfh **below** `[qb]`
 - ensure jim-recycle
 
 ### Item installation
