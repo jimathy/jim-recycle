@@ -1,3 +1,5 @@
+Loc = Loc or {}
+
 Loc["cn"] = {
     error = {
         ["cancel"] = "已取消",
@@ -46,4 +48,4 @@ Loc["cn"] = {
     progressbar = {
         ["search"] = "搜索中",
     },
-} 
+}
