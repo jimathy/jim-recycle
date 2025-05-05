@@ -3,7 +3,7 @@ Scrapping = {}
 if Config.ScrapyardSearching.Enable then
     debugPrint("^5Debug^7: ^2Loading^7: '^6Scrapyard Searching^7'")
     local Searching = false
-	--Dumpster Third Eye
+    --Dumpster Third Eye
     onPlayerLoaded(function()
         createModelTarget(Config.ScrapyardSearching.models, {
             {
@@ -11,7 +11,7 @@ if Config.ScrapyardSearching.Enable then
                     Scrapping.StartSearch(type(data) == "table" and data.entity or data)
                 end,
                 icon = "fas fa-dumpster",
-                label = Loc[Config.Lan].target["search"],
+                label = locale("target", "search"),
             }
         }, 1.5)
     end, true)
@@ -24,7 +24,7 @@ if Config.ScrapyardSearching.Enable then
 
         debugPrint("^5Debug^7: ^2Starting Search of entity^7: '^6"..entity.."^7'")
         if Config.ScrapyardSearching.searched[entity] then
-            triggerNotify(nil, Loc[Config.Lan].error["searched"], "error")
+            triggerNotify(nil, locale("error", "searched"), "error")
             searched = true
             Searching = false
             lockInv(false)
@@ -45,10 +45,10 @@ if Config.ScrapyardSearching.Enable then
             end
 
             if searchSuccess then
-                triggerNotify(nil, Loc[Config.Lan].success["get_scrap"], "success")
+                triggerNotify(nil, locale("success", "get_scrap"), "success")
                 Scrapping.startSearching(GetEntityCoords(entity))
             else
-                triggerNotify(nil, Loc[Config.Lan].error["nothing"], "error")
+                triggerNotify(nil, locale("error", "nothing"), "error")
                 lockInv(false)
             end
             Searching = false
@@ -73,13 +73,11 @@ if Config.ScrapyardSearching.Enable then
         lockInv(true)
 
         if progressBar({
-            label = Loc[Config.Lan].progressbar["search"],
+            label = locale("progressbar", "search"),
             time = Config.ScrapyardSearching.searchTime,
             cancel = true,
         }) then
             TriggerServerEvent("jim-recycle:server:getScrapReward")
-        else
-
         end
         stopAnim("amb@prop_human_bum_bin@base", "base", Ped)
         lockInv(false)

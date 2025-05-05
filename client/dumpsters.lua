@@ -11,7 +11,7 @@ if Config.DumpsterDiving.Enable then
                     Dumpsters.StartSearch(type(data) == "table" and data.entity or data)
                 end,
                 icon = "fas fa-dumpster",
-                label = Loc[Config.Lan].target["search_trash"],
+                label = locale("target", "search_trash"),
             }
         }, 1.5)
     end, true)
@@ -25,7 +25,7 @@ if Config.DumpsterDiving.Enable then
         debugPrint("^5Debug^7: ^2Starting Search of entity^7: '^6"..entity.."^7'")
 
         if Config.DumpsterDiving.searched[entity] then
-            triggerNotify(nil, Loc[Config.Lan].error["searched"], "error")
+            triggerNotify(nil, locale("error", "searched"), "error")
             searched = true
             Searching = false
             lockInv(false)
@@ -47,11 +47,11 @@ if Config.DumpsterDiving.Enable then
             end
 
             if searchSuccess then
-                triggerNotify(nil, Loc[Config.Lan].success["get_trash"], "success")
+                triggerNotify(nil, locale("success", "get_trash"), "success")
                 Dumpsters.searchAnim(GetEntityCoords(entity))
             else
                 lockInv(false)
-                triggerNotify(nil, Loc[Config.Lan].error["nothing"], "error")
+                triggerNotify(nil, locale("error", "nothing"), "error")
             end
             Searching = false
 
@@ -75,7 +75,7 @@ if Config.DumpsterDiving.Enable then
         lockInv(true)
 
         if progressBar({
-            label = Loc[Config.Lan].progressbar["search"],
+            label = locale("progressbar", "search"),
             time = Config.DumpsterDiving.searchTime,
             cancel = true,
         }) then
