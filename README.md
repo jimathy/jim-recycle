@@ -1,5 +1,6 @@
 # jim-recycle
-FiveM Custom QBCORE recycling script made by me from scratch
+
+FiveM Recycle center and Dumpster Diving script
 
 - Highly customisable via config.lua
   - Locations are easily changeable/removable
@@ -11,6 +12,8 @@ FiveM Custom QBCORE recycling script made by me from scratch
 
 - Customisable points for Selling materials
   - Nicely animated for better immersion
+
+- Supports QB-Core, ESX, QBOX, OX_Core
 
 ## Video Previews
 - Wreck/Scrap Searching: https://streamable.com/2oushi
