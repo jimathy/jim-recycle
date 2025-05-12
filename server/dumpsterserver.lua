@@ -8,37 +8,30 @@ if Config.DumpsterDiving.Enable then
         end
     end, true)
 
-
-    function GetRandomItemByRarity(table)
-
-    end
-
     RegisterServerEvent('jim-recycle:server:getDumpsterReward', function()
         local src = source
+        local chosenItem
         local commonRoll = math.random(1, 100)
-        local itemsOfRarity = {}
 
         if commonRoll <= 90 then
-            -- Choose randomly between 'bottle' and 'can'
-            if math.random(1, 2) == 1 then
-                return 'bottle'
-            else
-                return 'can'
-            end
+            -- 90% chance of basic item
+            chosenItem = (math.random(1, 2) == 1) and 'bottle' or 'can'
         else
-            -- For the remaining 10%, use the original rarity system
+            -- 10% chance to use rarity system
             local rarityRoll = math.random(1, 100)
             local rarityLevel
 
             if rarityRoll <= 5 then
-                rarityLevel = 1 -- Super Rare (5% of the remaining 10%)
+                rarityLevel = 1 -- Super Rare
             elseif rarityRoll <= 15 then
-                rarityLevel = 2 -- Rare (10% of the remaining 10%)
+                rarityLevel = 2 -- Rare
             elseif rarityRoll <= 35 then
-                rarityLevel = 3 -- Uncommon (20% of the remaining 10%)
+                rarityLevel = 3 -- Uncommon
             else
-                rarityLevel = 4 -- Common (65% of the remaining 10%)
+                rarityLevel = 4 -- Common
             end
+
+            local itemsOfRarity = {}
 
             for _, item in pairs(Config.DumpsterDiving.DumpItems) do
                 if item.rarity == rarityLevel then
@@ -46,17 +39,14 @@ if Config.DumpsterDiving.Enable then
                 end
             end
 
-            -- If no items found for the rolled rarity, default to a common item
-            if #itemsOfRarity == 0 then
-                if math.random(1, 2) == 1 then
-                    return 'bottle'
-                else
-                    return 'can'
-                end
+            if #itemsOfRarity > 0 then
+                chosenItem = itemsOfRarity[math.random(1, #itemsOfRarity)]
+            else
+                -- fallback if no items for selected rarity
+                chosenItem = (math.random(1, 2) == 1) and 'bottle' or 'can'
             end
         end
 
-        addItem(itemsOfRarity[math.random(1, #itemsOfRarity)], math.random(1, 3), nil, src)
-        Wait(100)
+        addItem(chosenItem, math.random(1, 3), nil, src)
     end)
 end
