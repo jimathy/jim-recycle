@@ -433,27 +433,38 @@ end
 
 Recycling.Trade.selectMenu = function(data)
     if Selling then return end
+    local hasAll, details = hasItem("recyclablematerial", 1)
+    local count = details["recyclablematerial"].count or 0
     local tradeMenu = {}
-    local icon = invImg("recyclablematerial")
 
-    local tempTable = {}
-    for k, v in pairs(Config.Other.RecycleAmounts) do
-        if type(k) == "number" then
-            tempTable[#tempTable+1] = v
-            tempTable[#tempTable].amount = k
-        end
+    if count < 1 then
+        triggerNotify(nil, locale("error", "no_mats"), "error")
+        return
     end
+
     for _, v in pairs(Config.Other.RecycleAmounts["Trade"]) do
-        tradeMenu[#tradeMenu+1] = {
-            isMenuHeader = not hasItem("recyclablematerial", v.amount),
-            icon = icon,
-            header = v.amount.." "..locale("menu", "trade"),
-            onSelect = function()
-                Recycling.Functions.sellAnim({ item = data.item, amount = v.amount, Ped = data.Ped })
-            end
-        }
+        if count >= v.amount then
+            tradeMenu[#tradeMenu+1] = {
+                icon = invImg("recyclablematerial"),
+                header = v.amount.." "..locale("menu", "trade"),
+                onSelect = function()
+                    Recycling.Functions.sellAnim({
+                        item = data.item,
+                        amount = v.amount,
+                        Ped = data.Ped
+                    })
+                end
+            }
+        else
+            tradeMenu[#tradeMenu+1] = {
+                isMenuHeader = true,
+                icon = icon,
+                header = v.amount.." "..locale("menu", "trade").." ❌"
+            }
+        end
         Wait(0)
     end
+
     openMenu(tradeMenu, {
         header = locale("menu", "mats_trade"),
         onBack = function()
