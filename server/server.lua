@@ -8,6 +8,7 @@ onResourceStart(function()
 	if not Items["recyclablematerial"] then
 		print("^5Debug^7: ^2Missing Item from ^5Shared Items^7: '^6recyclablematerial^7'")
 	end
+
 end, true)
 
 RegisterServerEvent("jim-recycle:Server:DoorCharge", function()
@@ -15,19 +16,36 @@ RegisterServerEvent("jim-recycle:Server:DoorCharge", function()
 	chargePlayer(Config.RecyclingCenter.PayAtDoor, "cash", src)
 end)
 
+
 RegisterServerEvent("jim-recycle:Server:TradeItems", function(data)
     local src = source
-	local table = {}
-	for i = 1, #Config.Other.RecycleAmounts["Trade"] do
-		if Config.Other.RecycleAmounts["Trade"][i].amount == data.amount then
-			table = Config.Other.RecycleAmounts["Trade"][i]
-			break
-		end
-	end
-	removeItem("recyclablematerial", data.amount, src)
-	Wait(1000)
-	for i = 1, table.itemGive do
-		addItem(data.item, math.random(table.Min, table.Max), nil, src)
-		Wait(100)
-	end
+
+    local tradeInfo
+    for _, v in pairs(Config.Other.RecycleAmounts["Trade"]) do
+        if v.amount == data.amount then
+            tradeInfo = v
+            break
+        end
+    end
+
+    if not tradeInfo then
+        print("TradeInfo not found for amount: "..tostring(data.amount))
+        return
+    end
+
+    local hasAll, _ = hasItem("recyclablematerial", data.amount, src)
+
+    if hasAll then
+        removeItem("recyclablematerial", data.amount, src)
+
+        Wait(500)
+
+        for i = 1, tradeInfo.itemGive do
+            local count = math.random(tradeInfo.Min, tradeInfo.Max)
+            addItem(data.item, count, nil, src)
+            Wait(100)
+        end
+    else
+        triggerNotify(nil, "Not Enough Items", "error", src)
+    end
 end)
