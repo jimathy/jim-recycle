@@ -503,7 +503,9 @@ Recycling.Functions.sellAnim = function(data)
 
     Wait(1000)
     AttachEntityToEntity(bag, Ped, GetPedBoneIndex(Ped, 57005), 0.1, -0.0, 0.0, -90.0, 0.0, 0.0, true, true, false, true, 1, true)
-    TriggerServerEvent("jim-recycle:Server:TradeItems", { item = data.item, amount = data.amount })
+    currentToken = triggerCallback(AuthEvent)
+    TriggerServerEvent("jim-recycle:Server:TradeItems", { item = data.item, amount = data.amount }, currentToken)
+    currentToken = nil
     Wait(1000)
     stopAnim("mp_common", "givetake2_a")
     stopAnim("mp_common", "givetake2_b", data.Ped)

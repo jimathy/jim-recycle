@@ -17,9 +17,13 @@ RegisterServerEvent("jim-recycle:Server:DoorCharge", function()
 end)
 
 
-RegisterServerEvent("jim-recycle:Server:TradeItems", function(data)
+RegisterServerEvent("jim-recycle:Server:TradeItems", function(data, token)
     local src = source
-
+    if src then
+        if not checkToken(src, token, "stash", getPlayer(src).name) then
+            return
+        end
+    end
     local tradeInfo
     for _, v in pairs(Config.Other.RecycleAmounts["Trade"]) do
         if v.amount == data.amount then
