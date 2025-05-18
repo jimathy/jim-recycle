@@ -311,7 +311,14 @@ Recycling.PickUpPackage.PickRandomEntity = function(Trolly)
         } }, 2.5 )
 end
 
+local Picking = false
 Recycling.PickUpPackage.startPickup = function(data)
+    if Picking then
+        triggerNotify(nil, "No", "error")
+        return
+    else
+        Picking = true
+    end
     local Ped = PlayerPedId()
     TaskStartScenarioInPlace(Ped, "CODE_HUMAN_MEDIC_KNEEL", 0, true)
     if progressBar({
@@ -323,6 +330,7 @@ Recycling.PickUpPackage.startPickup = function(data)
         ClearPedTasksImmediately(Ped)
         Recycling.PickUpPackage.holdItem(data)
     end
+    Picking = false
 end
 
 -- Pick up prop and remove target from current location
@@ -361,7 +369,14 @@ Recycling.PickUpPackage.holdItem = function(data)
     } }, 2.5)
 end
 
+local CollectingReward = false
 Recycling.PickUpPackage.collectReward = function(data)
+    if CollectingReward then
+        triggerNotify(nil, "No", "error")
+        return
+    else
+        CollectingReward = true
+    end
     local Ped = PlayerPedId()
     lookEnt(TrollyProp)
     playAnim("mp_car_bomb", "car_bomb_mechanic", -1, 1, Ped)
@@ -388,6 +403,7 @@ Recycling.PickUpPackage.collectReward = function(data)
         addItem("recyclablematerial", math.random(Config.Other.RecycleAmounts["Recycle"].Min, Config.Other.RecycleAmounts["Recycle"].Max))
         Recycling.PickUpPackage.PickRandomEntity(data.Trolly)
     end
+    CollectingReward = false
 end
 
 Recycling.Functions.dutyToggle = function(data)
