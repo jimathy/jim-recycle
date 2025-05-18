@@ -43,10 +43,13 @@ RegisterServerEvent("jim-recycle:Server:TradeItems", function(data, token)
         removeItem("recyclablematerial", data.amount, src)
 
         Wait(500)
-
         for i = 1, tradeInfo.itemGive do
             local count = math.random(tradeInfo.Min, tradeInfo.Max)
-            addItem(data.item, count, nil, src)
+            if Config.RecyclingCenter.TradeForRandomItems then
+                addItem(Config.Other.TradeTable[math.random(1, #Config.Other.TradeTable)], count, nil, src)
+            else
+                addItem(data.item, count, nil, src)
+            end
             Wait(100)
         end
     else

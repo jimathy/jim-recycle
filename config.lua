@@ -71,6 +71,8 @@ Config.RecyclingCenter = {
 
 	PayAtDoor = 100, -- Set to nil to disable charge for entering warehouse
 
+	TradeForRandomItems = false,	-- Set to true to make players recieve randomly picked materials when trading recyclablematerials
+
 	propTable = { -- Table of crates that will spawn
 		"ex_Prop_Crate_Bull_SC_02",
 		"ex_prop_crate_wlife_bc",

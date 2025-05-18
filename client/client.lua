@@ -413,20 +413,48 @@ end
 local Selling = false
 --Recyclable Trader
 Recycling.Trade.Menu = function(data)
-    if not hasItem("recyclablematerial", 1) then
+    if Selling then return end
+    local hasAll, details = hasItem("recyclablematerial", 1)
+    local tradeMenu = {}
+
+    local count = details["recyclablematerial"].count or 0
+    if count < 1 then
         triggerNotify(nil, locale("error", "no_mats"), "error")
         return
     end
-    if Selling then return end
-    local tradeMenu = {}
-    for _, v in pairs(Config.Other.TradeTable) do
-        tradeMenu[#tradeMenu+1] = {
-            icon = invImg(v),
-            header = Items[v] and Items[v].label or v .. "❌",
-            onSelect = function()
-                Recycling.Trade.selectMenu({ item = v, Ped = data.Ped })
-            end,
-        }
+
+    if Config.RecyclingCenter.TradeForRandomItems then
+        for _, v in pairs(Config.Other.RecycleAmounts["Trade"]) do
+            if count >= v.amount then
+                tradeMenu[#tradeMenu+1] = {
+                    icon = invImg("recyclablematerial"),
+                    header = v.amount.." "..locale("menu", "trade"),
+                    onSelect = function()
+                        Recycling.Functions.sellAnim({
+                            item = data.item,
+                            amount = v.amount,
+                            Ped = data.Ped
+                        })
+                    end
+                }
+            else
+                tradeMenu[#tradeMenu+1] = {
+                    isMenuHeader = true,
+                    icon = invImg("recyclablematerial"),
+                    header = v.amount.." "..locale("menu", "trade").." ❌"
+                }
+            end
+        end
+    else
+        for _, v in pairs(Config.Other.TradeTable) do
+            tradeMenu[#tradeMenu+1] = {
+                icon = invImg(v),
+                header = Items[v] and Items[v].label or v .. "❌",
+                onSelect = function()
+                    Recycling.Trade.selectMenu({ item = v, Ped = data.Ped })
+                end,
+            }
+        end
     end
     openMenu(tradeMenu,{ header = locale("menu", "mats_trade"), canClose = true, })
 end
@@ -458,7 +486,7 @@ Recycling.Trade.selectMenu = function(data)
         else
             tradeMenu[#tradeMenu+1] = {
                 isMenuHeader = true,
-                icon = icon,
+                icon = invImg("recyclablematerial"),
                 header = v.amount.." "..locale("menu", "trade").." ❌"
             }
         end
