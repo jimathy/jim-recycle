@@ -1,1 +1,9 @@
 3.0.03
+
+- Refactor trade menu code
+- Add extra item checks for server trade item event
+- Add explot protection to trade items event
+- Add old random trade items with a config toggle
+- Add limiters to stop targetting "trolly" prop while using it
+
+https://github.com/jimathy/jim-recycle
