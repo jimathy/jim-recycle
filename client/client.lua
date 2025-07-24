@@ -1,5 +1,8 @@
 onDuty, Peds, Targets, searchProps, Props, randPackage = false, {}, {}, {}, {}, nil
 local TrollyProp = nil
+local CollectingReward = false
+local Picking = false
+local targetBlip = nil
 
 Recycling = {
     Functions = {},
@@ -25,7 +28,7 @@ onPlayerLoaded(function()
                     Recycling.Functions.CleanUpProps()
                     debugPrint("^5Debug^7: ^3PolyZone^7: ^2Leaving Area^7. ^2Clocking out and cleaning up^7")
                     if loc.Job then
-                        if onDuty then TriggerServerEvent("QBCore:ToggleDuty") end
+                        if onDuty then toggleDuty() end
                     elseif onDuty == true then
                         onDuty = false
                     end
@@ -198,10 +201,12 @@ Recycling.Functions.createProps = function(location)
         }, 1, 0)
     end
     for i = 1, #loc.ExtraPropLocations do
+        if math.random(1, 2) == 1 then goto skip end
         Props[#Props+1] = makeProp({
             prop = Config.RecyclingCenter.propTable[math.random(1, #Config.RecyclingCenter.propTable)],
             coords = loc.ExtraPropLocations[i] - vec4(0, 0, 1.03, 0)
         }, 1, 0)
+        ::skip::
     end
     for k in pairs(Config.RecyclingCenter.scrapPool) do
         loadModel(Config.RecyclingCenter.scrapPool[k].model)
@@ -249,6 +254,10 @@ Recycling.Functions.CleanUpProps = function()
     end
     unloadModel(GetEntityModel(TrollyProp))
     DeleteObject(TrollyProp)
+    if targetBlip ~= nil and DoesBlipExist(targetBlip) then
+        RemoveBlip(targetBlip)
+        targetBlip = nil
+    end
 end
 
 
@@ -301,6 +310,7 @@ Recycling.PickUpPackage.PickRandomEntity = function(Trolly)
     SetEntityDrawOutlineColor(0, 255, 0, 1.0)
     SetEntityDrawOutlineShader(1)
     --Generate Target Location on the selected package
+
     Targets["Package"] =
         createEntityTarget(randPackage, { {
             action = function()
@@ -308,10 +318,20 @@ Recycling.PickUpPackage.PickRandomEntity = function(Trolly)
             end,
             icon = 'fas fa-magnifying-glass',
             label = locale("target", "search"),
+            canInteract = function()
+                return not Picking
+            end,
         } }, 2.5 )
+
+    targetBlip = makeBlip({
+        name = locale("target", "search"),
+        coords = GetEntityCoords(randPackage),
+        sprite = 12,
+        col = 2,
+        scale = 0.6,
+    })
 end
 
-local Picking = false
 Recycling.PickUpPackage.startPickup = function(data)
     if Picking then
         triggerNotify(nil, "No", "error")
@@ -342,6 +362,9 @@ Recycling.PickUpPackage.holdItem = function(data)
     SetEntityDrawOutline(randPackage, false)
     randPackage = nil
 
+    RemoveBlip(targetBlip)
+    targetBlip = nil
+
     --Make prop to put in hands
     playAnim("anim@heists@box_carry@", "idle", -1, 50, Ped)
 
@@ -366,10 +389,20 @@ Recycling.PickUpPackage.holdItem = function(data)
         end,
         icon = 'fas fa-recycle',
         label = locale("target", "drop_off"),
+        canInteract = function()
+            return not CollectingReward
+        end
     } }, 2.5)
+
+    targetBlip = makeBlip({
+        name = locale("target", "drop_off"),
+        coords = GetEntityCoords(TrollyProp),
+        sprite = 12,
+        col = 1,
+        scale = 0.6,
+    })
 end
 
-local CollectingReward = false
 Recycling.PickUpPackage.collectReward = function(data)
     if CollectingReward then
         triggerNotify(nil, "No", "error")
@@ -397,6 +430,9 @@ Recycling.PickUpPackage.collectReward = function(data)
         --Empty hands
         destroyProp(scrapProp)
         scrapProp = nil
+
+        RemoveBlip(targetBlip)
+        targetBlip = nil
 
         stopAnim("mp_car_bomb", "car_bomb_mechanic", Ped)
         currentToken = triggerCallback(AuthEvent)
