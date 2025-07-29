@@ -20,6 +20,8 @@ onPlayerLoaded(function()
                 name = "Recycling:"..location,
                 debug = debugMode,
                 points = loc.Zone,
+                minZ = loc.zoneMinZ or nil,
+                maxZ = loc.zoneMaxZ or nil,
                 onEnter = function()
                     Recycling.Functions.createProps(location)
                 end,
@@ -195,6 +197,7 @@ Recycling.Functions.createProps = function(location)
     local loc = Config.Locations["Centres"][location]
     debugPrint("^5Debug^7: ^3createProps^7() ^2Spawning props for '"..location.."'")
     for i = 1, #loc.SearchLocations do
+
         searchProps[#searchProps+1] = makeProp({
             prop = Config.RecyclingCenter.propTable[math.random(1, #Config.RecyclingCenter.propTable)],
             coords = loc.SearchLocations[i] - vec4(0, 0, 1.03, 0)
