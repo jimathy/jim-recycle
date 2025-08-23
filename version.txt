@@ -1,9 +1,8 @@
-3.0.03
+3.0.04
 
-- Refactor trade menu code
-- Add extra item checks for server trade item event
-- Add explot protection to trade items event
-- Add old random trade items with a config toggle
-- Add limiters to stop targetting "trolly" prop while using it
+- Update Readme.md to direct to gitbook.io
+- Add mini blip system for recycle locations
+- Fix zone location creation after jim_bridge zone code update
+- Update de.lua
 
 https://github.com/jimathy/jim-recycle
