@@ -12,6 +12,8 @@ Config = {
 		skillCheck = "gta",		-- "qb", "ox", "gta"
 
 		DontUseTarget = false,
+
+		useSkillCheck = true,
 	},
 	Crafting = {
 		showItemBox = true,

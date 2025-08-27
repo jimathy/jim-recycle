@@ -36,7 +36,7 @@ if Config.DumpsterDiving.Enable then
             lookEnt(entity)
             playAnim("anim@amb@machinery@speed_drill@", "look_around_left_02_amy_skater_01", 35000, 1, Ped)
 
-            if Config.System.skillCheck then
+            if Config.System.useSkillCheck then
                 searchSuccess = skillCheck()
             else
                 searchSuccess = true
