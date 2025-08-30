@@ -15,6 +15,10 @@ Config = {
 
 		useSkillCheck = true,
 	},
+	Main = {
+		useLineHighlight = true,		-- Renders outlines for recycle targets, set this to false if you have users crashing due to QuantV
+		useblipTarget = true,			-- Shows small blips for recycle targets, set this to false to disable these
+	},
 	Crafting = {
 		showItemBox = true,
 	},

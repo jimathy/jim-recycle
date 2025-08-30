@@ -227,8 +227,10 @@ Recycling.Functions.EndJob = function()
         destroyProp(TrollyProp)
         TrollyProp = nil
     end
-    for i = 1, #searchProps do
-        SetEntityDrawOutline(searchProps[i], false)
+    if Config.Main.useLineHighlight then
+        for i = 1, #searchProps do
+            SetEntityDrawOutline(searchProps[i], false)
+        end
     end
     randPackage = nil
     if scrapProp then
@@ -257,7 +259,7 @@ Recycling.Functions.CleanUpProps = function()
     end
     unloadModel(GetEntityModel(TrollyProp))
     DeleteObject(TrollyProp)
-    if targetBlip ~= nil and DoesBlipExist(targetBlip) then
+    if Config.Main.useblipTarget and targetBlip ~= nil and DoesBlipExist(targetBlip) then
         RemoveBlip(targetBlip)
         targetBlip = nil
     end
@@ -309,9 +311,12 @@ Recycling.PickUpPackage.PickRandomEntity = function(Trolly)
     end
     --Pick random prop to use
     randPackage = searchProps[math.random(1, #searchProps)]
-    SetEntityDrawOutline(randPackage, true)
-    SetEntityDrawOutlineColor(0, 255, 0, 1.0)
-    SetEntityDrawOutlineShader(1)
+
+    if Config.Main.useLineHighlight then
+        SetEntityDrawOutline(randPackage, true)
+        SetEntityDrawOutlineColor(0, 255, 0, 1.0)
+        SetEntityDrawOutlineShader(1)
+    end
     --Generate Target Location on the selected package
 
     Targets["Package"] =
@@ -325,14 +330,15 @@ Recycling.PickUpPackage.PickRandomEntity = function(Trolly)
                 return not Picking
             end,
         } }, 2.5 )
-
-    targetBlip = makeBlip({
-        name = locale("target", "search"),
-        coords = GetEntityCoords(randPackage),
-        sprite = 12,
-        col = 2,
-        scale = 0.6,
-    })
+    if Config.Main.useblipTarget then
+        targetBlip = makeBlip({
+            name = locale("target", "search"),
+            coords = GetEntityCoords(randPackage),
+            sprite = 12,
+            col = 2,
+            scale = 0.6,
+        })
+    end
 end
 
 Recycling.PickUpPackage.startPickup = function(data)
@@ -365,8 +371,10 @@ Recycling.PickUpPackage.holdItem = function(data)
     SetEntityDrawOutline(randPackage, false)
     randPackage = nil
 
-    RemoveBlip(targetBlip)
-    targetBlip = nil
+    if Config.Main.useblipTarget then
+        RemoveBlip(targetBlip)
+        targetBlip = nil
+    end
 
     --Make prop to put in hands
     playAnim("anim@heists@box_carry@", "idle", -1, 50, Ped)
@@ -382,9 +390,12 @@ Recycling.PickUpPackage.holdItem = function(data)
 
     debugPrint("^5Debug^7: ^2Adding target and outline to ^3TrollyProp^7: ", TrollyProp)
     --Create target for drop off location
-    SetEntityDrawOutline(TrollyProp, true)
-    SetEntityDrawOutlineColor(150, 1, 1, 1.0)
-    SetEntityDrawOutlineShader(1)
+
+    if Config.Main.useLineHighlight then
+        SetEntityDrawOutline(TrollyProp, true)
+        SetEntityDrawOutlineColor(150, 1, 1, 1.0)
+        SetEntityDrawOutlineShader(1)
+    end
 
     createEntityTarget(TrollyProp, { {
         action = function()
@@ -396,14 +407,15 @@ Recycling.PickUpPackage.holdItem = function(data)
             return not CollectingReward
         end
     } }, 2.5)
-
-    targetBlip = makeBlip({
-        name = locale("target", "drop_off"),
-        coords = GetEntityCoords(TrollyProp),
-        sprite = 12,
-        col = 1,
-        scale = 0.6,
-    })
+    if Config.Main.useblipTarget then
+        targetBlip = makeBlip({
+            name = locale("target", "drop_off"),
+            coords = GetEntityCoords(TrollyProp),
+            sprite = 12,
+            col = 1,
+            scale = 0.6,
+        })
+    end
 end
 
 Recycling.PickUpPackage.collectReward = function(data)
@@ -426,7 +438,9 @@ Recycling.PickUpPackage.collectReward = function(data)
         debugPrint("^5Debug^7: ^2Clearing target and outline from ^3TrollyProp^7, ", TrollyProp)
         removeEntityTarget(TrollyProp)
         destroyProp(TrollyProp)
-        SetEntityDrawOutline(TrollyProp, false)
+        if Config.Main.useLineHighlight then
+            SetEntityDrawOutline(TrollyProp, false)
+        end
         TrollyProp = nil
         TrollyProp = makeProp(data.Trolly, 1, 0)
 
@@ -434,8 +448,10 @@ Recycling.PickUpPackage.collectReward = function(data)
         destroyProp(scrapProp)
         scrapProp = nil
 
-        RemoveBlip(targetBlip)
-        targetBlip = nil
+        if Config.Main.useblipTarget then
+            RemoveBlip(targetBlip)
+            targetBlip = nil
+        end
 
         stopAnim("mp_car_bomb", "car_bomb_mechanic", Ped)
         currentToken = triggerCallback(AuthEvent)
