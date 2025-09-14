@@ -419,13 +419,13 @@ Recycling.PickUpPackage.holdItem = function(data)
 end
 
 Recycling.PickUpPackage.collectReward = function(data)
-    if CollectingReward then
+    local Ped = PlayerPedId()
+    if CollectingReward or not TrollyProp or (#(GetEntityCoords(TrollyProp) - GetEntityCoords(Ped)) > 10.0) then
         triggerNotify(nil, "No", "error")
         return
     else
         CollectingReward = true
     end
-    local Ped = PlayerPedId()
     lookEnt(TrollyProp)
     playAnim("mp_car_bomb", "car_bomb_mechanic", -1, 1, Ped)
 
