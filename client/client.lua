@@ -147,7 +147,11 @@ onPlayerLoaded(function()
                 }, {
                 {
                     action = function(data)
-                        sellMenu({ sellTable = Config.Other.Prices, ped = type(data) == "table" and data.entity or data })
+                        sellMenu({
+                            name = nameSell,
+                            ped = type(data) == "table" and data.entity or data,
+                            sellTable = Config.Other.Prices,
+                        })
                         lookEnt(loc.coords)
                     end,
                     icon = "fas fa-certificate",
@@ -180,6 +184,7 @@ onPlayerLoaded(function()
                 {
                     action = function(data)
                         sellMenu({
+                            name = nameBank,
                             sellTable = Config.Other.BottleBankTable,
                             ped = type(data) == "table" and data.entity or data
                         })

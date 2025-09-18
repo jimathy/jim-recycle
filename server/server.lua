@@ -9,6 +9,19 @@ onResourceStart(function()
 		print("^5Debug^7: ^2Missing Item from ^5Shared Items^7: '^6recyclablematerial^7'")
 	end
 
+    -- Register Sell Shops
+    for i = 1, #Config.Locations["BottleBanks"] do
+        local loc = Config.Locations["BottleBanks"][i]
+        local nameBank = "BottleBank:"..i
+        registerSellShop(nameBank, loc.coords)
+    end
+
+    for i = 1, #Config.Locations["Recycle"] do
+        local loc = Config.Locations["Recycle"][i]
+        local nameSell = "Recycle:"..i
+        registerSellShop(nameSell, loc.coords)
+    end
+
 end, true)
 
 RegisterServerEvent("jim-recycle:Server:DoorCharge", function()
