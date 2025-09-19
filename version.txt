@@ -1,8 +1,8 @@
-3.0.04
+3.0.06
 
-- Update Readme.md to direct to gitbook.io
-- Add mini blip system for recycle locations
-- Fix zone location creation after jim_bridge zone code update
-- Update de.lua
+- Add config variable to disable skillChecks
+- Add toggles for outlines and blips when recycling
+- Add distance check for trollyprop
+- SellMenu fix for jim_bridge update
 
-https://github.com/jimathy/jim-recycle
+https://github.com/jimathy/jim-recycle/releases/latest
