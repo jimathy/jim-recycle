@@ -425,6 +425,7 @@ end
 
 Recycling.PickUpPackage.collectReward = function(data)
     local Ped = PlayerPedId()
+
     if CollectingReward or not TrollyProp or (#(GetEntityCoords(TrollyProp) - GetEntityCoords(Ped)) > 10.0) then
         triggerNotify(nil, "No", "error")
         return
@@ -459,6 +460,8 @@ Recycling.PickUpPackage.collectReward = function(data)
         end
 
         stopAnim("mp_car_bomb", "car_bomb_mechanic", Ped)
+        stopAnim("anim@heists@box_carry@", "idle", Ped)
+
         currentToken = triggerCallback(AuthEvent)
         addItem("recyclablematerial", math.random(Config.Other.RecycleAmounts["Recycle"].Min, Config.Other.RecycleAmounts["Recycle"].Max))
         Recycling.PickUpPackage.PickRandomEntity(data.Trolly)
