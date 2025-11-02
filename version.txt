@@ -1,8 +1,9 @@
-3.0.06
+3.1.0
 
-- Add config variable to disable skillChecks
-- Add toggles for outlines and blips when recycling
-- Add distance check for trollyprop
-- SellMenu fix for jim_bridge update
+- Fix jim_bridge auto adjust message that was annoying people
+- Remove client sided item events
+- Include qb images for qbox items (get items on gitbook)
+- Update locale function
+- Force animation stop on reward collection
 
 https://github.com/jimathy/jim-recycle/releases/latest

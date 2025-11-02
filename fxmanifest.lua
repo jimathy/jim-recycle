@@ -1,6 +1,6 @@
 name "Jim-Recycle"
 author "Jimathy"
-version "3.0.06"
+version "3.1.0"
 description "Recycling Script"
 fx_version "cerulean"
 game "gta5"
