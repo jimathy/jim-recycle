@@ -107,8 +107,6 @@ onPlayerLoaded(function()
                             { 	name = nameTrade,
                                 heading = jobLoc.Trade[i].coords.w,
                                 debugPoly = debugMode,
-                                minZ = jobLoc.Trade[i].coords.z-0.5,
-                                maxZ = jobLoc.Trade[i].coords.z+1,
                             }, }, {
                             {
                                 action = function(data)
