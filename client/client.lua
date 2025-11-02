@@ -425,6 +425,7 @@ end
 
 Recycling.PickUpPackage.collectReward = function(data)
     local Ped = PlayerPedId()
+    local progressTime = 3000
 
     if CollectingReward or not TrollyProp or (#(GetEntityCoords(TrollyProp) - GetEntityCoords(Ped)) > 10.0) then
         triggerNotify(nil, "No", "error")
@@ -432,39 +433,46 @@ Recycling.PickUpPackage.collectReward = function(data)
     else
         CollectingReward = true
     end
+
     lookEnt(TrollyProp)
     playAnim("mp_car_bomb", "car_bomb_mechanic", -1, 1, Ped)
 
-    if progressBar({
-        label = locale("progressbar", "search"),
-        time = 3000,
-        cancel = true,
-    }) then
-        --Once this is triggered it can't be stopped, so remove the target and prop
-        debugPrint("^5Debug^7: ^2Clearing target and outline from ^3TrollyProp^7, ", TrollyProp)
-        removeEntityTarget(TrollyProp)
-        destroyProp(TrollyProp)
-        if Config.Main.useLineHighlight then
-            SetEntityDrawOutline(TrollyProp, false)
+    if triggerCallback(getScript()..":auth:requestReward", progressTime) then
+
+        if progressBar({
+            label = locale("progressbar", "search"),
+            time = progressTime,
+            cancel = true,
+        }) then
+            if triggerCallback(getScript()..":auth:collectReward") then end
+
+            --Once this is triggered it can't be stopped, so remove the target and prop
+            debugPrint("^5Debug^7: ^2Clearing target and outline from ^3TrollyProp^7, ", TrollyProp)
+            removeEntityTarget(TrollyProp)
+            destroyProp(TrollyProp)
+            if Config.Main.useLineHighlight then
+                SetEntityDrawOutline(TrollyProp, false)
+            end
+            TrollyProp = nil
+            TrollyProp = makeProp(data.Trolly, 1, 0)
+
+            --Empty hands
+            destroyProp(scrapProp)
+            scrapProp = nil
+
+            if Config.Main.useblipTarget then
+                RemoveBlip(targetBlip)
+                targetBlip = nil
+            end
+
+            stopAnim("mp_car_bomb", "car_bomb_mechanic", Ped)
+            stopAnim("anim@heists@box_carry@", "idle", Ped)
+
+
+            Recycling.PickUpPackage.PickRandomEntity(data.Trolly)
         end
-        TrollyProp = nil
-        TrollyProp = makeProp(data.Trolly, 1, 0)
-
-        --Empty hands
-        destroyProp(scrapProp)
-        scrapProp = nil
-
-        if Config.Main.useblipTarget then
-            RemoveBlip(targetBlip)
-            targetBlip = nil
-        end
-
-        stopAnim("mp_car_bomb", "car_bomb_mechanic", Ped)
-        stopAnim("anim@heists@box_carry@", "idle", Ped)
-
-        currentToken = triggerCallback(AuthEvent)
-        addItem("recyclablematerial", math.random(Config.Other.RecycleAmounts["Recycle"].Min, Config.Other.RecycleAmounts["Recycle"].Max))
-        Recycling.PickUpPackage.PickRandomEntity(data.Trolly)
+    else
+        print("^1Error^7: ^1Server reported user already collecting^7")
     end
     CollectingReward = false
 end

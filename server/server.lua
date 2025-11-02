@@ -22,6 +22,41 @@ onResourceStart(function()
         registerSellShop(nameSell, loc.coords)
     end
 
+    local authCheck = {}
+    createCallback(getScript()..":auth:requestReward", function(source, time)
+        local src = source
+        if authCheck[src] then
+            print("^1Error^7: ^1User tried to collect but was already collecting")
+            return false
+        else
+            authCheck[src] = {
+                time = GetGameTimer() + (debugMode and 1000 or time),
+            }
+            debugPrint("^5Debug^7: ^2Registering recycle collection for source^7: "..src)
+            return true
+        end
+    end)
+
+    createCallback(getScript()..":auth:collectReward", function(source)
+        local src = source
+        if not authCheck[src] then
+            print("^1Error^7: ^1User tried to collect but was already collecting")
+            return false
+        else
+            if authCheck[src].time < GetGameTimer() then
+                debugPrint("^5Debug^7: ^2Completing recycle collection for source^7: "..src)
+                debugPrint("^5Debug^7: ^2Time match^7 - ^2Saved^7: "..authCheck[src].time.." | ^2Current^7: "..GetGameTimer())
+                authCheck[src] = nil
+                addItem("recyclablematerial", math.random(Config.Other.RecycleAmounts["Recycle"].Min, Config.Other.RecycleAmounts["Recycle"].Max), nil, src)
+                return true
+            else
+                print("^1Error^7: ^1Time mismatch^7 - ^1Saved^7: "..authCheck[src].time.." | ^1Current^7: "..GetGameTimer())
+                authCheck[src] = nil
+                return false
+            end
+        end
+    end)
+
 end, true)
 
 RegisterServerEvent("jim-recycle:Server:DoorCharge", function()
