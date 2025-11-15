@@ -61,26 +61,32 @@ if Config.ScrapyardSearching.Enable then
 
     --Search animations
     Scrapping.startSearching = function(coords)
-        local Ped = PlayerPedId()
+        if triggerCallback(getScript()..":auth:scrapRequestReward", Config.ScrapyardSearching.searchTime) then
+            local Ped = PlayerPedId()
+            
 
-        --Calculate if you're facing the scrap--
-        if #(coords - GetEntityCoords(Ped)) > 1.5 then
-            TaskGoStraightToCoord(Ped, coords, 0.4, 200, 0.0, 0)
-            Wait(300)
-        end
-        lookEnt(coords)
-        playAnim("amb@prop_human_bum_bin@base", "base", Config.ScrapyardSearching.searchTime, 17, Ped)
-        lockInv(true)
+            --Calculate if you're facing the scrap--
+            if #(coords - GetEntityCoords(Ped)) > 1.5 then
+                TaskGoStraightToCoord(Ped, coords, 0.4, 200, 0.0, 0)
+                Wait(300)
+            end
+            lookEnt(coords)
+            playAnim("amb@prop_human_bum_bin@base", "base", Config.ScrapyardSearching.searchTime, 17, Ped)
+            lockInv(true)
 
-        if progressBar({
-            label = locale("progressbar", "search"),
-            time = Config.ScrapyardSearching.searchTime,
-            cancel = true,
-        }) then
-            TriggerServerEvent("jim-recycle:server:getScrapReward")
+            if progressBar({
+                label = locale("progressbar", "search"),
+                time = Config.ScrapyardSearching.searchTime,
+                cancel = true,
+            }) then
+                TriggerServerEvent("jim-recycle:server:getScrapReward")
+            end
+            stopAnim("amb@prop_human_bum_bin@base", "base", Ped)
+            lockInv(false)
+        else
+            print("^1Error^7: ^1Server reported user already collecting^7")
         end
-        stopAnim("amb@prop_human_bum_bin@base", "base", Ped)
-        lockInv(false)
+
         Searching = false
     end
 end
