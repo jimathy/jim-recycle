@@ -40,7 +40,7 @@ onResourceStart(function()
     createCallback(getScript()..":auth:collectReward", function(source)
         local src = source
         if not authCheck[src] then
-            print("^1Error^7: ^1User tried to collect but was already collecting")
+            print("^1Error^7: ^1User tried to collect without requesting first")
             return false
         else
             if authCheck[src].time < GetGameTimer() then
